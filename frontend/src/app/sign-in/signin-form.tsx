@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import Link from "next/link";
 
-export default function LoginForm() {
+export default function SigninForm() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
@@ -61,7 +61,7 @@ export default function LoginForm() {
       </div>
       <div className="mt-6 text-center text-sm text-gray-400">
         Don&apos;t have an account?{" "}
-        <Link href="/signup" className="text-white hover:underline">
+        <Link href="/sign-up" className="text-white hover:underline">
           Sign up
         </Link>
       </div>
