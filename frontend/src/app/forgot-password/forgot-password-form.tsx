@@ -16,9 +16,9 @@ export default function ForgotPasswordForm() {
 
     return (
         <div className="w-full max-w-md bg-gray-800 rounded-lg shadow-md p-8">
-            <h1 className="text-3xl font-bold text-white text-center mb-6">Forgot Password</h1>
+            <h1 className="text-3xl font-bold text-white text-center mb-6">Mot de passe oublié</h1>
             <p className="text-gray-300 text-center mb-6">
-                Enter your email address and we&#39;ll send you a link to reset your password.
+                Entrez votre adresse e-mail pour recevoir un lien de réinitialisation de mot de passe
             </p>
             <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
@@ -32,13 +32,13 @@ export default function ForgotPasswordForm() {
                     />
                 </div>
                 <Button type="submit" className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded">
-                    Send Reset Link
+                    Réinitialiser le mot de passe
                 </Button>
             </form>
             <div className="mt-6 text-center text-sm text-gray-400">
-                Remember your password?{' '}
+                Vous vous souvenez de votre mot de passe?{' '}
                 <Link href="/sign-in" className="text-white hover:underline">
-                    Back to Login
+                    Se connecter
                 </Link>
             </div>
         </div>
