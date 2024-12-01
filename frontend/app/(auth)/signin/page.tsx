@@ -39,7 +39,7 @@ export default function SignIn() {
                     className="block text-sm font-medium text-indigo-200/65"
                     htmlFor="password"
                   >
-                    Mot de passe
+                    Password
                   </label>
                 </div>
                 <input
@@ -54,7 +54,7 @@ export default function SignIn() {
                     className="text-sm text-gray-600 hover:underline hover:text-blue-500"
                     href="/reset-password"
                   >
-                    Mot de passe oublié ?
+                    Forgot password?
                   </Link>
               </div>
             </div>
@@ -66,15 +66,15 @@ export default function SignIn() {
                 or
               </div>
               <button className="btn relative w-full bg-gradient-to-b from-gray-800 to-gray-800/60 bg-[length:100%_100%] bg-[bottom] text-gray-300 before:pointer-events-none before:absolute before:inset-0 before:rounded-[inherit] before:border before:border-transparent before:[background:linear-gradient(to_right,theme(colors.gray.800),theme(colors.gray.700),theme(colors.gray.800))_border-box] before:[mask-composite:exclude_!important] before:[mask:linear-gradient(white_0_0)_padding-box,_linear-gradient(white_0_0)] hover:bg-[length:100%_150%]">
-                Se connecter avec Google
+                Sign in with Google
               </button>
             </div>
           </form>
           {/* Bottom link */}
           <div className="mt-6 text-center text-sm text-indigo-200/65">
-              Vous n'avez pas de compte ?{" "}
+              Don't have an account?{" "}
             <Link className="font-medium text-indigo-500" href="/signup">
-              S'inscrire
+              Sign up
             </Link>
           </div>
         </div>
