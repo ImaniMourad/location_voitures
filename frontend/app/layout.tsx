@@ -4,6 +4,7 @@ import { Inter } from "next/font/google";
 import localFont from "next/font/local";
 
 import Header from "@/components/ui/header";
+import React from "react";
 
 const inter = Inter({
   subsets: ["latin"],
