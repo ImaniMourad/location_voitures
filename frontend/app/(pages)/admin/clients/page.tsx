@@ -23,12 +23,12 @@ export default function list() {
         { header: "Téléphone", accessor: "telephone" },
     ];
 
-    const handleAddClient = (newClient) => {
+    const handleAddClient = (newClient: any) => {
         const updatedClients = [...clients, { ...newClient, id: clients.length + 1 }];
         setClients(updatedClients);
     };
 
-    const handleEditClient = (updatedClient) => {
+    const handleEditClient = (updatedClient: { id: number; nom: string; prenom: string; email: string; telephone: string; }) => {
         const updatedClients = clients.map((client) =>
             client.id === updatedClient.id ? updatedClient : client
         );
@@ -36,7 +36,7 @@ export default function list() {
         setEditingClient(null);
     };
 
-    const handleDeleteClient = (id) => {
+    const handleDeleteClient = (id: number) => {
         const updatedClients = clients.filter((client) => client.id !== id);
         setClients(updatedClients);
     };
