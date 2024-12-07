@@ -1,8 +1,11 @@
-import PageIllustration from "@/components/page-illustration";
+"use client";
+import { useState } from "react";
 import CustomerProfile from "@/components/profileClient";
+import EditProfile from "../../../../components/edit-profile";
 
 export default function ProfilePage() {
   const customerData = {
+    id: 1,
     name: "John Doe",
     email: "john.doe@example.com",
     phone: "123-456-7890",
@@ -11,9 +14,15 @@ export default function ProfilePage() {
     photo: "/images/default-avatar.png",
   };
 
+  const [isEditFormVisible, setIsEditFormVisible] = useState(false);
+
   return (
     <div>
-      <CustomerProfile customer={customerData} />
-      </div>
+      {!isEditFormVisible ? (
+        <CustomerProfile customer={customerData} setIsEditFormVisible={setIsEditFormVisible} />
+      ) : (
+        <EditProfile setIsEditFormVisible={setIsEditFormVisible} />
+      )}
+    </div>
   );
 }

@@ -1,6 +1,8 @@
+"use client";
 import Image from "next/image";
 
 interface Customer {
+  id: number;
   photo?: string;
   name: string;
   email: string;
@@ -9,7 +11,13 @@ interface Customer {
   membership?: string;
 }
 
-export default function CustomerProfile({ customer }: { customer: Customer }) {
+export default function CustomerProfile({ customer  , setIsEditFormVisible }: { customer: Customer; setIsEditFormVisible: (value: boolean) => void }) {
+
+  function handleEditProfile(id: number) {
+    console.log("Edit profile clicked", id);
+    setIsEditFormVisible(true);
+  }
+
   return (
     <section className="max-w-md mx-auto mt-8 p-6 bg-gray-800 rounded-lg shadow-lg">
       <div className="flex items-center gap-4">
@@ -41,7 +49,7 @@ export default function CustomerProfile({ customer }: { customer: Customer }) {
         </ul>
       </div>
       <div className="mt-6">
-        <button className="w-full py-2 px-4 bg-indigo-600 text-white font-semibold rounded hover:bg-indigo-500 transition">
+        <button className="w-full py-2 px-4 bg-indigo-600 text-white font-semibold rounded hover:bg-indigo-500 transition" onClick={() => handleEditProfile(customer.id)}>
           Edit Profile
         </button>
       </div>
