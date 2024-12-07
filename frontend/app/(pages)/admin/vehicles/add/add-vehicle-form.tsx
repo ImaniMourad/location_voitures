@@ -3,10 +3,10 @@
 import { useState } from "react";
 
 interface FormAddProps {
-  setIsFormOpen: (isOpen: boolean) => void;
+  handleCancel: () => void;
   onAddVehicle: (vehicleData: any) => void;
 }
-export default function FormAdd({ setIsFormOpen, onAddVehicle }: FormAddProps) {
+export default function FormAdd({ handleCancel, onAddVehicle }: FormAddProps) {
   const [vehicleData, setVehicleData] = useState({
     brand: "",
     model: "",
@@ -39,12 +39,10 @@ export default function FormAdd({ setIsFormOpen, onAddVehicle }: FormAddProps) {
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="w-full max-w-lg bg-slate-900 text-slate-100 rounded-lg shadow-xl animate-fade-in-up">
         <div className="p-6 border-b border-slate-800 flex justify-between items-center">
-          <h2 className="text-2xl font-semibold text-slate-100">
-            Add a Vehicle
-          </h2>
+          <h2 className="text-2xl font-semibold text-slate-100">Add Vehicle</h2>
           <button
-            onClick={() => setIsFormOpen(false)}
-            className="text-slate-400 hover:text-slate-100"
+            onClick={handleCancel}
+            className="text-slate-500 hover:text-slate-100 text-[2em] "
           >
             ✕
           </button>
@@ -87,20 +85,20 @@ export default function FormAdd({ setIsFormOpen, onAddVehicle }: FormAddProps) {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label
-              htmlFor="year"
-              className="block text-sm font-medium text-slate-200 mb-1"
+                htmlFor="year"
+                className="block text-sm font-medium text-slate-200 mb-1"
               >
-              Year
+                Year
               </label>
               <input
-              id="year"
-              name="year"
-              type="number"
-              min={1900}
-              max={3000}
-              required
-              className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-md text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-              onChange={handleInputChange}
+                id="year"
+                name="year"
+                type="number"
+                min={1900}
+                max={3000}
+                required
+                className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-md text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                onChange={handleInputChange}
               />
             </div>
             <div>
@@ -183,7 +181,7 @@ export default function FormAdd({ setIsFormOpen, onAddVehicle }: FormAddProps) {
             </button>
             <button
               type="button"
-              onClick={() => setIsFormOpen(false)}
+              onClick={handleCancel}
               className="w-full py-2 px-4 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-md transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-slate-900"
             >
               Cancel

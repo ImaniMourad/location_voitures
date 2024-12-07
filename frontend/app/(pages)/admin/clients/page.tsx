@@ -1,70 +1,91 @@
-'use client';
+"use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import List from "@/components/List";
-import { FormAdd } from "@/components/FormAdd";
+import FormAdd from "./add/add-form-client";
+import FormEdit from "./edit/edit-form-client";
 
-const initialClients = [
-    { id: 1, nom: "Dupont", prenom: "Jean", email: "jean.dupont@email.com", telephone: "0123456789" },
-    { id: 2, nom: "Martin", prenom: "Marie", email: "marie.martin@email.com", telephone: "0987654321" },
-    { id: 3, nom: "Dubois", prenom: "Pierre", email: "pierre.dubois@email.com", telephone: "0654321987" },
-    { id: 4, nom: "Lefebvre", prenom: "Sophie", email: "sophie.lefebvre@email.com", telephone: "0321654987" },
+type Client = {
+  id: number;
+  lastname: string;
+  firstname: string;
+  email: string;
+  phone: string;
+};
+
+const initialClients: Client[] = [
+  { id: 1, lastname: "Dupont", firstname: "Jean", email: "jean.dupont@email.com", phone: "0123456789" },
+  { id: 2, lastname: "Martin", firstname: "Marie", email: "marie.martin@email.com", phone: "0987654321" },
+  { id: 3, lastname: "Dubois", firstname: "Pierre", email: "pierre.dubois@email.com", phone: "0654321987" },
+  { id: 4, lastname: "Lefebvre", firstname: "Sophie", email: "sophie.lefebvre@email.com", phone: "0321654987" },
 ];
 
-export default function list() {
-    const [clients, setClients] = useState(initialClients);
-    const [isFormOpen, setIsFormOpen] = useState(false);
-    const [editingClient, setEditingClient] = useState(null);
+export default function ClientManagement() {
+  const [clients, setClients] = useState<Client[]>(initialClients);
+  const [isFormAddOpen, setIsFormAddOpen] = useState(false);
+  const [isFormEditOpen, setIsFormEditOpen] = useState(false);
+  const [editingClient, setEditingClient] = useState<Client | null>(null);
 
-    const columns = [
-        { header: "Nom", accessor: "nom" },
-        { header: "Prénom", accessor: "prenom" },
-        { header: "Email", accessor: "email" },
-        { header: "Téléphone", accessor: "telephone" },
-    ];
+  // Memoize columns to avoid re-creation on each render
+  const columns = useMemo(
+    () => [
+      { header: "Lastname", accessor: "lastname" },
+      { header: "Firstname", accessor: "firstname" },
+      { header: "Email", accessor: "email" },
+      { header: "Phone", accessor: "phone" },
+    ],
+    []
+  );
 
-    const handleAddClient = (newClient: any) => {
-        const updatedClients = [...clients, { ...newClient, id: clients.length + 1 }];
-        setClients(updatedClients);
-    };
+  // Add a new client
+  const handleAddClient = (newClient: Omit<Client, "id">) => {
+    setClients((prev) => [...prev, { ...newClient, id: prev.length + 1 }]);
+    setIsFormAddOpen(false);
+  };
 
-    const handleEditClient = (updatedClient: { id: number; nom: string; prenom: string; email: string; telephone: string; }) => {
-        const updatedClients = clients.map((client) =>
-            client.id === updatedClient.id ? updatedClient : client
-        );
-        setClients(updatedClients);
-        setEditingClient(null);
-    };
-
-    const handleDeleteClient = (id: number) => {
-        const updatedClients = clients.filter((client) => client.id !== id);
-        setClients(updatedClients);
-    };
-
-    return (
-        <div className="w-[90%] mx-auto">
-            <h1 className="text-3xl font-extrabold text-white mb-7 ml-5 pt-7">Gestion des Clients</h1>
-            <List
-                name="Client"
-                columns={columns}
-                rows={clients}
-                onEdit={setEditingClient}
-                onDelete={handleDeleteClient}
-                onAdd={() => setIsFormOpen(true)}
-            />
-            {isFormOpen && (
-                <FormAdd
-                    formTitle="Ajouter Client"
-                    fields={[
-                        { name: 'nom', label: 'Nom', type: 'text' },
-                        { name: 'prenom', label: 'Prénom', type: 'text' },
-                        { name: 'email', label: 'Email', type: 'email' },
-                        { name: 'telephone', label: 'Téléphone', type: 'tel' },
-                    ]}
-                    onSubmit={handleAddClient}
-                    onCancel={() => setIsFormOpen(false)}
-                />
-            )}
-        </div>
+  // Edit an existing client
+  const handleEditClient = (updatedClient: Client) => {
+    console.log(updatedClient);
+    console.log(clients);
+    setClients((prev) =>
+      prev.map((client) => (client.id === updatedClient.id ? updatedClient : client))
     );
+    setIsFormEditOpen(false);
+    setEditingClient(null);
+  };
+
+  // Delete a client
+  const handleDeleteClient = (id: number) => {
+    setClients((prev) => prev.filter((client) => client.id !== id));
+  };
+
+  return (
+    <div className="w-[90%] mx-auto">
+      <h1 className="text-3xl font-extrabold text-white mb-7 ml-5 pt-7">Client Management</h1>
+      <List
+        name="Client"
+        columns={columns}
+        rows={clients}
+        onEdit={(id) => {
+          const client = clients.find((client) => client.id === id);
+          if (client) {
+            setEditingClient(client);
+            setIsFormEditOpen(true);
+          }
+        }}
+        onDelete={handleDeleteClient}
+        onAdd={() => setIsFormAddOpen(true)}
+      />
+      {isFormAddOpen && (
+        <FormAdd handleAddClient={handleAddClient} handleCancel={() => setIsFormAddOpen(false)} />
+      )}
+      {isFormEditOpen && editingClient && (
+        <FormEdit
+          client={editingClient}
+          handleEditClient={handleEditClient}
+          handleCancel={() => setIsFormEditOpen(false)}
+        />
+      )}
+    </div>
+  );
 }

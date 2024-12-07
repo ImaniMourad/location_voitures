@@ -18,7 +18,7 @@ export default function ReservationList() {
 
     const columns = [
         { header: "Client", accessor: "clientName" },
-        { header: "Véhicule", accessor: "vehicleName" },
+        { header: "Vehicle", accessor: "vehicleName" },
         { header: "Date de début", accessor: "startDate" },
         { header: "Date de fin", accessor: "endDate" },
     ];

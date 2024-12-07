@@ -3,11 +3,11 @@
 import { useState, useEffect } from "react";
 
 export default function FormEdit({
-  setIsFormOpen,
+  handleCancel,
   vehicle,
   onEditVehicle,
 }: {
-  setIsFormOpen: (value: boolean) => void;
+  handleCancel: () => void;
   vehicle: {
     id: number;
     brand: string;
@@ -20,6 +20,7 @@ export default function FormEdit({
   onEditVehicle: (vehicleData: any) => void;
 }) {
   const [vehicleData, setVehicleData] = useState({
+    id: 0,
     model: "",
     brand: "",
     year: 0,
@@ -32,6 +33,7 @@ export default function FormEdit({
   useEffect(() => {
     if (vehicle) {
       setVehicleData({
+        id: vehicle.id,
         model: vehicle.model,
         brand: vehicle.brand,
         year: vehicle.year,
@@ -69,8 +71,8 @@ export default function FormEdit({
             Edit Vehicle
           </h2>
           <button
-            onClick={() => setIsFormOpen(false)}
-            className="text-slate-400 hover:text-slate-100"
+            onClick={handleCancel}
+            className="text-slate-500 hover:text-slate-100 text-[2em] "
           >
             ✕
           </button>
@@ -215,7 +217,7 @@ export default function FormEdit({
             </button>
             <button
               type="button"
-              onClick={() => setIsFormOpen(false)}
+              onClick={handleCancel}
               className="w-full py-2 px-4 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-md transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-slate-900"
             >
               Cancel

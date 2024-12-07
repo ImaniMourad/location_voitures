@@ -96,13 +96,19 @@ export default function VehicleList() {
     setVehicles(updatedVehicles);
   };
 
+  const handleCancel = () => {
+    setIsFormAddOpen(false);
+    setIsFormEditOpen(false);
+  }
+
+
   return (
     <div className="w-[90%] mx-auto">
       <h1 className="text-3xl font-extrabold text-white mb-7 ml-5 pt-7">
-        Gestion des Véhicules
+        Vehicle Management
       </h1>
       <List
-        name="Véhicule"
+        name="Vehicle"
         columns={columns}
         rows={vehicles}
         onEdit={(id) => {
@@ -115,11 +121,11 @@ export default function VehicleList() {
       />
       {isFormAddOpen && (
         <FormAdd
-          setIsFormOpen={setIsFormAddOpen}
+          handleCancel={handleCancel}
           onAddVehicle={handleAddVehicle}
         />
       )}
-      {isFormEditOpen && <FormEdit setIsFormOpen={setIsFormEditOpen} onEditVehicle={handleEditVehicle} vehicle={editingVehicle} />}
+      {isFormEditOpen && <FormEdit handleCancel={handleCancel} onEditVehicle={handleEditVehicle} vehicle={editingVehicle} />}
     </div>
   );
 }

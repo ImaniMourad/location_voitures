@@ -1,10 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "./cards/card-profile";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../../../../../components/cards/card-profile";
 
 interface User {
-  id: number;
   firstname: string;
   lastname: string;
   email: string;
@@ -15,21 +19,24 @@ interface User {
   password: string;
 }
 
-export default function AdminForm({
-  handleCancel,
-}: {
+interface AdminFormProps {
+  handleAddClient: (newClient: any) => void;
   handleCancel: () => void;
-}) {
+}
+
+export default function AdminForm({
+  handleAddClient,
+  handleCancel,
+}: AdminFormProps) {
   const [user, setUser] = useState<User>({
-    id: 1,
-    firstname: "John",
-    lastname: "Doe",
-    email: "john.doe@example.com",
-    phone: "123-456-7890",
-    address: "123 Main St, Casablanca, Morocco",
-    membership: "Premium",
-    photo: "/images/default-avatar.png",
-    password: "password",
+    firstname: "",
+    lastname: "",
+    email: "",
+    phone: "",
+    address: "",
+    membership: "",
+    photo: "",
+    password: "",
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -58,12 +65,12 @@ export default function AdminForm({
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4 z-50 fixed inset-0">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <Card className="w-full max-w-lg bg-slate-900 text-slate-100 border border-slate-800">
         <CardHeader>
-          <div className="flex justify-between ">
+          <div className="flex justify-between">
             <CardTitle className="text-2xl text-slate-100">
-              Edit Profile
+              Add Client
             </CardTitle>
             <button
               onClick={handleCancel}
@@ -86,7 +93,7 @@ export default function AdminForm({
                 id="firstname"
                 value={user.firstname}
                 onChange={handleChange}
-                placeholder="Enter your first name"
+                placeholder="Enter the first name"
                 className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-md text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
               />
             </div>
@@ -101,7 +108,7 @@ export default function AdminForm({
                 id="lastname"
                 value={user.lastname}
                 onChange={handleChange}
-                placeholder="Enter your last name"
+                placeholder="Enter the last name"
                 className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-md text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
               />
             </div>
@@ -119,7 +126,7 @@ export default function AdminForm({
                 type="email"
                 value={user.email}
                 onChange={handleChange}
-                placeholder="Enter your email"
+                placeholder="Enter the email"
                 className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-md text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
               />
             </div>
@@ -135,7 +142,7 @@ export default function AdminForm({
                 type="tel"
                 value={user.phone}
                 onChange={handleChange}
-                placeholder="Enter your phone number"
+                placeholder="Enter the phone number"
                 className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-md text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
               />
             </div>
@@ -152,7 +159,7 @@ export default function AdminForm({
               id="address"
               value={user.address}
               onChange={handleChange}
-              placeholder="Enter your address"
+              placeholder="Enter the address"
               className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-md text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
             />
           </div>
@@ -169,7 +176,7 @@ export default function AdminForm({
                 type="password"
                 value={user.password}
                 onChange={handleChange}
-                placeholder="Enter your password"
+                placeholder="Enter the password"
                 className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-md text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
               />
               <button
@@ -205,7 +212,7 @@ export default function AdminForm({
               htmlFor="photo"
               className="block text-sm font-medium text-slate-200"
             >
-              Photo
+              Image
             </label>
             <input
               id="photo"
@@ -219,9 +226,9 @@ export default function AdminForm({
           <div className="flex items-center gap-4">
             <button
               className="flex-1 py-2 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-md transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-slate-900"
-              onClick={() => console.log("Save Changes", user)}
+              onClick={() => handleAddClient(user)}
             >
-              Save Changes
+              Save
             </button>
             <button
               className="flex-1 py-2 px-4 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-md transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-slate-900"

@@ -16,12 +16,16 @@ export default function ProfilePage() {
 
   const [isEditFormVisible, setIsEditFormVisible] = useState(false);
 
+  const handleCancel = () =>{
+    setIsEditFormVisible(false)
+  }
+
   return (
     <div>
       {!isEditFormVisible ? (
         <CustomerProfile customer={customerData} setIsEditFormVisible={setIsEditFormVisible} />
       ) : (
-        <EditProfile setIsEditFormVisible={setIsEditFormVisible} />
+        <EditProfile handleCancel={handleCancel} />
       )}
     </div>
   );

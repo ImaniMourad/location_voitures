@@ -18,7 +18,7 @@ export default function ReservationList() {
 
     const columns = [
         { header: "Client", accessor: "clientName" },
-        { header: "Véhicule", accessor: "vehicleName" },
+        { header: "Vehicle", accessor: "vehicleName" },
         { header: "Date de début", accessor: "startDate" },
         { header: "Date de fin", accessor: "endDate" },
         { header: "Statut", accessor: "status" },
@@ -58,7 +58,7 @@ export default function ReservationList() {
                     formTitle="Ajouter Réservation"
                     fields={[
                         { name: 'clientName', label: 'Client', type: 'text' },
-                        { name: 'vehicleName', label: 'Véhicule', type: 'text' },
+                        { name: 'vehicleName', label: 'Vehicle', type: 'text' },
                         { name: 'startDate', label: 'Date de début', type: 'date' },
                         { name: 'endDate', label: 'Date de fin', type: 'date' },
                         { name: 'status', label: 'Statut', type: 'text' },

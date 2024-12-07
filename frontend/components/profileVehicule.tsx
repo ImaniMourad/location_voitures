@@ -132,7 +132,7 @@ export default function VehicleProfile({
           href={to}
           className="inline-block px-8 py-4 bg-indigo-600 rounded-full text-white text-lg font-semibold shadow-lg hover:bg-indigo-700 transition-colors duration-300 ease-in-out"
         >
-          Réserver ce véhicule
+       Reserve this vehicle
         </a>
       </div>
     </div>

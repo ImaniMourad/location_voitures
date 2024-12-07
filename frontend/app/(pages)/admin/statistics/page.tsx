@@ -62,7 +62,7 @@ export default function AdminStatisticsPage() {
                     </Card>
                     <Card className="bg-gray-800 text-white">
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">Véhicules Actifs</CardTitle>
+                            <CardTitle className="text-sm font-medium">Active Vehicles</CardTitle>
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold">12</div>
@@ -117,7 +117,7 @@ export default function AdminStatisticsPage() {
                     </Card>
                     <Card className="col-span-2 bg-gray-800 text-white">
                         <CardHeader>
-                            <CardTitle>Réservations par Type de Véhicule</CardTitle>
+                            <CardTitle>Reservations by Vehicle Type</CardTitle>
                         </CardHeader>
                         <CardContent className="pl-2">
                             <ChartContainer

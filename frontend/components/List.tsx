@@ -29,7 +29,7 @@ export default function List({ name, columns, rows, onEdit, onDelete, onAdd }: L
                 <div className="relative w-64">
                     <Input
                         type="text"
-                        placeholder="Rechercher..."
+                        placeholder="Search..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         className="pl-10 bg-gray-700 text-white border-gray-600 focus:border-indigo-500"
