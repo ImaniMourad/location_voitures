@@ -73,7 +73,7 @@ export default function List({ name, columns, rows, onEdit, onDelete, onAdd }: L
                                             <Button
                                                 variant="outline"
                                                 size="icon"
-                                                onClick={() => onEdit(row)}
+                                                onClick={() => onEdit(row.id)}
                                                 className="mr-2 bg-gray-700 hover:bg-gray-600 text-indigo-300"
                                             >
                                                 <Pencil2Icon className="h-4 w-4" />

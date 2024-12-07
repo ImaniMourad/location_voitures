@@ -1,21 +1,47 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-interface FormAddProps {
-  setIsFormOpen: (isOpen: boolean) => void;
-}
-
-export default function FormAdd({ setIsFormOpen }: FormAddProps) {
+export default function FormEdit({
+  setIsFormOpen,
+  vehicle,
+  onEditVehicle,
+}: {
+  setIsFormOpen: (value: boolean) => void;
+  vehicle: {
+    id: number;
+    brand: string;
+    model: string;
+    year: number;
+    rentalPrice: number;
+    type: string;
+    status: string;
+  } | null;
+  onEditVehicle: (vehicleData: any) => void;
+}) {
   const [vehicleData, setVehicleData] = useState({
-    brand: "",
     model: "",
-    year: "",
-    rental_rate: "",
+    brand: "",
+    year: 0,
+    rentalPrice: 0,
     status: "",
     type: "",
-    image: null as File | null,
+    image: null,
   });
+
+  useEffect(() => {
+    if (vehicle) {
+      setVehicleData({
+        model: vehicle.model,
+        brand: vehicle.brand,
+        year: vehicle.year,
+        rentalPrice: vehicle.rentalPrice,
+        status: vehicle.status.toLowerCase(),
+        type: vehicle.type,
+        image: null,
+      });
+    }
+  }, [vehicle]);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -25,15 +51,14 @@ export default function FormAdd({ setIsFormOpen }: FormAddProps) {
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setVehicleData((prev) => ({ ...prev, image: e.target.files![0] }));
+    if (e.target.files && e.target.files.length > 0) {
+      setVehicleData((prev) => ({ ...prev, image: e.target.files[0] }));
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Vehicle Data:", vehicleData);
-    // Here, you would add the logic to send the data to the server
+    onEditVehicle(vehicleData);
   };
 
   return (
@@ -41,7 +66,7 @@ export default function FormAdd({ setIsFormOpen }: FormAddProps) {
       <div className="w-full max-w-lg bg-slate-900 text-slate-100 rounded-lg shadow-xl animate-fade-in-up">
         <div className="p-6 border-b border-slate-800 flex justify-between items-center">
           <h2 className="text-2xl font-semibold text-slate-100">
-            Add a Vehicle
+            Edit Vehicle
           </h2>
           <button
             onClick={() => setIsFormOpen(false)}
@@ -66,6 +91,7 @@ export default function FormAdd({ setIsFormOpen }: FormAddProps) {
                 required
                 className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-md text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                 onChange={handleInputChange}
+                value={vehicleData.brand}
               />
             </div>
             <div>
@@ -82,6 +108,7 @@ export default function FormAdd({ setIsFormOpen }: FormAddProps) {
                 required
                 className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-md text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                 onChange={handleInputChange}
+                value={vehicleData.model}
               />
             </div>
           </div>
@@ -97,25 +124,29 @@ export default function FormAdd({ setIsFormOpen }: FormAddProps) {
                 id="year"
                 name="year"
                 type="number"
+                min={1900}
+                max={3000}
                 required
                 className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-md text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                 onChange={handleInputChange}
+                value={vehicleData.year}
               />
             </div>
             <div>
               <label
-                htmlFor="rental_rate"
+                htmlFor="rentalPrice"
                 className="block text-sm font-medium text-slate-200 mb-1"
               >
                 Rental Rate
               </label>
               <input
-                id="rental_rate"
-                name="rental_rate"
+                id="rentalPrice"
+                name="rentalPrice"
                 type="number"
                 required
                 className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-md text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                 onChange={handleInputChange}
+                value={vehicleData.rentalPrice}
               />
             </div>
           </div>
@@ -133,6 +164,7 @@ export default function FormAdd({ setIsFormOpen }: FormAddProps) {
                 required
                 className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-md text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                 onChange={handleInputChange}
+                value={vehicleData.status}
               >
                 <option value="">Select a status</option>
                 <option value="available">Available</option>
@@ -154,6 +186,7 @@ export default function FormAdd({ setIsFormOpen }: FormAddProps) {
                 required
                 className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-md text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                 onChange={handleInputChange}
+                value={vehicleData.type}
               />
             </div>
           </div>
@@ -178,7 +211,7 @@ export default function FormAdd({ setIsFormOpen }: FormAddProps) {
               type="submit"
               className="w-full py-2 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-md transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-slate-900"
             >
-              Add Vehicle
+              Save Changes
             </button>
             <button
               type="button"
