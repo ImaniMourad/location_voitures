@@ -1,25 +1,16 @@
 "use client";
-import { useState, useEffect } from "react";
-import { useParams } from "next/navigation";
+
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export default function Sidebar() {
-  const { slug } = useParams();
-  const [activeItem, setActiveItem] = useState(null);
-
-  useEffect(() => {
-    if (slug) {
-      const path = Array.isArray(slug) && slug.length > 1 ? slug[1] : null;
-      setActiveItem(path ? path.charAt(0).toUpperCase() + path.slice(1) : null);
-
-      if (path) {
-        console.log(path.charAt(0).toUpperCase() + path.slice(1));
-      } else {
-        console.log("null");
-      }
-    }
-  }, [slug]);
+  const pathname = usePathname();
+  const path = pathname.split("/");
+  if (path.length < 3) return null;
+  const activePath = path[2].charAt(0).toUpperCase() + path[2].slice(1);
+  const [activeItem, setActiveItem] = useState<string | null>(activePath);
 
   const menuItems = [
     {
