@@ -1,85 +1,111 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
+import { useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export default function Sidebar() {
-  const [activeItem, setActiveItem] = useState('Layouts')
-  
+  const pathname = usePathname();
+  const path = pathname.split("/");
+  if (path.length < 3) return null;
+  const activePath = path[2].charAt(0).toUpperCase() + path[2].slice(1);
+  const [activeItem, setActiveItem] = useState<string | null>(activePath);
+
   const menuItems = [
     {
-      title: 'Dashboards',
+      title: "Statistics",
       icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-          <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-5 w-5"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+        >
+          <path d="M4 20h4V10H4v10zM10 20h4V4h-4v16zM16 20h4v-6h-4v6z" />
         </svg>
       ),
+      path: "/admin/statistics",
     },
     {
-      title: 'Components',
+      title: "Vehicles",
       icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-          <path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z" />
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-5 w-5"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+        >
+          <path d="M5 11h14l-1.4-5H6.4L5 11zM5 16c-1.1 0-2-.9-2-2V9c0-.5.2-1 .6-1.4l1.6-3c.3-.5.9-.6 1.3-.6h10c.5 0 1 .2 1.3.6l1.6 3c.4.4.6.9.6 1.4v5c0 1.1-.9 2-2 2H5zm2 2c1.1 0 2-.9 2-2H5c-1.1 0-2 .9-2 2h4zm10 0c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2z" />
         </svg>
       ),
+      path: "/admin/vehicles",
     },
     {
-      title: 'Pages',
+      title: "Clients",
       icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-          <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clipRule="evenodd" />
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-5 w-5"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+        >
+          <path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-2.3 0-7 1.2-7 3.5V20h14v-2.5c0-2.3-4.7-3.5-7-3.5z" />
         </svg>
       ),
+      path: "/admin/clients",
     },
     {
-      title: 'Authentication',
+      title: "Log Out",
       icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-          <path fillRule="evenodd" d="M18 8a6 6 0 01-7.743 5.743L10 14l-1 1-1 1H6v2H2v-4l4.257-4.257A6 6 0 1118 8zm-6-4a1 1 0 100 2 2 2 0 012 2 1 1 0 102 0 4 4 0 00-4-4z" clipRule="evenodd" />
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-5 w-5"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+        >
+          <path d="M16 13v-2h-4V9l-5 3 5 3v-2h4zm1 7H7c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2v5h-2V6H7v12h10v-5h2v5c0 1.1-.9 2-2 2z" />
         </svg>
       ),
+      path: "/logout",
     },
-    {
-      title: 'Layouts',
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-          <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-        </svg>
-      ),
-      subItems: ['Two Columns Sidebar']
-    },
-  ]
+  ];
 
   return (
-    <div className="h-screen w-64 bg-[#1a1f37] text-white">
+    <div className="h-screen w-64 bg-[#0f1725] text-white sticky top-0 left-0 z-50">
+      <div className="p-4 flex flex-col items-center text-center">
+        <Image
+          src="/images/testimonial-02.jpg"
+          alt="Autocar Brand"
+          width={110}
+          height={110}
+          className="rounded-full"
+        />
+        <span className="font-medium text-lg mt-2">Client 1</span>
+        <hr className="w-full border border-white/20 my-4" />
+      </div>
+
       <nav className="p-4">
         <ul className="space-y-2">
           {menuItems.map((item) => (
             <li key={item.title}>
-              <button
-                onClick={() => setActiveItem(item.title)}
-                className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors ${
-                  activeItem === item.title ? 'bg-purple-600' : 'hover:bg-white/10'
-                }`}
-              >
-                {item.icon}
-                <span>{item.title}</span>
-              </button>
-              {item.subItems && activeItem === item.title && (
-                <ul className="ml-11 mt-2 space-y-2">
-                  {item.subItems.map((subItem) => (
-                    <li key={subItem}>
-                      <button className="text-sm text-gray-300 hover:text-white">
-                        {subItem}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
+              <Link href={item.path} passHref>
+                <button
+                  onClick={() => setActiveItem(item.title)}
+                  className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors ${
+                    activeItem === item.title
+                      ? "bg-purple-600"
+                      : "hover:bg-white/10"
+                  }`}
+                >
+                  {item.icon}
+                  <span>{item.title}</span>
+                </button>
+              </Link>
             </li>
           ))}
         </ul>
       </nav>
     </div>
-  )
+  );
 }
-
