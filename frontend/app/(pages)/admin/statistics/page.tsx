@@ -123,7 +123,7 @@ export default function AdminStatisticsPage() {
                             <ChartContainer
                                 config={{
                                     count: {
-                                        label: "Nombre de réservations",
+                                        label: "Number of Reservations",
                                         color: "hsl(var(--chart-2))",
                                     },
                                 }}

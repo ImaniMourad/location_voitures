@@ -8,7 +8,10 @@ import { usePathname } from "next/navigation";
 export default function Sidebar() {
   const pathname = usePathname();
   const path = pathname.split("/");
+
+  //if the path is less than 3, it means we are not in the admin page
   if (path.length < 3) return null;
+
   const activePath = path[2].charAt(0).toUpperCase() + path[2].slice(1);
   const [activeItem, setActiveItem] = useState<string | null>(activePath);
 
@@ -54,6 +57,21 @@ export default function Sidebar() {
         </svg>
       ),
       path: "/admin/clients",
+    },
+    //reservations
+    {
+      title: "Reservations",
+      icon: (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-5 w-5"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+        >
+          <path d="M17 2H7c-1.1 0-2 .9-2 2v18l7-3 7 3V4c0-1.1-.9-2-2-2zm-5 15l-5-3V4h10v10l-5 3z" />
+        </svg>
+      ),
+      path: "/admin/reservations",
     },
     {
       title: "Log Out",

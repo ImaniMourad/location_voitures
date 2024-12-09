@@ -126,7 +126,7 @@ export default function VehicleProfile({
         </div>
       )}
 
-      {/* Bouton de réservation */}
+      {/* Bouton of reservation */}
       <div className="mt-6 text-center">
         <a
           href={to}

@@ -5,10 +5,10 @@ import List from "@/components/List";
 import { FormAdd } from "@/components/FormAdd";
 
 const initialReservations = [
-    { id: 1, clientName: "Jean Dupont", vehicleName: "Renault Clio", startDate: "2023-07-01", endDate: "2023-07-05" },
-    { id: 2, clientName: "Marie Martin", vehicleName: "Peugeot 3008", startDate: "2023-07-10", endDate: "2023-07-15" },
-    { id: 3, clientName: "Pierre Durand", vehicleName: "Citroën C3", startDate: "2023-07-20", endDate: "2023-07-25" },
-    { id: 4, clientName: "Sophie Lefebvre", vehicleName: "BMW Série 5", startDate: "2023-08-01", endDate: "2023-08-07" },
+    { id: 1, client: "Jean Dupont", vehicle: "Renault Clio", startDate: "2023-07-01", endDate: "2023-07-05" },
+    { id: 2, client: "Marie Martin", vehicle: "Peugeot 3008", startDate: "2023-07-10", endDate: "2023-07-15" },
+    { id: 3, client: "Pierre Durand", vehicle: "Citroën C3", startDate: "2023-07-20", endDate: "2023-07-25" },
+    { id: 4, client: "Sophie Lefebvre", vehicle: "BMW Série 5", startDate: "2023-08-01", endDate: "2023-08-07" },
 ];
 
 export default function ReservationList() {
@@ -17,20 +17,25 @@ export default function ReservationList() {
     const [editingReservation, setEditingReservation] = useState(null);
 
     const columns = [
-        { header: "Client", accessor: "clientName" },
-        { header: "Vehicle", accessor: "vehicleName" },
-        { header: "Date de début", accessor: "startDate" },
-        { header: "Date de fin", accessor: "endDate" },
+        { header: "Client", accessor: "client" },
+        { header: "Vehicle", accessor: "vehicle" },
+        { header: "Start Date", accessor: "startDate" },
+        { header: "End Date", accessor: "endDate" },
     ];
 
     return (
         <div className="w-[90%] mx-auto">
             <h1 className="text-3xl font-extrabold text-white mb-7 ml-5 pt-7">Gestion des Archives</h1>
             <List
-                name="Réservation"
+                name="Reservation"
                 columns={columns}
-                rows={reservations}
-            />
+                rows={reservations} onEdit={function (item: any): void {
+                    throw new Error("Function not implemented.");
+                } } onDelete={function (id: number): void {
+                    throw new Error("Function not implemented.");
+                } } onAdd={function (): void {
+                    throw new Error("Function not implemented.");
+                } }            />
         </div>
     );
 }
