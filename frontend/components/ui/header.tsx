@@ -1,9 +1,15 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import Logo from "./logo";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { MoonIcon, SunIcon } from "lucide-react";
 
 export default function Header() {
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
   return (
     <header className="z-30 w-[95%] mx-auto mt-2 md:mt-5">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
@@ -12,9 +18,32 @@ export default function Header() {
           <div className="flex flex-1 items-center">
             <Logo />
           </div>
-
-          {/* Desktop sign in links */}
-          <ul className="flex flex-1 items-center justify-end gap-3">
+          {/* Desktop sign in links and dark mode switch */}
+          <ul className="flex flex-1 items-center justify-end gap-4">
+            <li className="flex items-center gap-2">
+              <Switch
+                id="dark-mode"
+                checked={isDarkMode}
+                onCheckedChange={setIsDarkMode}
+                className={`${
+                  isDarkMode
+                    ? "bg-indigo-600"
+                    : "bg-gray-300 border border-gray-500"
+                }`}
+              />
+              <Label
+                htmlFor="dark-mode"
+                className={`${
+                  isDarkMode ? "text-indigo-300" : "text-yellow-400"
+                }`}
+              >
+                {isDarkMode ? (
+                  <MoonIcon className="h-5 w-5" />
+                ) : (
+                  <SunIcon className="h-5 w-5" />
+                )}
+              </Label>
+            </li>
             <li>
               <Link
                 href="/signin"
