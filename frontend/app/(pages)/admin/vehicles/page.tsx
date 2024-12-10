@@ -4,6 +4,7 @@ import { useState } from "react";
 import List from "@/components/List";
 import FormAdd from "./add/add-vehicle-form";
 import FormEdit from "./edit/edit-vehicle-form";
+import PageIllustration from "@/components/page-illustration";
 
 const initialVehicles = [
   {
@@ -63,7 +64,7 @@ export default function VehicleList() {
     { header: "Year", accessor: "year" },
     { header: "Rental Price", accessor: "rentalPrice" },
     { header: "Type", accessor: "type" },
-    { header: "Status", accessor: "status"} 
+    { header: "Status", accessor: "status" },
   ];
 
   const handleAddVehicle = (newVehicle: {
@@ -82,7 +83,15 @@ export default function VehicleList() {
     setVehicles(updatedVehicles);
     setIsFormAddOpen(false);
   };
-  const handleEditVehicle = (updatedVehicle: { id: number; brand: string; model: string; year: number; rentalPrice: number; type: string; status: string; }) => {
+  const handleEditVehicle = (updatedVehicle: {
+    id: number;
+    brand: string;
+    model: string;
+    year: number;
+    rentalPrice: number;
+    type: string;
+    status: string;
+  }) => {
     console.log("Updated Vehicle:", updatedVehicle);
     const updatedVehicles = vehicles.map((vehicle) =>
       vehicle.id === updatedVehicle.id ? updatedVehicle : vehicle
@@ -99,33 +108,44 @@ export default function VehicleList() {
   const handleCancel = () => {
     setIsFormAddOpen(false);
     setIsFormEditOpen(false);
-  }
-
+  };
 
   return (
-    <div className="w-[90%] mx-auto">
-      <h1 className="text-3xl font-extrabold text-white mb-7 ml-5 pt-7">
-        Vehicle Management
-      </h1>
-      <List
-        name="Vehicle"
-        columns={columns}
-        rows={vehicles}
-        onEdit={(id) => {
-          setEditingVehicle(vehicles.find((vehicle) => vehicle.id === id) || null);
-          console.log("Editing Vehicle:", editingVehicle);
-          setIsFormEditOpen(true);
-        }}
-        onDelete={handleDeleteVehicle}
-        onAdd={() => setIsFormAddOpen(true)}
-      />
-      {isFormAddOpen && (
-        <FormAdd
-          handleCancel={handleCancel}
-          onAddVehicle={handleAddVehicle}
+    <>
+      
+      <div className="w-[90%] mx-auto">
+        <PageIllustration />
+        <h1 className="text-3xl font-extrabold text-white mb-7 ml-5 pt-7">
+          Vehicle Management
+        </h1>
+        <List
+          name="Vehicle"
+          columns={columns}
+          rows={vehicles}
+          onEdit={(id) => {
+            setEditingVehicle(
+              vehicles.find((vehicle) => vehicle.id === id) || null
+            );
+            console.log("Editing Vehicle:", editingVehicle);
+            setIsFormEditOpen(true);
+          }}
+          onDelete={handleDeleteVehicle}
+          onAdd={() => setIsFormAddOpen(true)}
         />
-      )}
-      {isFormEditOpen && <FormEdit handleCancel={handleCancel} onEditVehicle={handleEditVehicle} vehicle={editingVehicle} />}
-    </div>
+        {isFormAddOpen && (
+          <FormAdd
+            handleCancel={handleCancel}
+            onAddVehicle={handleAddVehicle}
+          />
+        )}
+        {isFormEditOpen && (
+          <FormEdit
+            handleCancel={handleCancel}
+            onEditVehicle={handleEditVehicle}
+            vehicle={editingVehicle}
+          />
+        )}
+      </div>
+    </>
   );
 }
