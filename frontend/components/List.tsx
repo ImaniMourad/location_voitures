@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Table, TableBody, TableHeader, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,13 +15,20 @@ interface ListProps {
 
 export default function List({ name, columns, rows, onEdit, onDelete, onAdd }: ListProps) {
     const [searchQuery, setSearchQuery] = useState("");
+    const [filteredRows, setFilteredRows] = useState(rows);
 
     // Fonction pour filtrer les lignes en fonction de la recherche
-    const filteredRows = rows.filter((row) =>
-        columns.some((col) =>
-            row[col.accessor]?.toString().toLowerCase().includes(searchQuery.toLowerCase())
-        )
-    );
+    useEffect(() => {
+        const searchTerms = searchQuery.toLowerCase().split(',').map(term => term.trim());
+        const filtered = rows.filter(row =>
+            searchTerms.every(term =>
+                Object.values(row).some(value =>
+                    value && value.toString().toLowerCase().includes(term)
+                )
+            )
+        );        
+        setFilteredRows(filtered);
+    },[searchQuery, rows]);
 
     return (
         <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
@@ -52,7 +59,7 @@ export default function List({ name, columns, rows, onEdit, onDelete, onAdd }: L
                                 {col.header}
                             </TableHead>
                         ))}
-                        {onEdit || onDelete ? (
+                        {(onEdit !== undefined || onDelete !== undefined) ? (
                             <TableHead className="text-indigo-300">Actions</TableHead>
                         ) : null}
                     </TableRow>
@@ -105,3 +112,5 @@ export default function List({ name, columns, rows, onEdit, onDelete, onAdd }: L
         </div>
     );
 }
+
+

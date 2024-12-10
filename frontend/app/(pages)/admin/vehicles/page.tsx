@@ -21,7 +21,7 @@ const initialVehicles = [
     brand: "Peugeot",
     model: "3008",
     year: 2021,
-    rentalPrice: 75,
+    rentalPrice: 45,
     type: "SUV",
     status: "Available",
   },
