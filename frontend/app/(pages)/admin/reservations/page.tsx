@@ -64,7 +64,7 @@ export default function ReservationList() {
 
     return (
         <div className="w-[90%] mx-auto">
-            <h1 className="text-3xl font-extrabold text-white mb-7 ml-5 pt-7">Gestion des Réservations</h1>
+            <h1 className="text-3xl font-extrabold text-white mb-7 ml-5 pt-7">Reservations Management</h1>
             <List
                 name="Reservation"
                 columns={columns}

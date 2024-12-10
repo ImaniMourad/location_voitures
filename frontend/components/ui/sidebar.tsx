@@ -93,13 +93,13 @@ export default function Sidebar() {
     <div className="h-screen w-64 bg-[#0f1725] text-white sticky top-0 left-0 z-50">
       <div className="p-4 flex flex-col items-center text-center">
         <Image
-          src="/images/testimonial-02.jpg"
+          src="/images/anas.png"
           alt="Autocar Brand"
           width={110}
           height={110}
           className="rounded-full"
         />
-        <span className="font-medium text-lg mt-2">Client 1</span>
+        <span className="font-medium text-lg mt-2">Anas Ichmawin</span>
         <hr className="w-full border border-white/20 my-4" />
       </div>
 

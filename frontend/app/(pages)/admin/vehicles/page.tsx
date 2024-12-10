@@ -55,6 +55,7 @@ export default function VehicleList() {
     year: number;
     rentalPrice: number;
     type: string;
+    status: string;
   } | null>(null);
 
   const columns = [
@@ -105,7 +106,7 @@ export default function VehicleList() {
   return (
     <div className="w-[90%] mx-auto">
       <h1 className="text-3xl font-extrabold text-white mb-7 ml-5 pt-7">
-        Vehicle Management
+        Vehicles Management
       </h1>
       <List
         name="Vehicle"
