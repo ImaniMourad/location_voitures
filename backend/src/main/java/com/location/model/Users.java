@@ -13,7 +13,7 @@ import jakarta.validation.constraints.NotNull;
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "user_type", discriminatorType = DiscriminatorType.STRING, length = 6)
 @Data @NoArgsConstructor @AllArgsConstructor
-public abstract class Users {
+public class Users {
 
     @Id
     @Size(min = 6, max = 15)
