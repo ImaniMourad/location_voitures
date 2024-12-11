@@ -1,4 +1,4 @@
 package com.location.service;
 
-public class VehicleService {
+public class UserService {
 }
