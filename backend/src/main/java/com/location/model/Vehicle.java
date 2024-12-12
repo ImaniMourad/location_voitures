@@ -30,7 +30,8 @@ public class Vehicle {
     private String type;
 
     @Size(max = 15)
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private Status status;
 
     @Column(precision = 10, scale = 2) // pour gérer les prix numériques
     private BigDecimal price;
