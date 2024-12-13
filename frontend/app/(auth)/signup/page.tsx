@@ -7,11 +7,38 @@ import Checkbox from "@/components/ui/checkBox";
 export default function SignUp() {
   const [isChecked, setIsChecked] = useState(false);
 
-  async function handleSubmit(
-    event: FormEvent<HTMLFormElement>
-  ): Promise<void> {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>): Promise<void> {
     event.preventDefault();
-    console.log("submit");
+    const formData = new FormData(event.currentTarget);
+    const data = {
+      cin: formData.get("cin"),
+      firstName: formData.get("first-name"),
+      lastName: formData.get("last-name"),
+      phone: formData.get("phone"),
+      address: formData.get("address"),
+      email: formData.get("email"),
+      password: formData.get("password"),
+    };
+  
+    try {
+      console.log(data);
+      const response = await fetch("/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+  
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+  
+      const result = await response.json();
+      console.log("Success:", result);
+    } catch (error) {
+      console.error("Error:", error);
+    }
   }
 
   return (

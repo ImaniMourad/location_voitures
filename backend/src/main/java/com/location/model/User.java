@@ -9,10 +9,11 @@ import jakarta.validation.constraints.NotNull;
 import lombok.NoArgsConstructor;
 
 @Entity
+@Table(name = "users")
 @Data @AllArgsConstructor @NoArgsConstructor
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "user_type", discriminatorType = DiscriminatorType.STRING, length = 6)
-public abstract class Users {
+public abstract class User {
 
     @Id
     @Size(min = 6, max = 15)
@@ -29,8 +30,6 @@ public abstract class Users {
 
     @Size(max = 255)
     private String address;
-
-    private String dateOfBirth;
 
     @Size(max = 15)
     private String phoneNumber;
