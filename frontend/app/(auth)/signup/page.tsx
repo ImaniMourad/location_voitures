@@ -40,9 +40,10 @@ export default function SignUp() {
                 id="cin"
                 name="cin"
                 type="text"
-                className="form-input w-full"
+                className="form-input"
                 placeholder="Your CIN"
                 required
+                style={{ width: `calc(100% - 0.5rem)` }}
               />
             </div>
           </div>
