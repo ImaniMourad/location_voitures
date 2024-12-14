@@ -1,7 +1,6 @@
 package com.location.controller;
 
 import com.location.dto.UserDTO;
-import com.location.model.User;
 import com.location.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,7 +16,7 @@ public class UserController {
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@RequestBody UserDTO userDTO) {
         try {
-            User savedUser = userService.saveUser(userDTO);
+            UserDTO savedUser = userService.saveUser(userDTO);
             return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());

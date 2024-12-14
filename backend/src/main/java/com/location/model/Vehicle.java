@@ -1,5 +1,6 @@
 package com.location.model;
 
+import com.location.enums.VehicleStatus ;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -31,7 +32,7 @@ public class Vehicle {
 
     @Size(max = 15)
     @Enumerated(EnumType.STRING)
-    private Status status;
+    private VehicleStatus  status;
 
     @Column(precision = 10, scale = 2) // pour gérer les prix numériques
     private BigDecimal price;
