@@ -9,9 +9,11 @@ import com.location.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
+@Transactional
 public class UserServiceImpl  implements UserService{
 
     @Autowired
@@ -25,8 +27,8 @@ public class UserServiceImpl  implements UserService{
 
     @Override
     public UserDTO saveUser(UserDTO userDTO) throws UserAlreadyExistsException {
-        if (userRepository.existsByEmail(userDTO.getEmail())) {
-            throw new UserAlreadyExistsException("User with this email already exists");
+        if (userRepository.findByEmailOrCin(userDTO.getEmail() , userDTO.getCin()) != null) {
+            throw new UserAlreadyExistsException("User with this email or cin already exists");
         }
         User user = userMapper.fromUserDTO(userDTO);
         user.setPassword(passwordEncoder.encode(userDTO.getPassword())); // Hashed password

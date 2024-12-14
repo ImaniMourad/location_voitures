@@ -35,10 +35,12 @@ public abstract class User {
     private String phoneNumber;
 
     @Email
+    @NotNull
     @Size(max = 100)
     private String email;
 
     @NotNull
     @Size(min = 6, max = 100)
     private String password;
+
 }

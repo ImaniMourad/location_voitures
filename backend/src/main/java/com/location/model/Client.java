@@ -2,6 +2,7 @@ package com.location.model;
 
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -16,7 +17,7 @@ import java.util.List;
 @Data @NoArgsConstructor @AllArgsConstructor
 public class Client extends User {
 
-    @OneToMany(mappedBy = "client")
+    @OneToMany(mappedBy = "client", fetch = FetchType.EAGER)
     private List<Reservation> reservations; // Assuming Reservation is a class with appropriate fields and mappings
 
 }
