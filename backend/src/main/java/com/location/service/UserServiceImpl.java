@@ -27,8 +27,8 @@ public class UserServiceImpl  implements UserService{
 
     @Override
     public UserDTO saveUser(UserDTO userDTO) throws UserAlreadyExistsException {
-        if (userRepository.findByEmailOrCin(userDTO.getEmail() , userDTO.getCin()) != null) {
-            throw new UserAlreadyExistsException("User with this email or cin already exists");
+        if (userRepository.findByEmail(userDTO.getEmail()) != null ) {
+            throw new UserAlreadyExistsException("User with this email already exists");
         }
         User user = userMapper.fromUserDTO(userDTO);
         user.setPassword(passwordEncoder.encode(userDTO.getPassword())); // Hashed password
