@@ -11,26 +11,28 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.config.http.SessionCreationPolicy;
 
 @Configuration
 public class SecurityConfig {
 
     private final CustomUserDetailsService userDetailsService;
+    private final JwtConfig jwtConfig;
 
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
-    public SecurityConfig(CustomUserDetailsService userDetailsService) {
+    public SecurityConfig(CustomUserDetailsService userDetailsService, JwtConfig jwtConfig) {
         this.userDetailsService = userDetailsService;
+        this.jwtConfig = jwtConfig;
     }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationManager authManager) throws Exception {
-        JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(authManager);
+        JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(authManager , jwtConfig);
         JwtAuthorizationFilter jwtAuthorizationFilter = new JwtAuthorizationFilter(authManager);
 
         http

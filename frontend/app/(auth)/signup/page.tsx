@@ -1,66 +1,150 @@
-"use client"; // Add this directive at the top of the file
+"use client";
 
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Checkbox from "@/components/ui/checkBox";
-import SuccessAlert from "@/components/ui/successAlert";
+import Alert from "@/components/ui/alert";
+import Spinner from "@/components/ui/spinner";
 import axios from "axios";
+
+interface FormData {
+  cin: string;
+  firstName: string;
+  lastName: string;
+  phoneNumber: string;
+  address: string;
+  email: string;
+  password: string;
+}
+
+const InputField = ({
+  id,
+  name,
+  type,
+  placeholder,
+  required,
+  pattern,
+  title,
+  maxLength,
+  minLength,
+}: {
+  id: string;
+  name: string;
+  type: string;
+  placeholder: string;
+  required?: boolean;
+  pattern?: string;
+  title?: string;
+  maxLength?: number;
+  minLength?: number;
+}) => (
+  <input
+    id={id}
+    name={name}
+    type={type}
+    className="form-input w-full"
+    placeholder={placeholder}
+    required={required}
+    pattern={pattern}
+    title={title}
+    maxLength={maxLength}
+    minLength={minLength}
+  />
+);
 
 export default function RegisterForm() {
   const router = useRouter();
   const [isChecked, setIsChecked] = useState(false);
-  const [isAlertVisible, setIsAlertVisible] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isAlertVisible, setIsAlertVisible] = useState({
+    visible: false,
+    message: "",
+    type_alert: "" as "" | "success" | "error",
+  });
 
   async function handleSubmit(
     event: FormEvent<HTMLFormElement>
   ): Promise<void> {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
-    const data = {
-      cin: formData.get("cin"),
-      firstName: formData.get("first-name"),
-      lastName: formData.get("last-name"),
-      phoneNumber: formData.get("phone"),
-      address: formData.get("address"),
-      email: formData.get("email"),
-      password: formData.get("password"),
+    const data: FormData = {
+      cin: formData.get("cin") as string,
+      firstName: formData.get("first-name") as string,
+      lastName: formData.get("last-name") as string,
+      phoneNumber: formData.get("phone") as string,
+      address: formData.get("address") as string,
+      email: formData.get("email") as string,
+      password: formData.get("password") as string,
     };
 
     try {
       console.log("Registering user:", data);
-      const response = await axios.post("http://localhost:8080/register", data);
+      setIsLoading(true);
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+      const response = await axios.post(`${apiUrl}/register`, data);
       if (response.status === 201) {
-        setIsAlertVisible(true);
+        setIsAlertVisible({
+          visible: true,
+          message: "Account created successfully",
+          type_alert: "success",
+        });
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        setIsLoading(false);
         setTimeout(() => {
-          setIsAlertVisible(false);
-          // Redirect to sign-in page
+          setIsAlertVisible({
+            visible: false,
+            message: "",
+            type_alert: "",
+          });
           router.push("/signin");
         }, 2500);
       }
     } catch (error) {
+      setIsLoading(false);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      setIsAlertVisible({
+        visible: true,
+        message: "An error occurred. Invalid input data",
+        type_alert: "error",
+      });
+      setTimeout(() => {
+        setIsAlertVisible({
+          visible: false,
+          message: "An error occurred. Invalid input data",
+          type_alert: "error",
+        });
+      }, 2500);
       console.error("Error registering user:", error);
     }
   }
 
   return (
     <>
-      {/* Success alert */}
-      {isAlertVisible && <SuccessAlert message="Account created successfully" />}
-      {/* ---- */}
-      {/* Form */}
+      {isLoading && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <Spinner />
+        </div>
+      )}
+      {isAlertVisible.visible && (
+        <Alert
+          message={isAlertVisible.message}
+          type_alert={isAlertVisible.type_alert}
+          onClose={() =>
+            setIsAlertVisible({ visible: false, message: "", type_alert: "" })
+          }
+        />
+      )}
       <form
         onSubmit={handleSubmit}
         className="mx-auto px-4 sm:px-6 w-full max-w-[600px]"
       >
         <div className="py-12 md:py-20">
-          {/* Section header */}
           <div className="pb-12 text-center">
             <h1 className="animate-[gradient_6s_linear_infinite] bg-[linear-gradient(to_right,theme(colors.gray.200),theme(colors.indigo.200),theme(colors.gray.50),theme(colors.indigo.300),theme(colors.gray.200))] bg-[length:200%_auto] bg-clip-text font-nacelle text-3xl font-semibold text-transparent md:text-4xl">
               Create an Account
             </h1>
           </div>
-          {/* Contact form */}
           <div className="mx-auto max-w-[800px] space-y-5">
             <div className="flex flex-col sm:flex-row gap-4">
               <div className="w-full sm:w-1/2">
@@ -70,14 +154,12 @@ export default function RegisterForm() {
                 >
                   CIN<span className="text-red-500">*</span>
                 </label>
-                <input
+                <InputField
                   id="cin"
                   name="cin"
                   type="text"
-                  className="form-input"
                   placeholder="Your CIN"
                   required
-                  style={{ width: `calc(100% - 0.5rem)` }}
                   minLength={6}
                   pattern="[A-Za-z0-9]{6,}"
                   title="CIN must be at least 6 characters long and contain only letters and numbers"
@@ -92,11 +174,10 @@ export default function RegisterForm() {
                 >
                   First Name <span className="text-red-500">*</span>
                 </label>
-                <input
+                <InputField
                   id="first-name"
                   name="first-name"
                   type="text"
-                  className="form-input w-full"
                   placeholder="Your first name"
                   required
                   maxLength={50}
@@ -111,11 +192,10 @@ export default function RegisterForm() {
                 >
                   Last Name <span className="text-red-500">*</span>
                 </label>
-                <input
+                <InputField
                   id="last-name"
                   name="last-name"
                   type="text"
-                  className="form-input w-full"
                   placeholder="Your last name"
                   required
                   maxLength={50}
@@ -132,11 +212,10 @@ export default function RegisterForm() {
                 >
                   Phone <span className="text-red-500">*</span>
                 </label>
-                <input
+                <InputField
                   id="phone"
                   name="phone"
                   type="text"
-                  className="form-input w-full"
                   placeholder="Your phone number"
                   required
                   pattern="^(\+?\d{1,4})?\s?\(?\d{1,4}\)?[\s\-]?\d{1,4}[\s\-]?\d{1,4}$"
@@ -150,11 +229,10 @@ export default function RegisterForm() {
                 >
                   Address <span className="text-red-500">*</span>
                 </label>
-                <input
+                <InputField
                   id="address"
                   name="address"
                   type="text"
-                  className="form-input w-full"
                   placeholder="Your address"
                   required
                 />
@@ -168,11 +246,10 @@ export default function RegisterForm() {
                 >
                   Email <span className="text-red-500">*</span>
                 </label>
-                <input
+                <InputField
                   id="email"
                   name="email"
                   type="email"
-                  className="form-input w-full"
                   placeholder="Your email address"
                   required
                 />
@@ -184,11 +261,10 @@ export default function RegisterForm() {
                 >
                   Password <span className="text-red-500">*</span>
                 </label>
-                <input
+                <InputField
                   id="password"
                   name="password"
                   type="password"
-                  className="form-input w-full"
                   placeholder="Password (minimum 8 characters)"
                   required
                   minLength={6}
@@ -223,7 +299,6 @@ export default function RegisterForm() {
                 Sign Up with Google
               </button>
             </div>
-            {/* Bottom link */}
             <div className="mt-6 text-center text-sm text-indigo-200/65">
               Already have an account?{" "}
               <Link className="font-medium text-indigo-500" href="/signin">
@@ -231,7 +306,6 @@ export default function RegisterForm() {
               </Link>
             </div>
           </div>
-          {/* ---- */}
         </div>
       </form>
     </>

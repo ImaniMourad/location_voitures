@@ -5,6 +5,12 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
 @SpringBootApplication
 public class LocationApplication {
 
@@ -12,14 +18,10 @@ public class LocationApplication {
         SpringApplication.run(LocationApplication.class, args);
     }
 
-    // This is used to print a message on the console when the server starts
     @Bean
     CommandLineRunner runner() {
         return args -> {
             System.out.println("Server is running on port 8080");
         };
-    };
-
-
-
+    }
 }

@@ -1,84 +1,164 @@
-export const metadata = {
-  title: "Sign In - Open PRO",
-  description: "Page description",
-};
+"use client";
 
+import { useState, FormEvent } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
+import axios from "axios";
+import Spinner from "@/components/ui/spinner";
+import Alert from "@/components/ui/alert";
+
+interface FormData {
+  email: string;
+  password: string;
+}
 
 export default function SignIn() {
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isAlertVisible, setIsAlertVisible] = useState({
+    visible: false,
+    message: "",
+    type_alert: "" as "" | "success" | "error",
+  });
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    try {
+      const formData = new FormData(event.currentTarget);
+      const data: FormData = {
+        email: formData.get("email") as string,
+        password: formData.get("password") as string,
+      };
+      setIsLoading(true);
+      console.log("Form data:", data);
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+      console.log("API URL:", apiUrl + "/login");
+      const response = await axios.post(`${apiUrl}/login`, { email, password });
+
+      console.log("Login response:", response.data);
+
+      const token = response.data.token;
+
+      console.log("Token:", token);
+      if (!token) throw new Error("Token not found in response headers");
+
+      // Sauvegarder le token
+      localStorage.setItem("jwtToken", token);
+
+      setIsLoading(false);
+      // Rediriger vers le tableau de bord
+      router.push("/admin/vehicules");
+    } catch (error: any) {
+      setIsLoading(false);
+      setIsAlertVisible({
+        visible: true,
+        message: "Login failed. Please try again.",
+        type_alert: "error",
+      });
+      setTimeout(() => {
+        setIsAlertVisible({ visible: false, message: "", type_alert: "" });
+      }, 2500);
+      console.error("Login failed:", error);
+    }
+  };
+
   return (
-    <section>
-      <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <div className="py-12 md:py-20">
-          {/* Section header */}
-          <div className="pb-12 text-center">
-            <h1 className="animate-[gradient_6s_linear_infinite] bg-[linear-gradient(to_right,theme(colors.gray.200),theme(colors.indigo.200),theme(colors.gray.50),theme(colors.indigo.300),theme(colors.gray.200))] bg-[length:200%_auto] bg-clip-text font-nacelle text-3xl font-semibold text-transparent md:text-4xl">
-              Welcome back
-            </h1>
-          </div>
-          {/* Contact form */}
-          <form className="mx-auto max-w-[400px]">
-            <div className="space-y-5">
-              <div>
-                <label
-                  className="mb-1 block text-sm font-medium text-indigo-200/65"
-                  htmlFor="email"
-                >
-                  Email
-                </label>
-                <input
-                  id="email"
-                  type="email"
-                  className="form-input w-full"
-                  placeholder="Your email"
-                />
-              </div>
-              <div>
-                <div className="mb-1 flex items-center justify-between gap-3">
+    <>
+      {isLoading && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <Spinner />
+        </div>
+      )}
+      {isAlertVisible.visible && (
+        <Alert
+          message={isAlertVisible.message}
+          type_alert={isAlertVisible.type_alert}
+          onClose={() =>
+            setIsAlertVisible({ visible: false, message: "", type_alert: "" })
+          }
+        />
+      )}
+      <section>
+        <div className="mx-auto max-w-6xl px-4 sm:px-6">
+          <div className="py-12 md:py-20">
+            {/* Section header */}
+            <div className="pb-12 text-center">
+              <h1 className="text-3xl font-semibold text-transparent md:text-4xl bg-gradient-to-r from-gray-200 via-indigo-200 to-gray-50 bg-clip-text">
+                Welcome back
+              </h1>
+            </div>
+            {/* Contact form */}
+            <form onSubmit={handleSubmit} className="mx-auto max-w-[400px]">
+              <div className="space-y-5">
+                <div>
+                  <label
+                    className="mb-1 block text-sm font-medium text-indigo-200/65"
+                    htmlFor="email"
+                  >
+                    Email
+                  </label>
+                  <input
+                    id="email"
+                    type="email"
+                    name="email"
+                    className="form-input w-full"
+                    placeholder="Your email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                </div>
+                <div>
                   <label
                     className="block text-sm font-medium text-indigo-200/65"
                     htmlFor="password"
                   >
                     Password
                   </label>
+                  <input
+                    id="password"
+                    type="password"
+                    name="password"
+                    className="form-input w-full"
+                    placeholder="Your password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
                 </div>
-                <input
-                  id="password"
-                  type="password"
-                  className="form-input w-full"
-                  placeholder="Your password"
-                />
-              </div>
-              <div className="text-right">
-              <Link
+                <div className="text-right">
+                  <Link
                     className="text-sm text-gray-600 hover:underline hover:text-blue-500"
                     href="/reset-password"
                   >
                     Forgot password?
                   </Link>
+                </div>
               </div>
-            </div>
-            <div className="mt-6 space-y-5">
-              <button className="btn w-full bg-gradient-to-t from-indigo-600 to-indigo-500 bg-[length:100%_100%] bg-[bottom] text-white shadow-[inset_0px_1px_0px_0px_theme(colors.white/.16)] hover:bg-[length:100%_150%]">
-                Sign in
-              </button>
-              <div className="flex items-center gap-3 text-center text-sm italic text-gray-600 before:h-px before:flex-1 before:bg-gradient-to-r before:from-transparent before:via-gray-400/25 after:h-px after:flex-1 after:bg-gradient-to-r after:from-transparent after:via-gray-400/25">
-                or
+              <div className="mt-6 space-y-5">
+                <button
+                  type="submit"
+                  className="btn w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700"
+                >
+                  Sign in
+                </button>
+                <div className="text-center text-sm text-gray-600">
+                  Don't have an account?{" "}
+                  <Link
+                    className="text-indigo-500 hover:underline"
+                    href="/signup"
+                  >
+                    Sign up
+                  </Link>
+                </div>
               </div>
-              <button className="btn relative w-full bg-gradient-to-b from-gray-800 to-gray-800/60 bg-[length:100%_100%] bg-[bottom] text-gray-300 before:pointer-events-none before:absolute before:inset-0 before:rounded-[inherit] before:border before:border-transparent before:[background:linear-gradient(to_right,theme(colors.gray.800),theme(colors.gray.700),theme(colors.gray.800))_border-box] before:[mask-composite:exclude_!important] before:[mask:linear-gradient(white_0_0)_padding-box,_linear-gradient(white_0_0)] hover:bg-[length:100%_150%]">
-                Sign in with Google
-              </button>
-            </div>
-          </form>
-          {/* Bottom link */}
-          <div className="mt-6 text-center text-sm text-indigo-200/65">
-              Don't have an account?{" "}
-            <Link className="font-medium text-indigo-500" href="/signup">
-              Sign up
-            </Link>
+            </form>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </>
   );
 }
