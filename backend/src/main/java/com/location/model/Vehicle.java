@@ -11,9 +11,8 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @Entity
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+@Table(name = "vehicle")
+@Data @AllArgsConstructor @NoArgsConstructor
 public class Vehicle {
 
     @Id

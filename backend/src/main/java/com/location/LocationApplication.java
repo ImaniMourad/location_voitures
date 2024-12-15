@@ -16,7 +16,7 @@ public class LocationApplication {
     @Bean
     CommandLineRunner runner() {
         return args -> {
-            System.out.println("Server is running on port 8080");
+            System.out.println("Server is running on port 8081");
         };
     };
 

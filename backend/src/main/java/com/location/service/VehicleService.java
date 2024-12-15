@@ -1,4 +1,9 @@
 package com.location.service;
 
-public class VehicleService {
+import com.location.dto.VehicleDTO;
+import com.location.exceptions.VehicleAlreadyExistsException;
+
+public interface VehicleService {
+    // method to save a vehicle
+    VehicleDTO saveVehicle(VehicleDTO vehicleDTO) throws VehicleAlreadyExistsException;
 }
