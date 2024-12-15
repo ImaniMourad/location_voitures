@@ -4,7 +4,6 @@ import { useState, useMemo } from "react";
 import List from "@/components/List";
 import FormAdd from "./add/add-form-client";
 import FormEdit from "./edit/edit-form-client";
-import useAuth from '../../../../hooks/useAuth.tsx';
 
 type Client = {
   id: number;
@@ -22,12 +21,6 @@ const initialClients: Client[] = [
 ];
 
 export default function ClientManagement() {
-  const isAuthenticated = useAuth();
-
-  if (!isAuthenticated) {
-    return null; // Or a loading spinner
-  }
-
   const [clients, setClients] = useState<Client[]>(initialClients);
   const [isFormAddOpen, setIsFormAddOpen] = useState(false);
   const [isFormEditOpen, setIsFormEditOpen] = useState(false);

@@ -16,16 +16,18 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
+
 
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
     private final String secretKey;
+    private final JwtConfig jwtConfig;
 
     public JwtAuthenticationFilter(AuthenticationManager authenticationManager, JwtConfig jwtConfig) {
         this.authenticationManager = authenticationManager;
         this.secretKey = jwtConfig.getSecretKey();
+        this.jwtConfig = jwtConfig;
     }
 
     @Override
@@ -45,12 +47,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         String username = ((org.springframework.security.core.userdetails.User) authResult.getPrincipal()).getUsername();
         String userType = ((org.springframework.security.core.userdetails.User) authResult.getPrincipal()).getAuthorities().toArray()[0].toString();
 
-        String token = Jwts.builder()
-                .setSubject(username)
-                .claim("user_type", userType)
-                .setExpiration(new Date(System.currentTimeMillis() + 864_000_000)) // 10 jours
-                .signWith(SignatureAlgorithm.HS256, secretKey)
-                .compact();
+        String token = jwtConfig.generateToken(username, userType);
 
         // Configure CORS headers
         response.setContentType("application/json");
@@ -61,9 +58,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         response.setHeader("Access-Control-Expose-Headers", "Authorization");
 
         // Write the token to the response
-        response.getWriter().write(
-                "{\"token\":\"" + token + "\", \"user_type\":\"" + userType + "\"}"
-        );
+        response.getWriter().write(token);
     }
 
     @Data

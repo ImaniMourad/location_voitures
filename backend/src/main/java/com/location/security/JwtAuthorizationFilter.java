@@ -1,6 +1,6 @@
 package com.location.security;
 
-
+import com.location.config.JwtConfig;
 import io.jsonwebtoken.Jwts;
 import jakarta.servlet.ServletException;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -15,9 +15,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
+    private final JwtConfig jwtConfig;
 
-    public JwtAuthorizationFilter(AuthenticationManager authManager) {
+    public JwtAuthorizationFilter(AuthenticationManager authManager, JwtConfig jwtConfig) {
         super(authManager);
+        this.jwtConfig = jwtConfig;
     }
 
     @Override
@@ -38,9 +40,8 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
     private UsernamePasswordAuthenticationToken getAuthentication(HttpServletRequest request) {
         String token = request.getHeader("Authorization");
         if (token != null) {
-            // Use Jwts.parserBuilder() and build the parser with the signing key
             String user = Jwts.parserBuilder()
-                    .setSigningKey("SecretKeyToGenJWTs".getBytes()) // Ensure the key is a byte array
+                    .setSigningKey(jwtConfig.getSecretKey().getBytes()) // Convertissez la clé en tableau de bytes
                     .build()
                     .parseClaimsJws(token.replace("Bearer ", ""))
                     .getBody()
@@ -52,5 +53,4 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
         }
         return null;
     }
-
 }

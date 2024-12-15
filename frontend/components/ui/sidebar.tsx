@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -9,11 +9,15 @@ export default function Sidebar() {
   const pathname = usePathname();
   const path = pathname.split("/");
 
-  //if the path is less than 3, it means we are not in the admin page
+  // If the path is less than 3, it means we are not in the admin page
   if (path.length < 3) return null;
 
   const activePath = path[2].charAt(0).toUpperCase() + path[2].slice(1);
-  const [activeItem, setActiveItem] = useState<string | null>(activePath);
+  const [activeItem, setActiveItem] = useState<string | null>(null);
+
+  useEffect(() => {
+    setActiveItem(activePath);
+  }, [activePath]);
 
   const menuItems = [
     {
@@ -58,7 +62,6 @@ export default function Sidebar() {
       ),
       path: "/admin/clients",
     },
-    //reservations
     {
       title: "Reservations",
       icon: (

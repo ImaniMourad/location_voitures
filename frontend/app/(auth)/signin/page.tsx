@@ -33,14 +33,13 @@ export default function SignIn() {
         password: formData.get("password") as string,
       };
       setIsLoading(true);
-      console.log("Form data:", data);
       const apiUrl = process.env.NEXT_PUBLIC_API_URL;
       console.log("API URL:", apiUrl + "/login");
       const response = await axios.post(`${apiUrl}/login`, { email, password });
 
       console.log("Login response:", response.data);
 
-      const token = response.data.token;
+      const token = response.data;
 
       console.log("Token:", token);
       if (!token) throw new Error("Token not found in response headers");
@@ -48,9 +47,9 @@ export default function SignIn() {
       // Sauvegarder le token
       localStorage.setItem("jwtToken", token);
 
-      setIsLoading(false);
       // Rediriger vers le tableau de bord
-      router.push("/admin/vehicules");
+      router.push("/admin/vehicles");
+      setIsLoading(false);
     } catch (error: any) {
       setIsLoading(false);
       setIsAlertVisible({
