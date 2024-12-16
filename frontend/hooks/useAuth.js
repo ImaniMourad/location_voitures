@@ -1,41 +1,48 @@
-import { useState, useEffect } from "react";
-import axios from "axios";
+// hooks/useAuth.js
+
+import { useState, useEffect } from 'react';
+import axios from 'axios';
+import { useRouter } from 'next/navigation';
 
 const useAuth = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-
-  const verifyToken = async (token) => {
-    try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-      const response = await axios.post(`${apiUrl}/auth/verify-token`, {
-        token,
-      });
-
-      if (response.data.isValid) {
-        setIsAuthenticated(true);
-        console.log("Token vérifié:");
-      } else {
-        setIsAuthenticated(false);
-        console.log("Token invalide");
-      }
-    } catch (error) {
-      console.error("Erreur de vérification du token", error);
-      setIsAuthenticated(false);
-      console.log("Token invalide");
-    } // <-- Missing closing brace added here
-  };
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
-    // Récupérer le token du stockage local
-    const token = localStorage.getItem("jwtToken");
-    console.log("Token récupéré:", token);
-    if (token) {
-      console.log("Vérification du token...");
-      verifyToken(token);
-    }
+    const verifyToken = async () => {
+      try {
+        const token = localStorage.getItem('jwtToken');
+        if (!token) {
+          console.error('User is not authenticated');
+          setIsAuthenticated(false);
+          router.push('/signin'); // Redirect to login page if token is not found
+          return;
+        }
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+        const response = await axios.get(`${apiUrl}/auth/verify-token`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (response.status === 200) {
+          console.log('User is authenticated');
+          setIsAuthenticated(true);
+        }
+      } catch (error) {
+        console.error('User is not authenticated');
+        setIsAuthenticated(false);
+        router.push('/signin'); // Redirect to login page if token is invalid
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    verifyToken();
   }, []);
 
-  return { isAuthenticated };
+  return { isAuthenticated, loading };
 };
 
 export default useAuth;

@@ -27,7 +27,7 @@ public class VehicleServiceImpl implements VehicleService {
         }
         Vehicle vehicle = vehicleMapper.fromVehicleDTO(vehicleDTO);
         System.out.println("Vehicle:" + vehicle);
-        Vehicle savedVehicle = vehicleRepository.save(vehicle) 
+        Vehicle savedVehicle = vehicleRepository.save(vehicle);
         return vehicleMapper.fromVehicle(savedVehicle);
     }
 

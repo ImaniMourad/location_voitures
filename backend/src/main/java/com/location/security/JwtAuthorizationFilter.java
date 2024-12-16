@@ -7,7 +7,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
-
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -24,26 +23,32 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
-        String header = request.getHeader("Authorization");
+        String token = extractToken(request);
 
-        if (header == null || !header.startsWith("Bearer ")) {
+        if (token == null) {
             chain.doFilter(request, response);
             return;
         }
 
-        UsernamePasswordAuthenticationToken authentication = getAuthentication(request);
-
+        UsernamePasswordAuthenticationToken authentication = getAuthentication(token);
         SecurityContextHolder.getContext().setAuthentication(authentication);
         chain.doFilter(request, response);
     }
 
-    private UsernamePasswordAuthenticationToken getAuthentication(HttpServletRequest request) {
-        String token = request.getHeader("Authorization");
+    private String extractToken(HttpServletRequest request) {
+        String header = request.getHeader("Authorization");
+        if (header != null && header.startsWith("Bearer ")) {
+            return header.replace("Bearer ", "");
+        }
+        return null;
+    }
+
+    private UsernamePasswordAuthenticationToken getAuthentication(String token) {
         if (token != null) {
             String user = Jwts.parserBuilder()
-                    .setSigningKey(jwtConfig.getSecretKey().getBytes()) // Convertissez la clé en tableau de bytes
+                    .setSigningKey(jwtConfig.getSecretKey())
                     .build()
-                    .parseClaimsJws(token.replace("Bearer ", ""))
+                    .parseClaimsJws(token)
                     .getBody()
                     .getSubject();
 
