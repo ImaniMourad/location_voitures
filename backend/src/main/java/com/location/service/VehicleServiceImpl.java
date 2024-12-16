@@ -9,6 +9,8 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 
 @Service
 @Transactional
@@ -29,6 +31,12 @@ public class VehicleServiceImpl implements VehicleService {
         System.out.println("Vehicle: " + vehicle);
         Vehicle savedVehicle = vehicleRepository.save(vehicle);
         return vehicleMapper.fromVehicle(savedVehicle);
+    }
+
+    @Override
+    public List<VehicleDTO> getVehicles() {
+        List<Vehicle> vehicles = vehicleRepository.findAll();
+        return vehicleMapper.fromVehicleList(vehicles);
     }
 
 }
