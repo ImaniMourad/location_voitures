@@ -27,6 +27,9 @@ public class UserServiceImpl  implements UserService{
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
+    @Autowired
+    private EmailService emailService;
+
     @Override
     public UserDTO saveUser(UserDTO userDTO) throws UserAlreadyExistsException {
         if (userRepository.findByEmail(userDTO.getEmail()) != null ) {
@@ -42,6 +45,13 @@ public class UserServiceImpl  implements UserService{
     public List<UserDTO> getUsers() {
         List<User> users = userRepository.findAll();
         return userMapper.fromUserList(users);
+    }
+
+    @Override
+    public void sendEmail(String email) {
+        String subject = "Your OTP Code";
+        String text = "Your OTP code is: 123456"; // Vous pouvez générer un OTP dynamique ici
+        emailService.sendEmail(email, subject, text);
     }
 }
 

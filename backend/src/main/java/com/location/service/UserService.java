@@ -14,4 +14,6 @@ public interface UserService {
 
     // method to get all users
     List<UserDTO> getUsers();
+
+    void sendEmail(String email);
 }
