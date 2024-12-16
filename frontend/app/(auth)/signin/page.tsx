@@ -34,14 +34,12 @@ export default function SignIn() {
       };
       setIsLoading(true);
       const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-      console.log("API URL:", apiUrl + "/login");
+
       const response = await axios.post(`${apiUrl}/login`, { email, password });
 
-      console.log("Login response:", response.data);
 
       const token = response.data;
 
-      console.log("Token:", token);
       if (!token) throw new Error("Token not found in response headers");
 
       // Sauvegarder le token

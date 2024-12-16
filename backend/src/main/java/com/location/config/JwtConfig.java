@@ -1,16 +1,15 @@
 package com.location.config;
 
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
-
 import io.jsonwebtoken.*;
 
-import org.springframework.stereotype.Component;
 import java.util.Date;
 
 @Configuration
-@Component
+@Slf4j
 public class JwtConfig {
 
     @Getter
@@ -20,8 +19,7 @@ public class JwtConfig {
     @Value("${jwt.expiration}")
     private long expiration;
 
-    // Générer un token
-    public String generateToken(String username , String userType) {
+    public String generateToken(String username, String userType) {
         return Jwts.builder()
                 .setSubject(username)
                 .claim("user_type", userType)
@@ -31,7 +29,6 @@ public class JwtConfig {
                 .compact();
     }
 
-    // Extract username from token
     public String extractUsername(String token) {
         return Jwts.parser()
                 .setSigningKey(secretKey)
@@ -40,19 +37,18 @@ public class JwtConfig {
                 .getSubject();
     }
 
-    // Validate token
     public boolean validateToken(String token) {
         try {
             Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
             return true;
         } catch (ExpiredJwtException e) {
-            System.out.println("Token expiré");
+            log.error("Token expired", e);
         } catch (MalformedJwtException e) {
-            System.out.println("Token mal formé");
+            log.error("Malformed token", e);
         } catch (SignatureException e) {
-            System.out.println("Signature invalide");
+            log.error("Invalid signature", e);
         } catch (Exception e) {
-            System.out.println("Erreur de validation du token");
+            log.error("Token validation error", e);
         }
         return false;
     }

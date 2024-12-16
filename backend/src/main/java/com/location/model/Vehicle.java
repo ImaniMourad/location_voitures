@@ -11,7 +11,6 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @Entity
-@Table(name = "vehicle")
 @Data @AllArgsConstructor @NoArgsConstructor
 public class Vehicle {
 
@@ -29,7 +28,7 @@ public class Vehicle {
     @Size(max = 30)
     private String type;
 
-    @Size(max = 15)
+
     @Enumerated(EnumType.STRING)
     private VehicleStatus  status;
 
