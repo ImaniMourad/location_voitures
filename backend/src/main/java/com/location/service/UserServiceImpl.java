@@ -11,6 +11,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 
 @Service
 @Transactional
@@ -34,6 +36,12 @@ public class UserServiceImpl  implements UserService{
         user.setPassword(passwordEncoder.encode(userDTO.getPassword())); // Hashed password
         User savedUser = userRepository.save(user);
         return userMapper.fromUser(savedUser);
+    }
+
+    @Override
+    public List<UserDTO> getUsers() {
+        List<User> users = userRepository.findAll();
+        return userMapper.fromUserList(users);
     }
 }
 
