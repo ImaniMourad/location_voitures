@@ -46,7 +46,7 @@ export default function SignIn() {
       localStorage.setItem("jwtToken", token);
 
       // Rediriger vers le tableau de bord
-      router.push("/admin/vehicles");
+      router.push("/admin/statistics");
       setIsLoading(false);
     } catch (error: any) {
       setIsLoading(false);

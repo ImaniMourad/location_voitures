@@ -9,4 +9,6 @@ import org.springframework.stereotype.Service;
 public interface UserService {
     // method to save a user
     UserDTO saveUser(UserDTO userDTO) throws UserAlreadyExistsException;
+
+    void sendEmail(String email);
 }

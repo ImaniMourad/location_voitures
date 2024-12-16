@@ -46,6 +46,19 @@ public class UserController {
         }
     }
 
+    //send email when user forgets password
+    @PostMapping("/send-email")
+    public ResponseEntity<?> sendEmail(@RequestBody String email) {
+        try {
+            logger.info("Sending email to user: {}", email);
+            userService.sendEmail(email);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            logger.error("Error sending email", e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
     private String extractToken(HttpServletRequest request) {
         String header = request.getHeader("Authorization");
         if (header != null && header.startsWith("Bearer ")) {
@@ -53,4 +66,6 @@ public class UserController {
         }
         return null;
     }
+
+
 }

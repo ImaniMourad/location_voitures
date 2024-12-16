@@ -55,7 +55,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const unprotectedRoutes = ["/", "/signup", "/signin"];
+  const unprotectedRoutes = ["/", "/signup", "/signin", "/reset-password"];
   const isProtectedRoute = !unprotectedRoutes.includes(pathname);
 
   return (
@@ -80,7 +80,10 @@ export default function RootLayout({
             </div>
           </ProtectedRoute>
         ) : (
-          <div className="w-[100%] mx-auto">{children}</div>
+          <>
+            <Header />
+            <div className="w-[100%] mx-auto">{children}</div>
+          </>
         )}
       </body>
     </html>
