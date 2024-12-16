@@ -5,9 +5,9 @@ import com.location.exceptions.VehicleAlreadyExistsException;
 import com.location.mappers.VehicleMapperImpl;
 import com.location.model.Vehicle;
 import com.location.repository.VehicleRepository;
-import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
@@ -26,8 +26,8 @@ public class VehicleServiceImpl implements VehicleService {
             throw new VehicleAlreadyExistsException("Vehicle with this registration number already exists");
         }
         Vehicle vehicle = vehicleMapper.fromVehicleDTO(vehicleDTO);
-        System.out.println("Vehicle: " + vehicle);
-        Vehicle savedVehicle = vehicleRepository.save(vehicle);
+        System.out.println("Vehicle:" + vehicle);
+        Vehicle savedVehicle = vehicleRepository.save(vehicle) 
         return vehicleMapper.fromVehicle(savedVehicle);
     }
 
