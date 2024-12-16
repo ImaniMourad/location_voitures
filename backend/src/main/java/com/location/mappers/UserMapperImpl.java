@@ -31,6 +31,10 @@ public class UserMapperImpl {
         for(User user: users){
             userDTOList.add(fromUser(user));
         }
+        // make password null
+        for(UserDTO userDTO: userDTOList){
+            userDTO.setPassword(null);
+        }
         return userDTOList;
     }
 }
