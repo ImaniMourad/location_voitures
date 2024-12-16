@@ -38,7 +38,7 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable) // Disable CSRF
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/register","/auth/verify-token", "/reset-password","/send-email").permitAll()
+                        .requestMatchers("/login", "/register","/auth/verify-token", "/reset-password","/send-email","/vehicles").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
