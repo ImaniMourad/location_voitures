@@ -10,8 +10,9 @@ export default function ResetPassword() {
 
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-      console.log("API URL:",`${apiUrl}/send-email`);
-      const response = await axios.post(`${apiUrl}/send-email`, { email });
+      console.log("API URL:",`${apiUrl}/send-otp`);
+      console.log("Email:", email);
+      const response = await axios.post(`${apiUrl}/send-otp`, null, { params: { email } });
 
       if (response.status !== 200) {
         throw new Error("Failed to reset password");

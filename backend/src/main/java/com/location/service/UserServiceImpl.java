@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 
 @Service
@@ -48,10 +49,18 @@ public class UserServiceImpl  implements UserService{
     }
 
     @Override
-    public void sendEmail(String email) {
-        String subject = "Your OTP Code";
-        String text = "Your OTP code is: 123456"; // Vous pouvez générer un OTP dynamique ici
-        emailService.sendEmail(email, subject, text);
+    public void sendOTP(String to) {
+        String accessKey = generateAccessKey();
+        String subject = "Votre clé d'accès";
+        String text = "Voici votre clé d'accès : " + accessKey;
+        System.out.println("Access key: " + accessKey);
+        System.out.println("Email: " + to);
+        emailService.sendEmail(to, subject, text);
+    }
+
+
+    private String generateAccessKey() {
+        return UUID.randomUUID().toString();
     }
 }
 

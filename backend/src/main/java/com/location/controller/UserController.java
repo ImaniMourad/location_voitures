@@ -47,11 +47,11 @@ public class UserController {
     }
 
     //send email when user forgets password
-    @PostMapping("/send-email")
-    public ResponseEntity<?> sendEmail(@RequestBody String email) {
+    @PostMapping("/send-otp")
+    public ResponseEntity<?> sendEmail(@RequestParam String email) {
         try {
             logger.info("Sending email to user: {}", email);
-            userService.sendEmail(email);
+            userService.sendOTP(email);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             logger.error("Error sending email", e);

@@ -1,6 +1,5 @@
 package com.location.service;
 
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -14,8 +13,6 @@ public class EmailService {
 
     public void sendEmail(String to, String subject, String text) {
         SimpleMailMessage message = new SimpleMailMessage();
-        System.out.println("-------------------------");
-        System.out.println(to);
         message.setTo(to);
         message.setSubject(subject);
         message.setText(text);
