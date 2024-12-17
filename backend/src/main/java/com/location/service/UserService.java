@@ -3,11 +3,11 @@ package com.location.service;
 
 import com.location.dto.UserDTO;
 import com.location.exceptions.UserAlreadyExistsException;
+import com.location.exceptions.UserNotExistsException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Service
 public interface UserService {
     // method to save a user
     UserDTO saveUser(UserDTO userDTO) throws UserAlreadyExistsException;
@@ -15,5 +15,9 @@ public interface UserService {
     // method to get all users
     List<UserDTO> getUsers();
 
-    void sendOTP(String to);
+    String sendOTP(String to) throws UserNotExistsException;
+
+    boolean validateOTP(String email, String otp)  ;
+
+    void resetPassword(String email, String password) throws UserNotExistsException;
 }

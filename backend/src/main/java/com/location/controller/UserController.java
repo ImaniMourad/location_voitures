@@ -2,6 +2,7 @@ package com.location.controller;
 
 import com.location.config.JwtConfig;
 import com.location.dto.UserDTO;
+import com.location.exceptions.UserNotExistsException;
 import com.location.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,13 +52,41 @@ public class UserController {
     public ResponseEntity<?> sendEmail(@RequestParam String email) {
         try {
             logger.info("Sending email to user: {}", email);
-            userService.sendOTP(email);
-            return ResponseEntity.ok().build();
+            String otp = userService.sendOTP(email);
+            return ResponseEntity.ok(otp);
+        } catch (UserNotExistsException e) {
+            logger.error("No user found with email: {}", email);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (Exception e) {
             logger.error("Error sending email", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/verify-otp")
+    public ResponseEntity<?> verifyOTP(@RequestParam String email, @RequestParam String otp) {
+        try {
+            userService.validateOTP(email, otp);
+            return ResponseEntity.ok("OTP verified successfully");
+        } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestParam String email, @RequestParam String password) {
+        try {
+            System.out.println("Resetting password for user: " + email);
+            System.out.println("New password: " + password);
+            userService.resetPassword(email, password);
+            return ResponseEntity.ok("Password reset successfully");
+        } catch (UserNotExistsException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+
 
     private String extractToken(HttpServletRequest request) {
         String header = request.getHeader("Authorization");

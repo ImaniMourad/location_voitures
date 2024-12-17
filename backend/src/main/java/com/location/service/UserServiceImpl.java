@@ -3,14 +3,18 @@ package com.location.service;
 
 import com.location.dto.UserDTO;
 import com.location.exceptions.UserAlreadyExistsException;
+import com.location.exceptions.UserNotExistsException;
 import com.location.mappers.UserMapperImpl;
+import com.location.model.Otp;
 import com.location.model.User;
+import com.location.repository.OtpRepository;
 import com.location.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -31,6 +35,9 @@ public class UserServiceImpl  implements UserService{
     @Autowired
     private EmailService emailService;
 
+    @Autowired
+    private OtpRepository otpRepository;
+
     @Override
     public UserDTO saveUser(UserDTO userDTO) throws UserAlreadyExistsException {
         if (userRepository.findByEmail(userDTO.getEmail()) != null ) {
@@ -49,18 +56,64 @@ public class UserServiceImpl  implements UserService{
     }
 
     @Override
-    public void sendOTP(String to) {
-        String accessKey = generateAccessKey();
-        String subject = "Votre clé d'accès";
-        String text = "Voici votre clé d'accès : " + accessKey;
-        System.out.println("Access key: " + accessKey);
-        System.out.println("Email: " + to);
+    public String sendOTP(String to) throws UserNotExistsException {
+        //verify if email exists
+        User user = userRepository.findByEmail(to);
+        if (user == null) {
+            throw new UserNotExistsException("User with this email does not exist");
+        }
+        // Generate OTP
+        String otp = generateOTP();
+
+        // Save OTP in database
+        Otp otpEntity = new Otp();
+        otpEntity.setEmail(to);
+        otpEntity.setOtp(otp);
+        otpEntity.setUsed(false);
+        otpEntity.setExpiresAt(LocalDateTime.now().plusMinutes(5)); // Expire in 5 minutes
+        otpRepository.save(otpEntity);
+
+        // Send OTP via email
+        String subject = "Reset Your Password - OTP";
+        String text = "Your OTP Code is " + otp;
         emailService.sendEmail(to, subject, text);
+
+        return otp;
+    }
+
+    public boolean validateOTP(String email, String otp) {
+        Otp otpEntity = otpRepository.findByEmailAndOtpAndUsedFalse(email, otp);
+
+        if (otpEntity == null) {
+            throw new IllegalArgumentException("Invalid OTP");
+        }
+
+        if (otpEntity.getExpiresAt().isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException("OTP has expired");
+        }
+
+        // Mark OTP as used
+        otpEntity.setUsed(true);
+        otpRepository.save(otpEntity);
+
+        return true; // OTP is valid
+    }
+
+    @Override
+    public void resetPassword(String email, String password) throws UserNotExistsException {
+        User user = userRepository.findByEmail(email);
+        if (user == null) {
+            throw new UserNotExistsException("User with this email does not exist");
+        }
+        user.setPassword(passwordEncoder.encode(password));
+        userRepository.save(user);
     }
 
 
-    private String generateAccessKey() {
-        return UUID.randomUUID().toString();
+    private String generateOTP() {
+        String otp = String.valueOf((int) (Math.random() * (999999 - 100000 + 1) + 100000));
+        return  otp ;
     }
+
 }
 
