@@ -42,10 +42,10 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException {
-        String username = ((org.springframework.security.core.userdetails.User) authResult.getPrincipal()).getUsername();
+        String cin = ((org.springframework.security.core.userdetails.User) authResult.getPrincipal()).getUsername();
         String userType = ((org.springframework.security.core.userdetails.User) authResult.getPrincipal()).getAuthorities().toArray()[0].toString();
 
-        String token = jwtConfig.generateToken(username, userType);
+        String token = jwtConfig.generateToken(cin, userType);
 
         // Configure CORS headers
         response.setContentType("application/json");

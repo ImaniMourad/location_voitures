@@ -27,22 +27,6 @@ public class LocationApplication {
     CommandLineRunner runner() {
         return args -> {
             System.out.println("Server is running on port 8081");
-
-            // Tester la méthode getVehicleById
-            try {
-                VehicleDTO vehicle = vehicleService.getVehicleById("ABC123"); // Exemple avec l'ID 1
-                System.out.println("Vehicle retrieved: " + vehicle);
-            } catch (Exception e) {
-                System.err.println("Error retrieving vehicle: " + e.getMessage());
-            }
-
-            // Tester la méthode getUserByCIN
-            try {
-                UserDTO user = userService.getUserByCIN("AB123456");
-                System.out.println("User retrieved: " + user);
-            } catch (Exception e) {
-                System.err.println("Error retrieving user: " + e.getMessage());
-            }
         };
     }
 }
