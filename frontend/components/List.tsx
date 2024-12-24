@@ -28,7 +28,7 @@ interface ListProps {
   columns: { header: string; accessor: string }[]; // List of columns with header and accessor (key)
   rows: any[]; // Array of data (clients, vehicles, etc.)
   onEdit: (item: any) => void; // Function to handle editing an item
-  onDelete: (id: number) => void; // Function to handle deleting an item
+  onDelete: (id: any) => void; // Function to handle deleting an item
   onAdd: () => void; // Function to open the form to add a new item
 }
 
