@@ -39,4 +39,10 @@ public class VehicleServiceImpl implements VehicleService {
         return vehicleMapper.fromVehicleList(vehicles);
     }
 
+    @Override
+    public VehicleDTO getVehicleById(String licensePlate) {
+        Vehicle vehicle = vehicleRepository.findByLicensePlate(licensePlate);
+        return vehicleMapper.fromVehicle(vehicle);
+    }
+
 }

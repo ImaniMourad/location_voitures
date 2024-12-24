@@ -26,6 +26,11 @@ public class VehicleController {
         }
     }
 
+    @GetMapping("/vehicle/{licensePlate}")
+    public ResponseEntity<?> getVehicleById(String licensePlate) {
+        return ResponseEntity.ok(vehicleService.getVehicleById(licensePlate));
+    }
+
     @GetMapping("/vehicles")
     public ResponseEntity<?> getVehicles() {
         return ResponseEntity.ok(vehicleService.getVehicles());

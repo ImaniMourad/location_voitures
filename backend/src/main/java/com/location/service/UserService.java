@@ -20,4 +20,6 @@ public interface UserService {
     boolean validateOTP(String email, String otp)  ;
 
     void resetPassword(String email, String password) throws UserNotExistsException;
+
+    UserDTO getUserByCIN(String cin) throws UserNotExistsException;
 }

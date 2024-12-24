@@ -10,4 +10,6 @@ public interface VehicleService {
     VehicleDTO saveVehicle(VehicleDTO vehicleDTO) throws VehicleAlreadyExistsException;
     // method to get all vehicles
     List<VehicleDTO> getVehicles();
+    // method to get vrhicle by id
+    VehicleDTO getVehicleById(String licensePlate);
 }

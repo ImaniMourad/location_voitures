@@ -63,6 +63,22 @@ public class UserController {
         }
     }
 
+    @GetMapping("User/{CIN}")
+    public ResponseEntity<?> getUserByCIN(@PathVariable String CIN) {
+        try {
+            logger.info("Getting user with CIN: {}", CIN);
+            UserDTO user = userService.getUserByCIN(CIN);
+            return ResponseEntity.ok(user);
+        } catch (UserNotExistsException e) {
+            logger.error("No user found with CIN: {}", CIN);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            logger.error("Error getting user", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+
+    }
+
     @PostMapping("/verify-otp")
     public ResponseEntity<?> verifyOTP(@RequestParam String email, @RequestParam String otp) {
         try {

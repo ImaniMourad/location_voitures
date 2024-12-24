@@ -115,5 +115,14 @@ public class UserServiceImpl  implements UserService{
         return  otp ;
     }
 
+    @Override
+    public UserDTO getUserByCIN(String cin) throws UserNotExistsException {
+        User user = userRepository.findByCin(cin);
+        if (user == null) {
+            throw new UserNotExistsException("User with this CIN does not exist");
+        }
+        return userMapper.fromUser(user);
+    }
+
 }
 
