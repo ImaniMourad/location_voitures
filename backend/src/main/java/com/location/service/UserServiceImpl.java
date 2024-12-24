@@ -2,11 +2,13 @@ package com.location.service;
 
 
 import com.location.dto.UserDTO;
+import com.location.dto.ClientDTO;
 import com.location.exceptions.UserAlreadyExistsException;
 import com.location.exceptions.UserNotExistsException;
 import com.location.mappers.UserMapperImpl;
 import com.location.model.Otp;
 import com.location.model.User;
+import com.location.model.Client;
 import com.location.repository.OtpRepository;
 import com.location.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -122,6 +124,12 @@ public class UserServiceImpl  implements UserService{
             throw new UserNotExistsException("User with this CIN does not exist");
         }
         return userMapper.fromUser(user);
+    }
+
+    @Override
+    public List<ClientDTO> getClients() {
+        List<Client> clients = userRepository.findClients();
+        return userMapper.fromClientList(clients);
     }
 
 }

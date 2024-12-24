@@ -2,6 +2,7 @@ package com.location.service;
 
 
 import com.location.dto.UserDTO;
+import com.location.dto.ClientDTO;
 import com.location.exceptions.UserAlreadyExistsException;
 import com.location.exceptions.UserNotExistsException;
 import org.springframework.stereotype.Service;
@@ -22,4 +23,6 @@ public interface UserService {
     void resetPassword(String email, String password) throws UserNotExistsException;
 
     UserDTO getUserByCIN(String cin) throws UserNotExistsException;
+
+    List<ClientDTO> getClients();
 }
