@@ -1,5 +1,6 @@
 package com.location.mappers;
 
+import com.location.dto.ClientDTO;
 import com.location.dto.UserDTO;
 import com.location.model.Client;
 import com.location.model.User;
@@ -36,6 +37,20 @@ public class UserMapperImpl {
             userDTO.setPassword(null);
         }
         return userDTOList;
+    }
+    
+    public List<ClientDTO> fromClientList(@NotNull List<Client> clients) {
+        List<ClientDTO> clientDTOList = new ArrayList<>();
+        for(Client client: clients){
+            clientDTOList.add(fromClient(client));
+        }
+        return clientDTOList;
+    }
+
+    public ClientDTO fromClient(Client client){
+        ClientDTO clientDTO = new ClientDTO();
+        BeanUtils.copyProperties(client,clientDTO);
+        return clientDTO;
     }
 }
 

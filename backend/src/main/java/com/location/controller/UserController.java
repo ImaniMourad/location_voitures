@@ -116,4 +116,9 @@ public class UserController {
     public ResponseEntity<?> getUsers() {
         return ResponseEntity.ok(userService.getUsers());
     }
+
+    @GetMapping("/clients")
+    public ResponseEntity<?> getClients() {
+        return ResponseEntity.ok(userService.getClients());
+    }
 }
