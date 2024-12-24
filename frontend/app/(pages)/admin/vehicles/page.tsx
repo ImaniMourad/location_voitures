@@ -1,52 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import List from "@/components/List";
 import FormAdd from "./add/add-vehicle-form";
 import FormEdit from "./edit/edit-vehicle-form";
 import PageIllustration from "@/components/page-illustration";
+import axios from "axios";
 
-const initialVehicles = [
-  {
-    id: 1,
-    brand: "Renault",
-    model: "Clio",
-    year: 2022,
-    rentalPrice: 45,
-    type: "Citadine",
-    status: "Available",
-  },
-  {
-    id: 2,
-    brand: "Peugeot",
-    model: "3008",
-    year: 2021,
-    rentalPrice: 45,
-    type: "SUV",
-    status: "Available",
-  },
-  {
-    id: 3,
-    brand: "Citroën",
-    model: "C3",
-    year: 2023,
-    rentalPrice: 50,
-    type: "Compacte",
-    status: "Available",
-  },
-  {
-    id: 4,
-    brand: "BMW",
-    model: "Série 5",
-    year: 2022,
-    rentalPrice: 120,
-    type: "Berline",
-    status: "Available",
-  },
-];
 
 export default function VehicleList() {
-  const [vehicles, setVehicles] = useState(initialVehicles);
+  const [vehicles, setVehicles] = useState<Array<{
+    id: number;
+    brand: string;
+    model: string;
+    year: number;
+    rentalPrice: number;
+    type: string;
+    status: string;
+  }>>([]);
   const [isFormAddOpen, setIsFormAddOpen] = useState(false);
   const [isFormEditOpen, setIsFormEditOpen] = useState(false);
   const [editingVehicle, setEditingVehicle] = useState<{
@@ -59,11 +30,33 @@ export default function VehicleList() {
     status: string;
   } | null>(null);
 
+  useEffect(() => {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+    const fetchVehicles = async () => {
+      try {
+        const token = localStorage.getItem("jwtToken");
+        if (!token) {
+          return;
+        }
+        const response = await axios.get(`${apiUrl}/vehicles`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setVehicles(response.data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchVehicles();
+  }, []);
+
   const columns = [
+    { header: "Number", accessor: "licensePlate" },
     { header: "Brand", accessor: "brand" },
     { header: "Model", accessor: "model" },
     { header: "Year", accessor: "year" },
-    { header: "Rental Price", accessor: "rentalPrice" },
+    { header: "Price", accessor: "price" },
     { header: "Type", accessor: "type" },
     { header: "Status", accessor: "status" },
   ];

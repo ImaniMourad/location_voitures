@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import List from "@/components/List";
 import FormAdd from "./add/add-form-reservation";
 import FormEdit from "./edit/edit-form-reservation";
-
+import axios from "axios";
 
 type Reservation = {
     id: number;
@@ -12,28 +12,45 @@ type Reservation = {
     vehicle: string;
     startDate: string;
     endDate: string;
-    status: string;
 };
 
-const initialReservations = [
-    { id: 1, client: "Jean Dupont", vehicle: "Renault Clio", startDate: "2023-07-01", endDate: "2023-07-05", status: "Pending" },
-    { id: 2, client: "Marie Martin", vehicle: "Peugeot 3008", startDate: "2023-07-10", endDate: "2023-07-15", status: "Confirmed" },
-    { id: 3, client: "Pierre Durand", vehicle: "Citroën C3", startDate: "2023-07-20", endDate: "2023-07-25", status: "Cancelled" },
-    { id: 4, client: "Sophie Lefebvre", vehicle: "BMW Série 5", startDate: "2023-08-01", endDate: "2023-08-07", status: "Pending" },
-];
-
 export default function ReservationList() {
-    const [reservations, setReservations] = useState(initialReservations);
+    const [reservations, setReservations] = useState<Reservation[]>([]);
     const [isFormAddOpen, setIsFormAddOpen] = useState(false);
     const [isFormEditOpen, setIsFormEditOpen] = useState(false);
     const [editingReservation, setEditingReservation] = useState<Reservation | null>(null);
+
+    useEffect(() => {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+        const fetchReservations = async () => {
+            try {
+                const token = localStorage.getItem("jwtToken");
+                if (!token) {
+                    return;
+                }
+                const response = await axios.get(`${apiUrl}/reservations`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+                // afficher date de forme jj/mm/aaaa hh:mm sans seconds
+                response.data.forEach((reservation: Reservation) => {
+                    reservation.startDate = new Date(reservation.startDate).toLocaleString("fr-FR");
+                    reservation.endDate = new Date(reservation.endDate).toLocaleString("fr-FR");
+                });
+                setReservations(response.data);
+            } catch (error) {
+                console.error(error);
+            }
+        };
+        fetchReservations();
+    }, []);
 
     const columns = [
         { header: "Client", accessor: "client" },
         { header: "Vehicle", accessor: "vehicle" },
         { header: "Start Date", accessor: "startDate" },
         { header: "End Date", accessor: "endDate" },
-        { header: "Statut", accessor: "status" },
     ];
 
     const handleAddReservation = (newReservation: any) => {

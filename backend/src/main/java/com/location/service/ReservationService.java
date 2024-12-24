@@ -1,9 +1,9 @@
 package com.location.service;
 
-import com.location.dto.ReservationDTO;
 import java.util.List;
+import java.util.Map;
 
 public interface ReservationService {
     // method to get all reservations
-    List<ReservationDTO> getReservations();
+    List<Map<String, Object>> getReservations();
 }
