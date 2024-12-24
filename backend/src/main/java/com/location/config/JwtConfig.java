@@ -19,9 +19,9 @@ public class JwtConfig {
     @Value("${jwt.expiration}")
     private long expiration;
 
-    public String generateToken(String username, String userType) {
+    public String generateToken(String cin, String userType) {
         return Jwts.builder()
-                .setSubject(username)
+                .setSubject(cin)
                 .claim("user_type", userType)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expiration))

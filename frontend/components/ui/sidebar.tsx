@@ -94,20 +94,8 @@ export default function Sidebar() {
 
   return (
     <div className="h-screen w-64 bg-[#0f1725] text-white sticky top-0 left-0 z-50">
-      <div className="p-4 flex flex-col items-center text-center">
-        <Image
-          src="/images/fatih.jpg"
-          alt="Autocar Brand"
-          width={110}
-          height={110}
-          className="rounded-full"
-        />
-        <span className="font-medium text-lg mt-2">Pizza quatre fromages</span>
-        <hr className="w-full border border-white/20 my-4" />
-      </div>
-
       <nav className="p-4">
-        <ul className="space-y-2">
+        <ul className="space-y-2 mt-12">
           {menuItems.map((item) => (
             <li key={item.title}>
               <Link href={item.path} passHref>
