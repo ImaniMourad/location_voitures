@@ -169,7 +169,7 @@ export default function FormEdit({
                 value={vehicleData.status}
               >
                 <option value="">Select a status</option>
-                <option value="available">Available</option>
+                <option value="AVAILABLE">Available</option>
                 <option value="rented">Rented</option>
                 <option value="maintenance">In Maintenance</option>
               </select>

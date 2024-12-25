@@ -1,6 +1,7 @@
 package com.location.controller;
 
 import com.location.dto.VehicleDTO;
+import com.location.enums.VehicleStatus;
 import com.location.exceptions.ImageNotValidException;
 import com.location.exceptions.VehicleAlreadyExistsException;
 import com.location.service.VehicleService;
@@ -46,7 +47,7 @@ public class VehicleController {
             @RequestParam("model") String model,
             @RequestParam("year") String year,
             @RequestParam("type") String type,
-            @RequestParam("status") String status,
+            @RequestParam("status") VehicleStatus status,
             @RequestParam("price") BigDecimal price,
             @RequestParam("horsePower") String horsePower,
             @RequestParam("capacity") String capacity,
