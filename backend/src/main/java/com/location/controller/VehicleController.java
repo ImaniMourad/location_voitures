@@ -32,4 +32,14 @@ public class VehicleController {
     public ResponseEntity<?> getVehicles() {
         return ResponseEntity.ok(vehicleService.getVehicles());
     }
+
+    @DeleteMapping("/vehicle/{licensePlate}")
+    public ResponseEntity<?> deleteVehicle(@PathVariable String licensePlate) {
+        try {
+            vehicleService.deleteVehicle(licensePlate);
+            return ResponseEntity.ok("Vehicle deleted successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
 }

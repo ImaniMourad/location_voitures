@@ -45,4 +45,10 @@ public class VehicleServiceImpl implements VehicleService {
         return vehicleMapper.fromVehicle(vehicle);
     }
 
+    @Override
+    public void deleteVehicle(String licensePlate) {
+        Vehicle vehicle = vehicleRepository.findByLicensePlate(licensePlate);
+        vehicleRepository.delete(vehicle);
+    }
+
 }

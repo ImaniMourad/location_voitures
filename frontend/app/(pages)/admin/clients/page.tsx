@@ -1,63 +1,56 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import List from "@/components/List";
 import FormAdd from "./add/add-form-client";
 import FormEdit from "./edit/edit-form-client";
+import axios from "axios";
 
 
 type Client = {
   id: number;
+  cin: string;
   lastname: string;
   firstname: string;
   email: string;
   phone: string;
 };
 
-const initialClients: Client[] = [
-  {
-    id: 1,
-    lastname: "Dupont",
-    firstname: "Jean",
-    email: "jean.dupont@email.com",
-    phone: "0123456789",
-  },
-  {
-    id: 2,
-    lastname: "Martin",
-    firstname: "Marie",
-    email: "marie.martin@email.com",
-    phone: "0987654321",
-  },
-  {
-    id: 3,
-    lastname: "Dubois",
-    firstname: "Pierre",
-    email: "pierre.dubois@email.com",
-    phone: "0654321987",
-  },
-  {
-    id: 4,
-    lastname: "Lefebvre",
-    firstname: "Sophie",
-    email: "sophie.lefebvre@email.com",
-    phone: "0321654987",
-  },
-];
-
 export default function ClientManagement() {
-  const [clients, setClients] = useState<Client[]>(initialClients);
+  const [clients, setClients] = useState<Client[]>([]);
   const [isFormAddOpen, setIsFormAddOpen] = useState(false);
   const [isFormEditOpen, setIsFormEditOpen] = useState(false);
   const [editingClient, setEditingClient] = useState<Client | null>(null);
 
+  useEffect(() => {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+    const fetchClients = async () => {
+      try {
+        const token = localStorage.getItem("jwtToken");
+        if (!token) {
+          return;
+        }
+        const response = await axios.get(`${apiUrl}/clients`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setClients(response.data);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    fetchClients();
+  }, []);
+
   // Memoize columns to avoid re-creation on each render
   const columns = useMemo(
     () => [
-      { header: "Lastname", accessor: "lastname" },
-      { header: "Firstname", accessor: "firstname" },
+      { header: "CIN", accessor: "cin" },
+      { header: "Lastname", accessor: "lastName" },
+      { header: "Firstname", accessor: "firstName" },
       { header: "Email", accessor: "email" },
-      { header: "Phone", accessor: "phone" },
+      { header: "Phone", accessor: "phoneNumber" },
     ],
     []
   );
