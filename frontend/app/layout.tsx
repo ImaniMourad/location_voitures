@@ -74,8 +74,7 @@ export default function RootLayout({
                 <Sidebar />
               </div>
               <div className="flex-1 overflow-hidden supports-[overflow:clip]:overflow-clip">
-                <Header />
-                <div className="w-[100%] mx-auto">{children}</div>
+                <div className="w-[100%] mx-auto mt-9">{children}</div>
               </div>
             </div>
           </ProtectedRoute>

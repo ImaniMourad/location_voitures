@@ -151,9 +151,6 @@ export default function ResetPassword() {
         <Alert
           type_alert={isAlertVisible.type_alert}
           message={isAlertVisible.message}
-          onClose={() =>
-            setIsAlertVisible({ visible: false, message: "", type_alert: "" })
-          }
         />
       )}
       <div className="min-h-screen flex items-center justify-center bg-background p-4">

@@ -4,11 +4,10 @@ import styled, { keyframes } from "styled-components";
 
 interface CardProps {
   message: string;
-  type_alert: "success" | "error" | "" ;
-  onClose: () => void;
+  type_alert: "success" | "error" | "";
 }
 
-const Card: React.FC<CardProps> = ({ message, type_alert, onClose }) => {
+const Card: React.FC<CardProps> = ({ message, type_alert }) => {
   return (
     <CenteredWrapper>
       <StyledWrapper>
@@ -30,19 +29,6 @@ const Card: React.FC<CardProps> = ({ message, type_alert, onClose }) => {
             </svg>
           </div>
           <div className={`${type_alert}__title`}>{message}</div>
-          <div className={`${type_alert}__close`} onClick={onClose}>
-            <svg
-              height={20}
-              viewBox="0 0 20 20"
-              width={20}
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="m15.8333 5.34166-1.175-1.175-4.6583 4.65834-4.65833-4.65834-1.175 1.175 4.65833 4.65834-4.65833 4.6583 1.175 1.175 4.65833-4.6583 4.6583 4.6583 1.175-1.175-4.6583-4.6583z"
-                fill="#393a37"
-              />
-            </svg>
-          </div>
         </div>
       </StyledWrapper>
     </CenteredWrapper>

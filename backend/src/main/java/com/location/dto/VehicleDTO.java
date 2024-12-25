@@ -18,7 +18,7 @@ public class VehicleDTO {
     private String model;        // Vehicle model
     private String year;         // Manufacturing year
     private String type;         // Type of vehicle (e.g., Sedan, Hatchback)
-    private VehicleStatus status; // Availability status
+    private String status; // Availability status
     private BigDecimal price;    // Price of the vehicle
     private String horsePower;   // Vehicle's horsepower
     private String capacity;     // Capacity (e.g., number of seats)
