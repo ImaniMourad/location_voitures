@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import CustomerProfile from "../profileClient";
 
 export default function Sidebar() {
   const pathname = usePathname();
@@ -16,6 +17,8 @@ export default function Sidebar() {
 
   const activePath = path[2].charAt(0).toUpperCase() + path[2].slice(1);
   const [activeItem, setActiveItem] = useState<string | null>(null);
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
 
   useEffect(() => {
     setActiveItem(activePath);
@@ -25,7 +28,6 @@ export default function Sidebar() {
     localStorage.clear();
     router.push("/");
   };
-  const [showConfirmation, setShowConfirmation] = useState(false);
 
   const handleLogout = () => {
     setShowConfirmation(true);
@@ -38,6 +40,10 @@ export default function Sidebar() {
   const handleConfirmLogout = () => {
     handleLogoutClick();
     setShowConfirmation(false);
+  };
+
+  const handleProfileClick = () => {
+    setShowProfile(true);
   };
 
   const menuItems = [
@@ -54,6 +60,7 @@ export default function Sidebar() {
         </svg>
       ),
       path: "/admin/profile",
+      onClick: handleProfileClick,
     },
     {
       title: "Statistics",
@@ -135,7 +142,7 @@ export default function Sidebar() {
           <ul className="space-y-2 mt-12">
             {menuItems.map((item) => (
               <li key={item.title}>
-                {item.path === "/logout" ? (
+                {item.path === "/logout" || item.title === "Profile" ? (
                   <button
                     onClick={item.onClick}
                     className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors ${
@@ -182,6 +189,12 @@ export default function Sidebar() {
               Log Out
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showProfile} onOpenChange={setShowProfile}>
+        <DialogContent className="sm:max-w-[400px] bg-gray-800 text-white border-blue-600 p-0">
+          <CustomerProfile />
         </DialogContent>
       </Dialog>
     </>
