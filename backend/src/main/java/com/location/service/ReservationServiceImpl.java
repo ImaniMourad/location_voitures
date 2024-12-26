@@ -24,4 +24,9 @@ public class ReservationServiceImpl implements ReservationService {
     public List<Map<String, Object>> getReservations() {
         return reservationMapper.fromObjetList(reservationRepository.getReservations());
     }
+
+    @Override
+    public List<Map<String, Object>> getReservationsByClientCin(String cin) {
+        return reservationMapper.fromObjetList(reservationRepository.getReservationsByClientCin(cin));
+    }
 }
