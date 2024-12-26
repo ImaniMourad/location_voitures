@@ -21,4 +21,6 @@ public interface VehicleService {
     String saveImage(MultipartFile image, String licensePlate) throws IOException, ImageNotValidException;
 
     boolean isVehicleExists(String licensePlate);
+
+    VehicleDTO updateVehicle(VehicleDTO vehicleDTO);
 }

@@ -16,6 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Objects;
 
 
 @Service
@@ -86,6 +87,25 @@ public class VehicleServiceImpl implements VehicleService {
     @Override
     public boolean isVehicleExists(String licensePlate) {
         return vehicleRepository.findByLicensePlate(licensePlate) != null;
+    }
+
+    @Override
+    public VehicleDTO updateVehicle(VehicleDTO vehicleDTO) {
+        // utliser dto pour mettre à jour les données
+        Vehicle vehicle = vehicleRepository.findByLicensePlate(vehicleDTO.getLicensePlate());
+        vehicle.setBrand(vehicleDTO.getBrand());
+        vehicle.setModel(vehicleDTO.getModel());
+        vehicle.setYear(vehicleDTO.getYear());
+        vehicle.setType(vehicleDTO.getType());
+        vehicle.setStatus(vehicleDTO.getStatus());
+        vehicle.setPrice(vehicleDTO.getPrice());
+        vehicle.setHorsePower(vehicleDTO.getHorsePower());
+        vehicle.setCapacity(vehicleDTO.getCapacity());
+        vehicle.setFeatures(vehicleDTO.getFeatures());
+        if (!Objects.equals(vehicleDTO.getPathImg(), "")) vehicle.setPathImg(vehicleDTO.getPathImg());
+
+        Vehicle updatedVehicle = vehicleRepository.save(vehicle);
+        return vehicleMapper.fromVehicle(updatedVehicle);
     }
 
 

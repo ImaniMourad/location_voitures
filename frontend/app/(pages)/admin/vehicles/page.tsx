@@ -26,12 +26,12 @@ export default function VehicleList() {
       brand: string;
       model: string;
       year: string;
-      rentalPrice: number;
+      Price: number;
       type: string;
       status: string;
       horsePower: string;
       capacity: string;
-      features: string[];
+      features: string;
       pathImg: string;
     }>
   >([]);
@@ -43,12 +43,12 @@ export default function VehicleList() {
     brand: string;
     model: string;
     year: string;
-    rentalPrice: number;
+    Price: number;
     type: string;
     status: string;
     horsePower: string;
     capacity: string;
-    features: string[];
+    features: string;
     pathImg: string;
   } | null>(null);
 
@@ -87,55 +87,56 @@ export default function VehicleList() {
   ];
 
   const handleAddVehicle = (newVehicle: {
-      id: string;
-      brand: string;
-      model: string;
-      year: string;
-      rentalPrice: number;
-      type: string;
-      status: string;
-      horsePower: string;
-      capacity: string;
-      features: string[];
-      pathImg: string;
-    }) => {
-      console.log("New Vehicle:", newVehicle);
-      setIsAlertVisible({
-        visible: true,
-        message: "Vehicle added successfully.",
-        type_alert: "success",
-      });
-      const updatedVehicles = [
-        ...vehicles,
-        {
-          ...newVehicle,
-        },
-      ];
-      setVehicles(updatedVehicles);
-      setIsFormAddOpen(false);
-      setTimeout(() => {
-        setIsAlertVisible({ visible: false, message: "", type_alert: "" });
-      }, 2500);
-    };
+    id: string;
+    licensePlate: string;
+    brand: string;
+    model: string;
+    year: string;
+    Price: number;
+    type: string;
+    status: string;
+    horsePower: string;
+    capacity: string;
+    features: string;
+    pathImg: string;
+  }) => {
+    console.log("New Vehicle:", newVehicle);
+    setIsAlertVisible({
+      visible: true,
+      message: "Vehicle added successfully.",
+      type_alert: "success",
+    });
+
+    newVehicle.id = newVehicle.licensePlate;
+    const updatedVehicles = [
+      ...vehicles,
+      {
+        ...newVehicle,
+      },
+    ];
+    setVehicles(updatedVehicles);
+    setIsFormAddOpen(false);
+    setTimeout(() => {
+      setIsAlertVisible({ visible: false, message: "", type_alert: "" });
+    }, 2500);
+  };
 
   const handleEditVehicle = (updatedVehicle: {
     id: string;
     brand: string;
     model: string;
     year: string;
-    rentalPrice: number;
+    Price: number;
     type: string;
     status: string;
     horsePower: string;
     capacity: string;
-    features: string[];
+    features: string;
     pathImg: string;
   }) => {
     console.log("Updated Vehicle:", updatedVehicle);
     const updatedVehicles = vehicles.map((vehicle) =>
-      vehicle.id === updatedVehicle.id
-        ? updatedVehicle
-        : vehicle
+      vehicle.id === updatedVehicle.id ? updatedVehicle : vehicle
     );
     setVehicles(updatedVehicles);
     setIsFormEditOpen(false);
@@ -155,9 +156,7 @@ export default function VehicleList() {
       })
       .then(() => {
         setVehicles((prevVehicles) =>
-          prevVehicles.filter(
-            (vehicle) => vehicle.id !== id
-          )
+          prevVehicles.filter((vehicle) => vehicle.id !== id)
         );
       })
       .catch((error) => console.error("Error deleting vehicle:", error));
@@ -181,6 +180,7 @@ export default function VehicleList() {
 
   return (
     <>
+
       {isAlertVisible.visible && (
         <div className="absolute top-0 left-0 w-full z-50">
           <Alert
@@ -200,9 +200,7 @@ export default function VehicleList() {
           rows={vehicles}
           onEdit={(id) => {
             setEditingVehicle(
-              vehicles.find(
-                (vehicle) => vehicle.id === id
-              ) || null
+              vehicles.find((vehicle) => vehicle.id === id) || null
             );
             setIsFormEditOpen(true);
           }}
@@ -220,7 +218,8 @@ export default function VehicleList() {
           <FormEdit
             handleCancel={handleCancel}
             onEditVehicle={handleEditVehicle}
-            vehicle={editingVehicle}
+            vehicleId={editingVehicle.id}
+            onErrorMessage={handleErrorMessage}
           />
         )}
       </div>
