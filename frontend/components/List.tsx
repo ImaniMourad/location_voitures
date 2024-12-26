@@ -9,7 +9,13 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   Pencil2Icon,
   TrashIcon,
@@ -23,6 +29,7 @@ import {
   TooltipContent,
 } from "@/components/ui/tooltip";
 import { InfoCircledIcon } from "@radix-ui/react-icons";
+import Link from "next/link";
 
 interface ListProps {
   name: string; // Name of the items (clients, vehicles, etc.)
@@ -31,6 +38,7 @@ interface ListProps {
   onEdit: (item: any) => void; // Function to handle editing an item
   onDelete: (id: any) => void; // Function to handle deleting an item
   onAdd: () => void; // Function to open the form to add a new item
+  to: string; // Path to the item details page
 }
 
 export default function List({
@@ -40,6 +48,7 @@ export default function List({
   onEdit,
   onDelete,
   onAdd,
+  to,
 }: ListProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredRows, setFilteredRows] = useState(rows);
@@ -127,13 +136,18 @@ export default function List({
           <TableBody>
             {filteredRows.length > 0 ? (
               filteredRows.map((row, index) => (
-                <TableRow key={index} className="border-b border-gray-700">
+                <TableRow
+                  key={index}
+                  className="border-b border-gray-700 cursor-pointer hover:bg-gray-700"
+                >
                   {columns.map((col, colIndex) => (
                     <TableCell key={colIndex} className="text-gray-300">
-                      {row[col.accessor]}
+                      <Link href={`${to}/${row.id}`} passHref>
+                        {row[col.accessor]}
+                      </Link>
                     </TableCell>
                   ))}
-                  {onEdit || onDelete ? (
+                  {onEdit !== undefined || onDelete !== undefined ? (
                     <TableCell>
                       {onEdit && (
                         <Button
@@ -145,17 +159,17 @@ export default function List({
                           <Pencil2Icon className="h-4 w-4" />
                         </Button>
                       )}
-                        <Button
-                          variant="destructive"
-                          size="icon"
-                          onClick={() => {
-                            setRow(row.id);
-                            setShowConfirmation(true);
-                          }}
-                          className="bg-red-600 hover:bg-red-700 text-white"
-                        >
-                          <TrashIcon className="h-4 w-4" />
-                        </Button>
+                      <Button
+                        variant="destructive"
+                        size="icon"
+                        onClick={() => {
+                          setRow(row.id);
+                          setShowConfirmation(true);
+                        }}
+                        className="bg-red-600 hover:bg-red-700 text-white"
+                      >
+                        <TrashIcon className="h-4 w-4" />
+                      </Button>
                     </TableCell>
                   ) : null}
                 </TableRow>
