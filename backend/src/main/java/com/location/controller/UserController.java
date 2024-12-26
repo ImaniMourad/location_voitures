@@ -121,4 +121,16 @@ public class UserController {
     public ResponseEntity<?> getClients() {
         return ResponseEntity.ok(userService.getClients());
     }
+
+    @DeleteMapping("/client/{CIN}")
+    public ResponseEntity<?> deleteClient(@PathVariable String CIN) {
+        try {
+            userService.deleteClient(CIN);
+            return ResponseEntity.ok("Client deleted successfully");
+        } catch (UserNotExistsException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
 }

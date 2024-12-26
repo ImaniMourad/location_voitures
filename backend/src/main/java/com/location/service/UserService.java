@@ -25,4 +25,6 @@ public interface UserService {
     UserDTO getUserByCIN(String cin) throws UserNotExistsException;
 
     List<ClientDTO> getClients();
+
+    void deleteClient(String CIN) throws UserNotExistsException;
 }
