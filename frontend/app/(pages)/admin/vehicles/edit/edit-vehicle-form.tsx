@@ -24,10 +24,10 @@ export default function FormEdit({
     model: "",
     brand: "",
     year: 0,
-    rentalPrice: 0,
+    price: 0,
     status: "",
     type: "",
-    image: null,
+    image: null as File | null,
   });
 
   useEffect(() => {
@@ -37,7 +37,7 @@ export default function FormEdit({
         model: vehicle.model,
         brand: vehicle.brand,
         year: vehicle.year,
-        rentalPrice: vehicle.rentalPrice,
+        price: vehicle.rentalPrice,
         status: vehicle.status.toLowerCase(),
         type: vehicle.type,
         image: null,
@@ -53,8 +53,9 @@ export default function FormEdit({
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      setVehicleData((prev) => ({ ...prev, image: e.target.files[0] }));
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      setVehicleData((prev) => ({ ...prev, image: files[0] }));
     }
   };
 
@@ -148,7 +149,7 @@ export default function FormEdit({
                 required
                 className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-md text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                 onChange={handleInputChange}
-                value={vehicleData.rentalPrice}
+                value={vehicleData.price}
               />
             </div>
           </div>
@@ -169,7 +170,7 @@ export default function FormEdit({
                 value={vehicleData.status}
               >
                 <option value="">Select a status</option>
-                <option value="available">Available</option>
+                <option value="AVAILABLE">Available</option>
                 <option value="rented">Rented</option>
                 <option value="maintenance">In Maintenance</option>
               </select>

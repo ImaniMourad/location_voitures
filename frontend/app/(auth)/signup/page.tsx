@@ -130,9 +130,6 @@ export default function RegisterForm() {
         <Alert
           message={isAlertVisible.message}
           type_alert={isAlertVisible.type_alert}
-          onClose={() =>
-            setIsAlertVisible({ visible: false, message: "", type_alert: "" })
-          }
         />
       )}
       <form

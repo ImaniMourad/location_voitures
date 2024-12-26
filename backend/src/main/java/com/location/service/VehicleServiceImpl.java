@@ -1,6 +1,7 @@
 package com.location.service;
 
 import com.location.dto.VehicleDTO;
+import com.location.exceptions.ImageNotValidException;
 import com.location.exceptions.VehicleAlreadyExistsException;
 import com.location.mappers.VehicleMapperImpl;
 import com.location.model.Vehicle;
@@ -8,7 +9,12 @@ import com.location.repository.VehicleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 
@@ -28,7 +34,6 @@ public class VehicleServiceImpl implements VehicleService {
             throw new VehicleAlreadyExistsException("Vehicle with this registration number already exists");
         }
         Vehicle vehicle = vehicleMapper.fromVehicleDTO(vehicleDTO);
-        System.out.println("Vehicle:" + vehicle);
         Vehicle savedVehicle = vehicleRepository.save(vehicle);
         return vehicleMapper.fromVehicle(savedVehicle);
     }
@@ -50,5 +55,38 @@ public class VehicleServiceImpl implements VehicleService {
         Vehicle vehicle = vehicleRepository.findByLicensePlate(licensePlate);
         vehicleRepository.delete(vehicle);
     }
+
+    @Override
+    public String saveImage(MultipartFile image, String licensePlate) throws IOException, ImageNotValidException {
+        if (image.isEmpty()) {
+            throw new ImageNotValidException("Image is not valid");
+        }
+
+        // Define the directory where images will be stored
+        String uploadDir = "src/main/resources/uploads";
+
+        // Construct the filename using licensePlate
+        String originalFilename = image.getOriginalFilename();
+        if (originalFilename == null || !originalFilename.contains(".")) {
+            throw new ImageNotValidException("Invalid image file name.");
+        }
+
+        String newFilename = licensePlate + "_" + originalFilename; // Corrected concatenation
+        Path filePath = Paths.get(uploadDir, newFilename);
+
+        // Ensure the directory exists
+        Files.createDirectories(filePath.getParent());
+
+        // Save the image
+        Files.copy(image.getInputStream(), filePath);
+
+        return filePath.toString();
+    }
+
+    @Override
+    public boolean isVehicleExists(String licensePlate) {
+        return vehicleRepository.findByLicensePlate(licensePlate) != null;
+    }
+
 
 }

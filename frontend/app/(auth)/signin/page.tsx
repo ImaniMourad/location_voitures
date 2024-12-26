@@ -72,11 +72,7 @@ export default function SignIn() {
       {isAlertVisible.visible && (
         <Alert
           message={isAlertVisible.message}
-          type_alert={isAlertVisible.type_alert}
-          onClose={() =>
-            setIsAlertVisible({ visible: false, message: "", type_alert: "" })
-          }
-        />
+          type_alert={isAlertVisible.type_alert} />
       )}
       <section>
         <div className="mx-auto max-w-6xl px-4 sm:px-6">

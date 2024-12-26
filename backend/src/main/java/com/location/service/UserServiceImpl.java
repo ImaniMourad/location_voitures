@@ -132,5 +132,14 @@ public class UserServiceImpl  implements UserService{
         return userMapper.fromClientList(clients);
     }
 
+    @Override
+    public void deleteClient(String CIN) throws UserNotExistsException {
+        Client client = (Client) userRepository.findByCin(CIN);
+        if (client == null) {
+            throw new UserNotExistsException("Client with this CIN does not exist");
+        }
+        userRepository.delete(client);
+    }
+
 }
 

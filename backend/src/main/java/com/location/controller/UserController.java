@@ -92,8 +92,6 @@ public class UserController {
     @PostMapping("/reset-password")
     public ResponseEntity<?> resetPassword(@RequestParam String email, @RequestParam String password) {
         try {
-            System.out.println("Resetting password for user: " + email);
-            System.out.println("New password: " + password);
             userService.resetPassword(email, password);
             return ResponseEntity.ok("Password reset successfully");
         } catch (UserNotExistsException e) {
@@ -120,5 +118,17 @@ public class UserController {
     @GetMapping("/clients")
     public ResponseEntity<?> getClients() {
         return ResponseEntity.ok(userService.getClients());
+    }
+
+    @DeleteMapping("/client/{CIN}")
+    public ResponseEntity<?> deleteClient(@PathVariable String CIN) {
+        try {
+            userService.deleteClient(CIN);
+            return ResponseEntity.ok("Client deleted successfully");
+        } catch (UserNotExistsException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
     }
 }

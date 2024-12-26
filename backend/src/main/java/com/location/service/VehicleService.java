@@ -1,8 +1,11 @@
 package com.location.service;
 
 import com.location.dto.VehicleDTO;
+import com.location.exceptions.ImageNotValidException;
 import com.location.exceptions.VehicleAlreadyExistsException;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 public interface VehicleService {
@@ -14,4 +17,8 @@ public interface VehicleService {
     VehicleDTO getVehicleById(String licensePlate);
     // method to delete a vehicle
     void deleteVehicle(String licensePlate);
+
+    String saveImage(MultipartFile image, String licensePlate) throws IOException, ImageNotValidException;
+
+    boolean isVehicleExists(String licensePlate);
 }
