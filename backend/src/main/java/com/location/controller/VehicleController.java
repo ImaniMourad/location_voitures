@@ -34,7 +34,7 @@ public class VehicleController {
         return ResponseEntity.ok(vehicleService.getVehicles());
     }
 
-    @PostMapping("/vehicles")
+    @PostMapping("/vehicle")
     public ResponseEntity<?> addVehicle(
             @RequestParam("licensePlate") String licensePlate,
             @RequestParam("brand") String brand,

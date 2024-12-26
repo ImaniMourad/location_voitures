@@ -82,7 +82,7 @@ export default function AddVehicleForm({ handleCancel, onAddVehicle, onErrorMess
 
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
     try {
-      const response = await axios.post(`${apiUrl}/vehicles`, formData, {
+      const response = await axios.post(`${apiUrl}/vehicle`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${token}`,
