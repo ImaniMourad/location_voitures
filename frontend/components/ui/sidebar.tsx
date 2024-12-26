@@ -1,12 +1,15 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import CustomerProfile from "../profileClient";
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
   const path = pathname.split("/");
 
   // If the path is less than 3, it means we are not in the admin page
@@ -14,12 +17,51 @@ export default function Sidebar() {
 
   const activePath = path[2].charAt(0).toUpperCase() + path[2].slice(1);
   const [activeItem, setActiveItem] = useState<string | null>(null);
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
 
   useEffect(() => {
     setActiveItem(activePath);
   }, [activePath]);
 
+  const handleLogoutClick = () => {
+    localStorage.clear();
+    router.push("/");
+  };
+
+  const handleLogout = () => {
+    setShowConfirmation(true);
+  };
+
+  const handleCancel = () => {
+    setShowConfirmation(false);
+  };
+
+  const handleConfirmLogout = () => {
+    handleLogoutClick();
+    setShowConfirmation(false);
+  };
+
+  const handleProfileClick = () => {
+    setShowProfile(true);
+  };
+
   const menuItems = [
+    {
+      title: "Profile",
+      icon: (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-5 w-5"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+        >
+          <path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-2.3 0-7 1.2-7 3.5V20h14v-2.5c0-2.3-4.7-3.5-7-3.5z" />
+        </svg>
+      ),
+      path: "/admin/profile",
+      onClick: handleProfileClick,
+    },
     {
       title: "Statistics",
       icon: (
@@ -89,32 +131,73 @@ export default function Sidebar() {
         </svg>
       ),
       path: "/logout",
+      onClick: handleLogout,
     },
   ];
 
   return (
-    <div className="h-screen w-64 bg-[#0f1725] text-white sticky top-0 left-0 z-50">
-      <nav className="p-4">
-        <ul className="space-y-2 mt-12">
-          {menuItems.map((item) => (
-            <li key={item.title}>
-              <Link href={item.path} passHref>
-                <button
-                  onClick={() => setActiveItem(item.title)}
-                  className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors ${
-                    activeItem === item.title
-                      ? "bg-purple-600"
-                      : "hover:bg-white/10"
-                  }`}
-                >
-                  {item.icon}
-                  <span>{item.title}</span>
-                </button>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </nav>
-    </div>
+    <>
+      <div className="h-screen w-64 bg-[#0f1725] text-white sticky top-0 left-0 z-50">
+        <nav className="p-4">
+          <ul className="space-y-2 mt-12">
+            {menuItems.map((item) => (
+              <li key={item.title}>
+                {item.path === "/logout" || item.title === "Profile" ? (
+                  <button
+                    onClick={item.onClick}
+                    className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors ${
+                      activeItem === item.title
+                        ? "bg-purple-600"
+                        : "hover:bg-white/10"
+                    }`}
+                  >
+                    {item.icon}
+                    <span>{item.title}</span>
+                  </button>
+                ) : (
+                  <Link href={item.path} passHref>
+                    <button
+                      onClick={() => setActiveItem(item.title)}
+                      className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors ${
+                        activeItem === item.title
+                          ? "bg-purple-600"
+                          : "hover:bg-white/10"
+                      }`}
+                    >
+                      {item.icon}
+                      <span>{item.title}</span>
+                    </button>
+                  </Link>
+                )}
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </div>
+
+      <Dialog open={showConfirmation} onOpenChange={setShowConfirmation}>
+        <DialogContent className="sm:max-w-[425px] bg-[#0f1725] text-white border-purple-600">
+          <DialogHeader>
+            <DialogTitle>Confirm Logout</DialogTitle>
+          </DialogHeader>
+          <p className="py-4">Are you sure you want to log out?</p>
+          <DialogFooter>
+            <Button variant="outline" onClick={handleCancel} className="bg-transparent text-white border-white hover:bg-white/10">
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleConfirmLogout} className="bg-purple-600 hover:bg-purple-700">
+              Log Out
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showProfile} onOpenChange={setShowProfile}>
+        <DialogContent className="sm:max-w-[400px] bg-gray-800 text-white border-blue-600 p-0">
+          <CustomerProfile />
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
+

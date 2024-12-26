@@ -92,8 +92,6 @@ public class UserController {
     @PostMapping("/reset-password")
     public ResponseEntity<?> resetPassword(@RequestParam String email, @RequestParam String password) {
         try {
-            System.out.println("Resetting password for user: " + email);
-            System.out.println("New password: " + password);
             userService.resetPassword(email, password);
             return ResponseEntity.ok("Password reset successfully");
         } catch (UserNotExistsException e) {

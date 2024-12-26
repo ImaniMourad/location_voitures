@@ -1,20 +1,84 @@
-"use client";
-import Image from "next/image";
+'use client'
+
+import { useEffect, useState } from "react"
+import Image from "next/image"
+import { jwtDecode } from "jwt-decode"
 
 interface Customer {
-  cin: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phoneNumber: string;
-  address: string;
+  cin: string
+  firstName: string
+  lastName: string
+  email: string
+  phoneNumber: string
+  address: string
 }
 
-export default function CustomerProfile({ customer, setIsEditFormVisible }: { customer: Customer; setIsEditFormVisible: (value: boolean) => void }) {
+interface JWTPayload {
+  cin?: string
+  sub?: string
+}
+
+export default function CustomerProfile() {
+  const [customer, setCustomer] = useState<Customer | null>(null)
+  const [isEditFormVisible, setIsEditFormVisible] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    async function fetchCustomerData() {
+      try {
+        const jwtToken = localStorage.getItem("jwtToken")
+        if (!jwtToken) {
+          setError("Not authenticated. Please login again.")
+          return
+        }
+
+        let cin: string
+        try {
+          const decodedToken = jwtDecode<JWTPayload>(jwtToken)
+          cin = decodedToken.cin || decodedToken.sub || ''
+          if (!cin) {
+            throw new Error("CIN not found in token")
+          }
+          console.log("CIN from JWT token:", cin)
+        } catch (decodeError) {
+          console.error("Error decoding token:", decodeError)
+          setError("Invalid authentication token")
+          return
+        }
+
+        const response = await fetch(`http://localhost:8081/User/${cin}`, {
+          headers: {
+            Authorization: `Bearer ${jwtToken}`,
+          },
+        })
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`)
+        }
+
+        const data: Customer = await response.json()
+        setCustomer(data)
+        setError(null)
+      } catch (error) {
+        console.error("Error fetching customer data:", error)
+        setError("Failed to load profile data")
+      }
+    }
+
+    fetchCustomerData()
+  }, [])
 
   function handleEditProfile(cin: string) {
-    console.log("Edit profile clicked", cin);
-    setIsEditFormVisible(true);
+    console.log("Edit profile clicked", cin)
+    setIsEditFormVisible(true)
+  }
+
+  if (error) {
+    return <div className="text-red-500 p-4">{error}</div>
+  }
+
+  if (!customer) {
+    return <div className="p-4">Loading...</div>
   }
 
   return (
@@ -44,10 +108,14 @@ export default function CustomerProfile({ customer, setIsEditFormVisible }: { cu
         </ul>
       </div>
       <div className="mt-6">
-        <button className="w-full py-2 px-4 bg-indigo-600 text-white font-semibold rounded hover:bg-indigo-500 transition" onClick={() => handleEditProfile(customer.cin)}>
+        <button 
+          className="w-full py-2 px-4 bg-indigo-600 text-white font-semibold rounded hover:bg-indigo-500 transition" 
+          onClick={() => handleEditProfile(customer.cin)}
+        >
           Edit Profile
         </button>
       </div>
+      {isEditFormVisible && <div>Edit form goes here</div>}
     </section>
-  );
+  )
 }
