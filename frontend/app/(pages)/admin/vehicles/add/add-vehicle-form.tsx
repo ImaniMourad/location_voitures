@@ -272,6 +272,7 @@ export default function AddVehicleForm({ handleCancel, onAddVehicle, onErrorMess
             <Button 
               variant="secondary" 
               className="flex-1 bg-slate-700 hover:bg-slate-600 text-white"
+              onClick={handleCancel}
             >
               Cancel
             </Button>
