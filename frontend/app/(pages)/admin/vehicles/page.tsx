@@ -22,7 +22,7 @@ export default function VehicleList() {
   });
   const [vehicles, setVehicles] = useState<
     Array<{
-      licensePlate: string;
+      id: string;
       brand: string;
       model: string;
       year: string;
@@ -39,7 +39,7 @@ export default function VehicleList() {
   const [isFormAddOpen, setIsFormAddOpen] = useState(false);
   const [isFormEditOpen, setIsFormEditOpen] = useState(false);
   const [editingVehicle, setEditingVehicle] = useState<{
-    licensePlate: string;
+    id: string;
     brand: string;
     model: string;
     year: string;
@@ -65,6 +65,9 @@ export default function VehicleList() {
             Authorization: `Bearer ${token}`,
           },
         });
+        response.data.forEach((vehicle: any) => {
+          vehicle.id = vehicle.licensePlate;
+        });
         setVehicles(response.data);
       } catch (error) {
         console.error(error);
@@ -74,7 +77,7 @@ export default function VehicleList() {
   }, []);
 
   const columns = [
-    { header: "License Plate", accessor: "licensePlate" },
+    { header: "License Plate", accessor: "id" },
     { header: "Brand", accessor: "brand" },
     { header: "Model", accessor: "model" },
     { header: "Year", accessor: "year" },
@@ -84,7 +87,7 @@ export default function VehicleList() {
   ];
 
   const handleAddVehicle = (newVehicle: {
-      licensePlate: string;
+      id: string;
       brand: string;
       model: string;
       year: string;
@@ -116,7 +119,7 @@ export default function VehicleList() {
     };
 
   const handleEditVehicle = (updatedVehicle: {
-    licensePlate: string;
+    id: string;
     brand: string;
     model: string;
     year: string;
@@ -130,7 +133,7 @@ export default function VehicleList() {
   }) => {
     console.log("Updated Vehicle:", updatedVehicle);
     const updatedVehicles = vehicles.map((vehicle) =>
-      vehicle.licensePlate === updatedVehicle.licensePlate
+      vehicle.id === updatedVehicle.id
         ? updatedVehicle
         : vehicle
     );
@@ -138,14 +141,14 @@ export default function VehicleList() {
     setIsFormEditOpen(false);
   };
 
-  const handleDeleteVehicle = (licensePlate: string) => {
+  const handleDeleteVehicle = (id: string) => {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
     const token = localStorage.getItem("jwtToken");
     if (!token) {
       return;
     }
     axios
-      .delete(`${apiUrl}/vehicles/${licensePlate}`, {
+      .delete(`${apiUrl}/vehicle/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -153,7 +156,7 @@ export default function VehicleList() {
       .then(() => {
         setVehicles((prevVehicles) =>
           prevVehicles.filter(
-            (vehicle) => vehicle.licensePlate !== licensePlate
+            (vehicle) => vehicle.id !== id
           )
         );
       })
@@ -166,7 +169,6 @@ export default function VehicleList() {
   };
 
   const handleErrorMessage = (message: string) => {
-    console.log("------------------------------------");
     setIsAlertVisible({
       visible: true,
       message: message,
@@ -196,10 +198,10 @@ export default function VehicleList() {
           name="Vehicle"
           columns={columns}
           rows={vehicles}
-          onEdit={(licensePlate) => {
+          onEdit={(id) => {
             setEditingVehicle(
               vehicles.find(
-                (vehicle) => vehicle.licensePlate === licensePlate
+                (vehicle) => vehicle.id === id
               ) || null
             );
             setIsFormEditOpen(true);
