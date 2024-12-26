@@ -96,6 +96,7 @@ export default function ReservationList() {
                 }}
                 onDelete={handleDeleteReservation}
                 onAdd={() => setIsFormAddOpen(true)}
+                to="/admin/reservations"
             />
             {isFormAddOpen && (
                 <FormAdd handleAddReservation={handleAddReservation} handleCancel={handleCancel} />

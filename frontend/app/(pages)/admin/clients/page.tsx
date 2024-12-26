@@ -35,6 +35,9 @@ export default function ClientManagement() {
             Authorization: `Bearer ${token}`,
           },
         });
+        response.data.forEach((client: any) => {
+          client.id = client.cin;
+        });
         setClients(response.data);
       } catch (error) {
         console.error(error);
@@ -98,6 +101,7 @@ export default function ClientManagement() {
           }}
           onDelete={handleDeleteClient}
           onAdd={() => setIsFormAddOpen(true)}
+          to="/admin/clients"
         />
         {isFormAddOpen && (
           <FormAdd

@@ -208,6 +208,7 @@ export default function VehicleList() {
           }}
           onDelete={handleDeleteVehicle}
           onAdd={() => setIsFormAddOpen(true)}
+          to="/admin/vehicles"
         />
         {isFormAddOpen && (
           <FormAdd
