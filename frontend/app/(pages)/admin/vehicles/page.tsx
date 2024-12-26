@@ -166,7 +166,6 @@ export default function VehicleList() {
   };
 
   const handleErrorMessage = (message: string) => {
-    console.log("------------------------------------");
     setIsAlertVisible({
       visible: true,
       message: message,
@@ -180,7 +179,7 @@ export default function VehicleList() {
   return (
     <>
       {isAlertVisible.visible && (
-        <div className="absolute top-0 left-0 w-full">
+        <div className="absolute top-0 left-0 w-full z-50">
           <Alert
             message={isAlertVisible.message}
             type_alert={isAlertVisible.type_alert}
@@ -197,6 +196,7 @@ export default function VehicleList() {
           columns={columns}
           rows={vehicles}
           onEdit={(licensePlate) => {
+            console.log("Editing vehicle with license plate:", licensePlate);
             setEditingVehicle(
               vehicles.find(
                 (vehicle) => vehicle.licensePlate === licensePlate
