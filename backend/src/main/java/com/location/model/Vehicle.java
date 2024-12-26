@@ -41,8 +41,8 @@ public class Vehicle {
     @Size(max = 10)
     private String capacity;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    private List<String> features;
+    @Size(max = 255)
+    private String features;
 
     @Size(max = 255)
     private String pathImg;

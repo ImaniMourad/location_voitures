@@ -6,4 +6,6 @@ import java.util.Map;
 public interface ReservationService {
     // method to get all reservations
     List<Map<String, Object>> getReservations();
+
+    List<Map<String, Object>> getReservationsByClientCin(String cin);
 }

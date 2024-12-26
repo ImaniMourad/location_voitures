@@ -22,7 +22,7 @@ public class VehicleDTO {
     private BigDecimal price;    // Price of the vehicle
     private String horsePower;   // Vehicle's horsepower
     private String capacity;     // Capacity (e.g., number of seats)
-    private List<String> features; // List of additional features (e.g., Bluetooth, Sunroof)
+    private String features;     // Additional features of the vehicle
     private String pathImg;      // Path to the image of the vehicle
 
     // No reservation details to keep the DTO lightweight

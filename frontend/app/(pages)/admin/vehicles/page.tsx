@@ -182,7 +182,7 @@ export default function VehicleList() {
   return (
     <>
       {isAlertVisible.visible && (
-        <div className="absolute top-0 left-0 w-full">
+        <div className="absolute top-0 left-0 w-full z-50">
           <Alert
             message={isAlertVisible.message}
             type_alert={isAlertVisible.type_alert}
