@@ -6,7 +6,7 @@ import localFont from "next/font/local";
 import Head from "next/head";
 import { usePathname } from "next/navigation";
 
-import { ThemeProvider, useTheme } from "../context/context";
+import { ThemeProvider } from "../context/context";
 import Header from "@/components/ui/header";
 import React from "react";
 import Sidebar from "@/components/ui/sidebar";
@@ -55,7 +55,6 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-    const { isDarkMode, setIsDarkMode } = useTheme();
   const pathname = usePathname();
   const unprotectedRoutes = ["/", "/signup", "/signin", "/reset-password"];
   const isProtectedRoute = !unprotectedRoutes.includes(pathname);
@@ -67,29 +66,27 @@ export default function RootLayout({
         <meta name="description" content={metadata.description} />
       </Head>
       <body
-        className={`${inter.variable} ${nacelle.variable} ${
-          isDarkMode ? "bg-gray-950" : "bg-white"
-        } font-inter text-base text-gray-200 antialiased`}
+        className={`${inter.variable} ${nacelle.variable} bg-gray-950 font-inter text-base text-gray-200 antialiased`}
       >
         {isProtectedRoute ? (
           <ThemeProvider>
-        <ProtectedRoute>
-          <div className="flex min-h-screen">
-            <div>
-          <Sidebar />
-            </div>
-            <div className="flex flex-col w-full">
-          <Header />
-          <div className="w-[100%] mx-auto">{children}</div>
-            </div>
-          </div>
-        </ProtectedRoute>
+            <ProtectedRoute>
+              <div className="flex min-h-screen">
+                <div>
+                  <Sidebar />
+                </div>
+                <div className="flex flex-col w-full">
+                  <Header />
+                  <div className="w-[100%] mx-auto">{children}</div>
+                </div>
+              </div>
+            </ProtectedRoute>
           </ThemeProvider>
         ) : (
           <ThemeProvider>
-        <Header />
-        <div className="w-[100%] mx-auto">{children}</div>
-          </ThemeProvider>
+            <Header />
+            <div className="w-[100%] mx-auto">{children}</div>
+            </ThemeProvider>
         )}
       </body>
     </html>

@@ -6,9 +6,10 @@ import Logo from "./logo";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { MoonIcon, SunIcon } from "lucide-react";
+import { useTheme } from "@/context/context";
 
 export default function Header() {
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const { isDarkMode, setIsDarkMode } = useTheme();
 
   return (
     <header className="z-30 w-[95%] mx-auto mt-2 md:mt-5">
