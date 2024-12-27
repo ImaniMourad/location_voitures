@@ -36,6 +36,7 @@ export default function VehicleList() {
     }>
   >([]);
 
+  
   const [isFormAddOpen, setIsFormAddOpen] = useState(false);
   const [isFormEditOpen, setIsFormEditOpen] = useState(false);
   const [editingVehicle, setEditingVehicle] = useState<{
@@ -123,6 +124,7 @@ export default function VehicleList() {
 
   const handleEditVehicle = (updatedVehicle: {
     id: string;
+    licensePlate: string;
     brand: string;
     model: string;
     year: string;
@@ -135,11 +137,21 @@ export default function VehicleList() {
     pathImg: string;
   }) => {
     console.log("Updated Vehicle:", updatedVehicle);
+    setIsAlertVisible({
+      visible: true,
+      message: "Vehicle updated successfully.",
+      type_alert: "success",
+    });
+
+    updatedVehicle.id = updatedVehicle.licensePlate;
     const updatedVehicles = vehicles.map((vehicle) =>
       vehicle.id === updatedVehicle.id ? updatedVehicle : vehicle
     );
     setVehicles(updatedVehicles);
     setIsFormEditOpen(false);
+    setTimeout(() => {
+      setIsAlertVisible({ visible: false, message: "", type_alert: "" });
+    }, 2500);
   };
 
   const handleDeleteVehicle = (id: string) => {
@@ -182,7 +194,7 @@ export default function VehicleList() {
     <>
 
       {isAlertVisible.visible && (
-        <div className="absolute top-0 left-0 w-full z-50">
+        <div className="absolute top-0 left-0 w-full">
           <Alert
             message={isAlertVisible.message}
             type_alert={isAlertVisible.type_alert}

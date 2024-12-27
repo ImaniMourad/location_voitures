@@ -15,7 +15,6 @@ import { FileSelect } from "@/components/ui/file-select";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import axios from "axios";
-import Spinner from "@/components/ui/spinner";
 
 interface FormAddProps {
   handleCancel: () => void;
@@ -44,22 +43,25 @@ export default function AddVehicleForm({
     capacity: 0,
   });
 
+
   const handleInputChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
     >
   ) => {
     const { name, value, type } = e.target;
-    console.log(name, value, type);
     setVehicleData((prev) => ({
       ...prev,
       [name]: value,
     }));
   };
+  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    console.log(vehicleData);
+
     console.log(vehicleData);
 
     const formData = new FormData();
@@ -97,7 +99,6 @@ export default function AddVehicleForm({
       if (response.status === 201) {
         console.log("Vehicle added successfully");
         onAddVehicle(vehicleData);
-        handleCancel();
       }
     } catch (error: any) {
       if (error.response && error.response.data) {
@@ -113,13 +114,7 @@ export default function AddVehicleForm({
 
   return (
     <>
-      {loading && (
-        <div className="fixed inset-0 bg-slate-950/80 flex items-center justify-center z-100">
-          <Spinner />
-        </div>
-      )}
-
-      <div className="fixed inset-0 bg-slate-950/80 flex items-center justify-center p-4 overflow-y-auto ml-0 md:ml-64 z-50">
+      <div className="fixed inset-0 bg-slate-950/80 flex items-center justify-center p-4 overflow-y-auto ml-0 md:ml-64 z-40">
         <div className="bg-slate-900 rounded-xl w-full max-w-4xl my-4 p-6 space-y-4 relative">
           {/* Header */}
           <div className="flex items-center justify-between">
@@ -300,7 +295,7 @@ export default function AddVehicleForm({
                 </label>
                 <Textarea
                   className="bg-slate-800/50 border-slate-700 text-slate-100 placeholder:text-slate-400 focus:ring-slate-400 focus:border-slate-400 min-h-[60px]"
-                  placeholder="Enter vehicle features"
+                  placeholder="feature1, feature2, feature3 ..."
                   onChange={handleInputChange}
                   value={vehicleData.features}
                   name="features"
@@ -325,7 +320,7 @@ export default function AddVehicleForm({
             {/* Action Buttons */}
             <div className="flex flex-col md:flex-row gap-2 pt-4">
               <Button className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white">
-                Add Vehicle
+                {loading ? "Submitting..." : "Add Vehicle"}
               </Button>
               <Button
                 variant="secondary"

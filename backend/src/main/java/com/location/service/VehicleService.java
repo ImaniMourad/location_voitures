@@ -22,5 +22,9 @@ public interface VehicleService {
 
     boolean isVehicleExists(String licensePlate);
 
-    VehicleDTO updateVehicle(VehicleDTO vehicleDTO);
+    VehicleDTO updateVehicle(VehicleDTO vehicleDTO) throws IOException, InterruptedException;
+
+    String getImagePath(String licensePlate);
+
+    void deleteImage(String licensePlate);
 }

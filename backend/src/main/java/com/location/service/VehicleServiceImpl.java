@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -90,22 +91,63 @@ public class VehicleServiceImpl implements VehicleService {
     }
 
     @Override
-    public VehicleDTO updateVehicle(VehicleDTO vehicleDTO) {
-        // utliser dto pour mettre à jour les données
-        Vehicle vehicle = vehicleRepository.findByLicensePlate(vehicleDTO.getLicensePlate());
-        vehicle.setBrand(vehicleDTO.getBrand());
-        vehicle.setModel(vehicleDTO.getModel());
-        vehicle.setYear(vehicleDTO.getYear());
-        vehicle.setType(vehicleDTO.getType());
-        vehicle.setStatus(vehicleDTO.getStatus());
-        vehicle.setPrice(vehicleDTO.getPrice());
-        vehicle.setHorsePower(vehicleDTO.getHorsePower());
-        vehicle.setCapacity(vehicleDTO.getCapacity());
-        vehicle.setFeatures(vehicleDTO.getFeatures());
-        if (!Objects.equals(vehicleDTO.getPathImg(), "")) vehicle.setPathImg(vehicleDTO.getPathImg());
+    public VehicleDTO updateVehicle(VehicleDTO newVehicleDTO) throws IOException, InterruptedException {
+        Vehicle vehicle = vehicleRepository.findByLicensePlate(newVehicleDTO.getLicensePlate());
+        if (vehicle == null) {
+            throw new IOException("Vehicle not found with license plate: " + newVehicleDTO.getLicensePlate());
+        }
+
+        VehicleDTO oldVehicleDTO = vehicleMapper.fromVehicle(vehicle);
+
+        // Convert price to 2 decimal places
+        BigDecimal price = new BigDecimal(newVehicleDTO.getPrice().toString()).setScale(2, BigDecimal.ROUND_HALF_UP);
+        newVehicleDTO.setPrice(price);
+
+        // Check if any updates are necessary
+        if (oldVehicleDTO.equals(newVehicleDTO) && (newVehicleDTO.getPathImg() == null || newVehicleDTO.getPathImg().isEmpty())) {
+            throw new IOException("No changes were made");
+        }
+
+        // Update the vehicle properties
+        vehicle.setBrand(newVehicleDTO.getBrand());
+        vehicle.setModel(newVehicleDTO.getModel());
+        vehicle.setYear(newVehicleDTO.getYear());
+        vehicle.setType(newVehicleDTO.getType());
+        vehicle.setStatus(newVehicleDTO.getStatus());
+        vehicle.setPrice(newVehicleDTO.getPrice());
+        vehicle.setHorsePower(newVehicleDTO.getHorsePower());
+        vehicle.setCapacity(newVehicleDTO.getCapacity());
+        vehicle.setFeatures(newVehicleDTO.getFeatures());
+
+        // Handle image replacement
+        if (newVehicleDTO.getPathImg() != null && !newVehicleDTO.getPathImg().isEmpty()) {
+            vehicle.setPathImg(newVehicleDTO.getPathImg());
+        }
 
         Vehicle updatedVehicle = vehicleRepository.save(vehicle);
         return vehicleMapper.fromVehicle(updatedVehicle);
+    }
+
+    @Override
+    public String getImagePath(String licensePlate) {
+        Vehicle vehicle = vehicleRepository.findByLicensePlate(licensePlate);
+        return vehicle.getPathImg();
+    }
+
+    @Override
+    public void deleteImage(String licensePlate) {
+        Vehicle vehicle = vehicleRepository.findByLicensePlate(licensePlate);
+        Path ImgPath = Paths.get(vehicle.getPathImg());
+        try {
+            if (Files.exists(ImgPath)) Files.deleteIfExists(ImgPath);
+        } catch (IOException e) {
+            try {
+                Thread.sleep(100);
+                Files.deleteIfExists(ImgPath);
+            } catch (InterruptedException | IOException ex) {
+                ex.printStackTrace();
+            }
+        }
     }
 
 

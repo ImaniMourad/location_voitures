@@ -52,6 +52,7 @@ const CenteredWrapper = styled.div`
   align-items: center;
   width: 100%;
   position: absolute;
+  z-index: 1000;
 `;
 
 const StyledWrapper = styled.div`

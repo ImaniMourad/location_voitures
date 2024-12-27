@@ -98,7 +98,20 @@ public class VehicleController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Vehicle with this license plate does not exist");
             }
 
-            String pathImg = saveImage(image, licensePlate);
+            // Manage the image
+            String pathImg;
+            synchronized (this) {
+                if (image != null) {
+                    // Delete the old image and save the new one
+                    String oldImagePath = vehicleService.getImagePath(licensePlate);
+                    if (oldImagePath != null && !oldImagePath.isEmpty()) {
+                        vehicleService.deleteImage(licensePlate);
+                    }
+                    pathImg = saveImage(image, licensePlate);
+                } else {
+                    pathImg = vehicleService.getImagePath(licensePlate);
+                }
+            }
 
             VehicleDTO vehicleDTO = new VehicleDTO(
                     licensePlate, brand, model, year, type, status, price, horsePower, capacity,
@@ -121,6 +134,7 @@ public class VehicleController {
         }
     }
 
+
     @DeleteMapping("/vehicle/{licensePlate}")
     public ResponseEntity<?> deleteVehicle(@PathVariable String licensePlate) {
         try {
@@ -135,6 +149,6 @@ public class VehicleController {
         if (image != null) {
             return vehicleService.saveImage(image, licensePlate);
         }
-        return "";
+            return vehicleService.getImagePath(licensePlate);
     }
 }

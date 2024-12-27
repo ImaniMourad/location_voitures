@@ -38,7 +38,7 @@ export default function EditVehicleForm({
     model: "",
     year: 0,
     price: 0,
-    status: "AVAILABLE",
+    status: "",
     features: "",
     type: "",
     image: null as File | null,
@@ -48,7 +48,6 @@ export default function EditVehicleForm({
 
   useEffect(() => {
     const fetchVehicleData = async () => {
-      setLoading(true);
       const token = localStorage.getItem("jwtToken");
       if (!token) {
         console.error("No token found");
@@ -66,14 +65,11 @@ export default function EditVehicleForm({
         });
 
         if (response.status === 200) {
-          console.log("Vehicle data fetched successfully");
-          console.log(response.data);
+          console.log("Vehicle updated successfully");
           setVehicleData(response.data);
         }
       } catch (error: any) {
         console.error("Error fetching vehicle data:", error);
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -138,12 +134,11 @@ export default function EditVehicleForm({
       if (response.status === 200) {
         console.log("Vehicle updated successfully");
         onEditVehicle(vehicleData);
-        handleCancel();
       }
     } catch (error: any) {
       if (error.response && error.response.data) {
+        console.error("Error updating vehicle:", error.response.data);
         onErrorMessage(error.response.data);
-        handleCancel();
       } else {
         console.error("Error updating vehicle:", error);
       }
@@ -154,11 +149,6 @@ export default function EditVehicleForm({
 
   return (
     <>
-      {loading && (
-        <div className="fixed inset-0 bg-slate-950/80 flex items-center justify-center z-100">
-          <Spinner />
-        </div>
-      )}
       <div className="fixed inset-0 bg-slate-950/80 flex items-center justify-center p-4 overflow-y-auto ml-0 md:ml-64 z-50">
         <div className="bg-slate-900 rounded-xl w-full max-w-4xl my-4 p-6 space-y-4 relative">
           {/* Header */}
@@ -189,6 +179,7 @@ export default function EditVehicleForm({
                   value={vehicleData.licensePlate}
                   required
                   name="licensePlate"
+                  disabled
                 />
               </div>
               <div className="space-y-1">
@@ -258,12 +249,12 @@ export default function EditVehicleForm({
                   Status
                 </label>
                 <Select
-                  defaultValue={vehicleData.status}
                   onValueChange={(value) =>
                     setVehicleData((prev) => ({ ...prev, status: value }))
                   }
                   required
                   name="status"
+                  value={vehicleData.status}
                 >
                   <SelectTrigger className="bg-slate-800/50 border-slate-700 text-slate-100 focus:ring-slate-400 focus:border-slate-400">
                     <SelectValue placeholder="Select status" />
@@ -365,7 +356,7 @@ export default function EditVehicleForm({
             {/* Action Buttons */}
             <div className="flex flex-col md:flex-row gap-2 pt-4">
               <Button className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white">
-                Update Vehicle
+           {loading ? "Updating..." : "Update Vehicle"}
               </Button>
               <Button
                 variant="secondary"
