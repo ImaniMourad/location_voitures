@@ -149,6 +149,6 @@ public class VehicleController {
         if (image != null) {
             return vehicleService.saveImage(image, licensePlate);
         }
-            return vehicleService.getImagePath(licensePlate);
+            return "";
     }
 }
