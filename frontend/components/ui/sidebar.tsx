@@ -6,8 +6,10 @@ import { usePathname, useRouter } from "next/navigation";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import CustomerProfile from "../profileClient";
+import { useTheme } from "../../context/context";
 
 export default function Sidebar() {
+  const { isDarkMode, setIsDarkMode } = useTheme();
   const pathname = usePathname();
   const router = useRouter();
   const path = pathname.split("/");
@@ -137,7 +139,7 @@ export default function Sidebar() {
 
   return (
     <>
-      <div className="h-screen w-64 bg-[#0f1725] text-white sticky top-0 left-0 z-50">
+      <div className={`h-screen w-64 ${isDarkMode ? 'bg-[#0f1725] text-white' : 'bg-[#f5f5f5] text-black'} sticky top-0 left-0 z-50`}>
         <nav className="p-4">
           <ul className="space-y-2 mt-12">
             {menuItems.map((item) => (
@@ -160,7 +162,7 @@ export default function Sidebar() {
                       onClick={() => setActiveItem(item.title)}
                       className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors ${
                         activeItem === item.title
-                          ? "bg-purple-600"
+                          ? "bg-purple-600 text-white"
                           : "hover:bg-white/10"
                       }`}
                     >
