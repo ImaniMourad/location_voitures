@@ -45,8 +45,20 @@ public class UserServiceImpl  implements UserService{
         if (userRepository.findByEmail(userDTO.getEmail()) != null ) {
             throw new UserAlreadyExistsException("User with this email already exists");
         }
+        if (userRepository.findByCin(userDTO.getCin()) != null ) {
+            throw new UserAlreadyExistsException("User with this CIN already exists");
+        }
+
+
+        if ( userDTO.getPassword() == null || userDTO.getPassword().isEmpty()) {
+            userDTO.setPassword(UUID.randomUUID().toString().substring(0, 8));
+            String subject = "Welcome to Location App";
+            String text = "Your email is " + userDTO.getEmail() + "\n" +
+                    "Your password is " + userDTO.getPassword();
+            emailService.sendEmail(userDTO.getEmail(), subject, text);
+        }
+        userDTO.setPassword(passwordEncoder.encode(userDTO.getPassword())); // Hashed password
         User user = userMapper.fromUserDTO(userDTO);
-        user.setPassword(passwordEncoder.encode(userDTO.getPassword())); // Hashed password
         User savedUser = userRepository.save(user);
         return userMapper.fromUser(savedUser);
     }

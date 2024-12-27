@@ -1,23 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "../../../../../components/cards/card-profile";
-import axios from "axios";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
+import axios from "axios";
 
 interface Client {
   cin: string;
-  firstname: string;
-  lastname: string;
+  firstName: string;
+  lastName: string;
   email: string;
-  phone: string;
+  phoneNumber: string;
   address: string;
+  password: string;
 }
 
 interface AdminFormProps {
@@ -26,207 +25,197 @@ interface AdminFormProps {
   onErrorMessage: (message: string) => void;
 }
 
-export default function AdminForm({
+export default function AddClientForm({
   handleCancel,
   handleAddClient,
   onErrorMessage,
 }: AdminFormProps) {
-
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const [client, setClient] = useState<Client>({
     cin: "",
-    firstname: "",
-    lastname: "",
+    firstName: "",
+    lastName: "",
     email: "",
-    phone: "",
+    phoneNumber: "",
     address: "",
+    password: "",
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { id, value } = e.target;
-    setClient((prevClient) => ({ ...prevClient, [id]: value }));
+  const handleInputChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
+  ) => {
+    const { name, value } = e.target;
+    setClient((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
-    const formData = new FormData();
-    formData.append("cin", client.cin);
-    formData.append("firstname", client.firstname);
-    formData.append("lastname", client.lastname);
-    formData.append("email", client.email);
-    formData.append("phone", client.phone);
-    formData.append("address", client.address);
-
-    console.log("formData", formData);
-
-    const token = localStorage.getItem("jwtToken");
-    if (!token) {
-      console.error("No token found");
-      setLoading(false);
-      router.push("/signin");
-      return;
-    }
-
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
     try {
-      const response = await axios.post(`${apiUrl}/vehicles`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const token = localStorage.getItem("jwtToken");
+      if (!token) {
+        throw new Error("You need to be signed in to perform this action.");
+      }
+
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+      if (!apiUrl) {
+        throw new Error("API URL is not configured.");
+      }
+
+      console.log(client);
+      const response = await axios.post(
+        `${apiUrl}/client`,
+        client, 
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       if (response.status === 201) {
-        console.log("Client added successfully");
         handleAddClient(response.data);
-        handleCancel();
       }
     } catch (error: any) {
-      if (error.response && error.response.data) {
-        onErrorMessage(error.response.data);
-        handleCancel();
-      } else {
-        console.error("Error adding client:", error);
-      }
+      onErrorMessage(error.response.data || "An unexpected error occurred.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <Card className="w-full max-w-lg bg-slate-900 text-slate-100 border border-slate-800">
-        <CardHeader>
-          <div className="flex justify-between">
-            <CardTitle className="text-2xl text-slate-100">
-              Add Client
-            </CardTitle>
-            <button
-              onClick={handleCancel}
-              className="text-slate-500 hover:text-slate-100 text-[2em] "
-            >
-              ✕
-            </button>
-          </div>
+    <div className="fixed inset-0 bg-slate-950/80 flex items-center justify-center p-4 overflow-y-auto ml-0 z-40">
+      <Card className="w-full max-w-lg bg-slate-900">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-7">
+          <CardTitle className="text-2xl font-bold text-white">
+            Add Client
+          </CardTitle>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="text-slate-400 hover:text-white"
+            onClick={handleCancel}
+          >
+            <X className="h-5 w-5" />
+          </Button>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <form onSubmit={handleSubmit}>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label
-                  htmlFor="cin"
-                  className="block text-sm font-medium text-slate-200"
-                >
-                  CIN
-                </label>
-                <input
-                  id="cin"
-                  value={client.cin}
-                  onChange={handleChange}
-                  placeholder="Enter the CIN"
-                  className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-md text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                />
-              </div>
+        <form onSubmit={handleSubmit}>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="cin" className="text-white">
+                CIN
+              </Label>
+              <Input
+                id="cin"
+                name="cin"
+                placeholder="Enter the CIN"
+                className="bg-slate-800 border-slate-700 text-white placeholder:text-slate-400"
+                onChange={handleInputChange}
+                value={client.cin}
+                required
+              />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <label
-                  htmlFor="firstname"
-                  className="block text-sm font-medium text-slate-200"
-                >
+                <Label htmlFor="firstName" className="text-white">
                   First Name
-                </label>
-                <input
-                  id="firstname"
-                  value={client.firstname}
-                  onChange={handleChange}
+                </Label>
+                <Input
+                  id="firstName"
+                  name="firstName"
                   placeholder="Enter the first name"
-                  className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-md text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="bg-slate-800 border-slate-700 text-white placeholder:text-slate-400"
+                  onChange={handleInputChange}
+                  value={client.firstName}
+                  required
                 />
               </div>
               <div className="space-y-2">
-                <label
-                  htmlFor="lastname"
-                  className="block text-sm font-medium text-slate-200"
-                >
+                <Label htmlFor="lastName" className="text-white">
                   Last Name
-                </label>
-                <input
-                  id="lastname"
-                  value={client.lastname}
-                  onChange={handleChange}
+                </Label>
+                <Input
+                  id="lastName"
+                  name="lastName"
                   placeholder="Enter the last name"
-                  className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-md text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="bg-slate-800 border-slate-700 text-white placeholder:text-slate-400"
+                  onChange={handleInputChange}
+                  value={client.lastName}
+                  required
                 />
               </div>
             </div>
-            <div className="flex gap-4">
-              <div className="space-y-2 flex-1">
-                <label
-                  htmlFor="email"
-                  className="block text-sm font-medium text-slate-200"
-                >
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-white">
                   Email
-                </label>
-                <input
+                </Label>
+                <Input
                   id="email"
+                  name="email"
                   type="email"
-                  value={client.email}
-                  onChange={handleChange}
                   placeholder="Enter the email"
-                  className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-md text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="bg-slate-800 border-slate-700 text-white placeholder:text-slate-400"
+                  onChange={handleInputChange}
+                  value={client.email}
+                  required
                 />
               </div>
-              <div className="space-y-2 flex-1">
-                <label
-                  htmlFor="phone"
-                  className="block text-sm font-medium text-slate-200"
-                >
-                  Phone
-                </label>
-                <input
-                  id="phone"
+              <div className="space-y-2">
+                <Label htmlFor="phoneNumber" className="text-white">
+                  phoneNumber
+                </Label>
+                <Input
+                  id="phoneNumber"
+                  name="phoneNumber"
                   type="tel"
-                  value={client.phone}
-                  onChange={handleChange}
-                  placeholder="Enter the phone number"
-                  className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-md text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  placeholder="Enter the phoneNumber number"
+                  className="bg-slate-800 border-slate-700 text-white placeholder:text-slate-400"
+                  onChange={handleInputChange}
+                  value={client.phoneNumber}
+                  required
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <label
-                htmlFor="address"
-                className="block text-sm font-medium text-slate-200"
-              >
+              <Label htmlFor="address" className="text-white">
                 Address
-              </label>
-              <input
+              </Label>
+              <Input
                 id="address"
-                value={client.address}
-                onChange={handleChange}
+                name="address"
                 placeholder="Enter the address"
-                className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-md text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                className="bg-slate-800 border-slate-700 text-white placeholder:text-slate-400"
+                onChange={handleInputChange}
+                value={client.address}
+                required
               />
             </div>
-            <div className="flex items-center gap-4">
-              <Button className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white">
-                Add Vehicle
+
+            <div className="grid grid-cols-1 gap-4 pt-4 sm:grid-cols-2">
+              <Button className="bg-indigo-600 text-white hover:bg-indigo-700">
+                {loading ? "Saving..." : "Save"}
               </Button>
               <Button
                 variant="secondary"
-                className="flex-1 bg-slate-700 hover:bg-slate-600 text-white"
+                className="bg-slate-700 text-white hover:bg-slate-600"
                 onClick={handleCancel}
               >
                 Cancel
               </Button>
             </div>
-          </form>
-        </CardContent>
+          </CardContent>
+        </form>
       </Card>
     </div>
   );

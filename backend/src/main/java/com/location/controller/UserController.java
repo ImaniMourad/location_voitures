@@ -2,6 +2,7 @@ package com.location.controller;
 
 import com.location.config.JwtConfig;
 import com.location.dto.UserDTO;
+import com.location.exceptions.UserAlreadyExistsException;
 import com.location.exceptions.UserNotExistsException;
 import com.location.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -31,6 +32,23 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
         } catch (Exception e) {
             logger.error("Error registering user", e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/client")
+    public ResponseEntity<?> addUser(@RequestBody UserDTO userDTO) {
+        try {
+            System.out.println(userDTO);
+            logger.info("Adding user: {}", userDTO);
+            UserDTO savedUser = userService.saveUser(userDTO);
+            return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
+        } catch ( UserAlreadyExistsException e) {
+            logger.error("User already exists", e);
+            System.out.println(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (Exception e) {
+            logger.error("Error adding user", e);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }

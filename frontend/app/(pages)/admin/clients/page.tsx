@@ -5,10 +5,11 @@ import List from "@/components/List";
 import FormAdd from "./add/add-form-client";
 import FormEdit from "./edit/edit-form-client";
 import axios from "axios";
+import Alert from "@/components/ui/alert";
 
 
 type Client = {
-  id: number;
+  id: string;
   cin: string;
   lastname: string;
   firstname: string;
@@ -16,11 +17,25 @@ type Client = {
   phone: string;
 };
 
+
+type AlertType = {
+  visible: boolean;
+  message: string;
+  type_alert: "" | "success" | "error";
+};
+
+
+
 export default function ClientManagement() {
   const [clients, setClients] = useState<Client[]>([]);
   const [isFormAddOpen, setIsFormAddOpen] = useState(false);
   const [isFormEditOpen, setIsFormEditOpen] = useState(false);
   const [editingClient, setEditingClient] = useState<Client | null>(null);
+    const [isAlertVisible, setIsAlertVisible] = useState<AlertType>({
+      visible: false,
+      message: "",
+      type_alert: "",
+    });
 
   useEffect(() => {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -60,8 +75,18 @@ export default function ClientManagement() {
 
   // Add a new client
   const handleAddClient = (newClient: Omit<Client, "id">) => {
-    setClients((prev) => [...prev, { ...newClient, id: prev.length + 1 }]);
+    setIsAlertVisible({
+      visible: true,
+      message: "Client added successfully",
+      type_alert: "success",
+    });
+
+    setClients((prev) => [...prev, { ...newClient, id: newClient.cin }]);
+
     setIsFormAddOpen(false);
+    setTimeout(() => {
+      setIsAlertVisible({ visible: false, message: "", type_alert: "" });
+    }, 2500);
   };
 
   // Edit an existing client
@@ -78,12 +103,32 @@ export default function ClientManagement() {
   };
 
   // Delete a client
-  const handleDeleteClient = (id: number) => {
+  const handleDeleteClient = (id: string) => {
     setClients((prev) => prev.filter((client) => client.id !== id));
   };
 
-  return (
+  const handleErrorMessage = (message: string) => {
+    setIsAlertVisible({
+      visible: true,
+      message: message,
+      type_alert: "error",
+    });
+    setTimeout(() => {
+      setIsAlertVisible({ visible: false, message: "", type_alert: "" });
+    }, 2500);
+  };
 
+  return (
+    <>
+
+    {isAlertVisible.visible && (
+      <div className="absolute top-0 left-0 w-full">
+        <Alert
+          message={isAlertVisible.message}
+          type_alert={isAlertVisible.type_alert}
+        />
+      </div>
+    )}
       <div className="w-[90%] mx-auto">
         <h1 className="text-3xl font-extrabold text-white mb-7 ml-5 pt-7">
           Client Management
@@ -107,6 +152,8 @@ export default function ClientManagement() {
           <FormAdd
             handleAddClient={handleAddClient}
             handleCancel={() => setIsFormAddOpen(false)}
+            onErrorMessage={handleErrorMessage}
+
           />
         )}
         {isFormEditOpen && editingClient && (
@@ -117,5 +164,6 @@ export default function ClientManagement() {
           />
         )}
       </div>
+      </>
   );
 }
