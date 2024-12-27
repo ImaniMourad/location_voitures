@@ -153,5 +153,25 @@ public class UserServiceImpl  implements UserService{
         userRepository.delete(client);
     }
 
+    @Override
+    public UserDTO updateUser(String cin, UserDTO userDTO) throws UserNotExistsException, UserAlreadyExistsException {
+        User user = userRepository.findByCin(cin);
+        if (user == null) {
+            throw new UserNotExistsException("User with this CIN does not exist");
+        }
+
+        // check  if the email is already used by another user
+        if (userRepository.findByEmail(userDTO.getEmail()) != null && !userDTO.getEmail().equals(user.getEmail())) {
+            throw new UserAlreadyExistsException("User with this email already exists");
+        }
+        user.setFirstName(userDTO.getFirstName());
+        user.setLastName(userDTO.getLastName());
+        user.setEmail(userDTO.getEmail());
+        user.setPhoneNumber(userDTO.getPhoneNumber());
+        user.setAddress(userDTO.getAddress());
+        User updatedUser = userRepository.save(user);
+        return userMapper.fromUser(updatedUser);
+    }
+
 }
 

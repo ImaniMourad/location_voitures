@@ -11,10 +11,12 @@ import Alert from "@/components/ui/alert";
 type Client = {
   id: string;
   cin: string;
-  lastname: string;
-  firstname: string;
+  lastName: string;
+  firstName: string;
   email: string;
-  phone: string;
+  phoneNumber: string;
+  address?: string;
+  password?: string;
 };
 
 
@@ -91,15 +93,23 @@ export default function ClientManagement() {
 
   // Edit an existing client
   const handleEditClient = (updatedClient: Client) => {
+    setIsAlertVisible({
+      visible: true,
+      message: "Client updated successfully",
+      type_alert: "success",
+    });
     console.log(updatedClient);
     console.log(clients);
     setClients((prev) =>
       prev.map((client) =>
-        client.id === updatedClient.id ? updatedClient : client
+        client.cin === updatedClient.cin ? updatedClient : client
       )
     );
     setIsFormEditOpen(false);
     setEditingClient(null);
+    setTimeout(() => {
+      setIsAlertVisible({ visible: false, message: "", type_alert: "" });
+    }, 2500);
   };
 
   // Delete a client
@@ -158,12 +168,14 @@ export default function ClientManagement() {
         )}
         {isFormEditOpen && editingClient && (
           <FormEdit
-            client={editingClient}
-            handleEditClient={handleEditClient}
+            clientData={editingClient}
+            handleUpdateClient={handleEditClient}
             handleCancel={() => setIsFormEditOpen(false)}
+            onErrorMessage={handleErrorMessage}
           />
         )}
       </div>
       </>
   );
 }
+

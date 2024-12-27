@@ -53,6 +53,22 @@ public class UserController {
         }
     }
 
+    @PutMapping("/client/{CIN}")
+    public ResponseEntity<?> updateUser(@PathVariable String CIN, @RequestBody UserDTO userDTO) {
+        try {
+            logger.info("Updating user with CIN: {}", CIN);
+            UserDTO updatedUser = userService.updateUser(CIN, userDTO);
+            return ResponseEntity.ok(updatedUser);
+        } catch (UserNotExistsException e) {
+            logger.error("No user found with CIN: {}", CIN);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            logger.error("Error updating user", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+    
+
     @GetMapping("/auth/verify-token")
     public ResponseEntity<?> verifyToken(HttpServletRequest request) {
         String token = extractToken(request);

@@ -178,7 +178,7 @@ export default function AddClientForm({
                   id="phoneNumber"
                   name="phoneNumber"
                   type="tel"
-                  placeholder="Enter the phoneNumber number"
+                  placeholder="Enter the phoneNumber"
                   className="bg-slate-800 border-slate-700 text-white placeholder:text-slate-400"
                   onChange={handleInputChange}
                   value={client.phoneNumber}

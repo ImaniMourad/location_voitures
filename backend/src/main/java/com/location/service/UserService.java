@@ -27,4 +27,6 @@ public interface UserService {
     List<ClientDTO> getClients();
 
     void deleteClient(String CIN) throws UserNotExistsException;
+
+    UserDTO updateUser(String cin, UserDTO userDTO) throws UserNotExistsException, UserAlreadyExistsException;
 }
