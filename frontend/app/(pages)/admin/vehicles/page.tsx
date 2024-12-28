@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 import List from "@/components/List";
 import FormAdd from "./add/add-vehicle-form";
 import FormEdit from "./edit/edit-vehicle-form";
+import VehicleDetails from "./details/page";
 import PageIllustration from "@/components/page-illustration";
 import axios from "axios";
 import Alert from "@/components/ui/alert";
@@ -32,6 +33,7 @@ export default function VehicleList() {
       horsePower: string;
       capacity: string;
       features: string;
+      deleteAt: string;
       pathImg: string;
     }>
   >([]);
@@ -50,8 +52,11 @@ export default function VehicleList() {
     horsePower: string;
     capacity: string;
     features: string;
+    deleteAt: string;
     pathImg: string;
   } | null>(null);
+
+  const [vehicleOpened, setVehicleOpened] = useState<string>("");
 
   useEffect(() => {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -85,7 +90,8 @@ export default function VehicleList() {
     { header: "Price", accessor: "price" },
     { header: "Type", accessor: "type" },
     { header: "Status", accessor: "status" },
-  ];
+    ];
+
 
   const handleAddVehicle = (newVehicle: {
     id: string;
@@ -99,6 +105,7 @@ export default function VehicleList() {
     horsePower: string;
     capacity: string;
     features: string;
+    deleteAt: string;
     pathImg: string;
   }) => {
     console.log("New Vehicle:", newVehicle);
@@ -134,6 +141,7 @@ export default function VehicleList() {
     horsePower: string;
     capacity: string;
     features: string;
+    deleteAt: string;
     pathImg: string;
   }) => {
     console.log("Updated Vehicle:", updatedVehicle);
@@ -157,19 +165,21 @@ export default function VehicleList() {
   const handleDeleteVehicle = (id: string) => {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
     const token = localStorage.getItem("jwtToken");
+    const currentDateTime = new Date().toISOString();
     if (!token) {
       return;
     }
     axios
-      .put(`${apiUrl}/vehicle/${id}/archive`, null, {
+      .put(`${apiUrl}/vehicle/${id}/archive`, currentDateTime, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       })
       .then(() => {
         setVehicles((prevVehicles) =>
-          prevVehicles.filter((vehicle) => vehicle.id !== id)
-        );
+        prevVehicles.map((vehicle) =>
+          vehicle.id === id ? { ...vehicle, deletedAt: currentDateTime } : vehicle
+        ));
       })
       .catch((error) => console.error("Error deleting vehicle:", error));
   };
@@ -188,6 +198,10 @@ export default function VehicleList() {
     setTimeout(() => {
       setIsAlertVisible({ visible: false, message: "", type_alert: "" });
     }, 2500);
+  };
+
+  const handleClickedRow = (licensePlate: string) => {
+    setVehicleOpened(licensePlate);
   };
 
   return (
@@ -218,7 +232,7 @@ export default function VehicleList() {
           }}
           onDelete={handleDeleteVehicle}
           onAdd={() => setIsFormAddOpen(true)}
-          to="/admin/vehicles"
+          handleClickedRow={(id) => handleClickedRow(id)}
         />
         {isFormAddOpen && (
           <FormAdd
@@ -233,6 +247,12 @@ export default function VehicleList() {
             onEditVehicle={handleEditVehicle}
             vehicleId={editingVehicle.id}
             onErrorMessage={handleErrorMessage}
+          />
+        )}
+        {vehicleOpened !== "" && (
+          <VehicleDetails
+            licensePlate={vehicleOpened}
+            handleCancel={() => setVehicleOpened("")}
           />
         )}
       </div>
