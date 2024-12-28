@@ -15,19 +15,23 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfigurationSource;
+
 
 @Configuration
 public class SecurityConfig {
 
     private final CustomUserDetailsService userDetailsService;
     private final JwtConfig jwtConfig;
+    private final CorsConfigurationSource corsConfigurationSource;
 
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
-    public SecurityConfig(CustomUserDetailsService userDetailsService, JwtConfig jwtConfig) {
+    public SecurityConfig(CustomUserDetailsService userDetailsService, JwtConfig jwtConfig, CorsConfigurationSource corsConfigurationSource) {
         this.userDetailsService = userDetailsService;
         this.jwtConfig = jwtConfig;
+        this.corsConfigurationSource = corsConfigurationSource;
     }
 
     @Bean
@@ -36,9 +40,10 @@ public class SecurityConfig {
         JwtAuthorizationFilter jwtAuthorizationFilter = new JwtAuthorizationFilter(authManager, jwtConfig);
 
         http
+                .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .csrf(AbstractHttpConfigurer::disable) // Disable CSRF
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/register","/auth/verify-token", "/reset-password","/send-otp","/verify-otp","/vehicles","/users","/clients","/reservations/**", "/vehicle/**", "/User/**","/client/**", "/reservation/client/**","/paypal/create-payment/**","/paypal/**","/paypal/success").permitAll()
+                        .requestMatchers("/login", "/register","/auth/verify-token", "/reset-password","/send-otp","/verify-otp","/vehicles","/users","/clients","/reservations/**", "/vehicle/**", "/User/**","/client/**", "/reservation/client/**","/paypal/create-payment/**","/paypal/**","/paypal/success","/reservation/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)

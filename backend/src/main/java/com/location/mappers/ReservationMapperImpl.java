@@ -1,5 +1,10 @@
 package com.location.mappers;
 
+import com.location.model.Client;
+import com.location.repository.ReservationRepository;
+import com.location.repository.UserRepository;
+import com.location.repository.VehicleRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.BeanUtils;
 import com.location.dto.ReservationDTO;
@@ -12,6 +17,14 @@ import java.util.HashMap;
 @Service
 public class ReservationMapperImpl {
 
+    @Autowired
+    private VehicleRepository vehicleRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+
+
     public List<ReservationDTO> fromReservationList(List<Reservation> reservations){
         List<ReservationDTO> reservationDTOList = new ArrayList<>();
         for(Reservation reservation: reservations){
@@ -23,6 +36,9 @@ public class ReservationMapperImpl {
     public ReservationDTO fromReservation(Reservation reservation){
         ReservationDTO reservationDTO = new ReservationDTO();
         BeanUtils.copyProperties(reservation,reservationDTO);
+        reservationDTO.setClientCIN(reservation.getClient().getCin());
+        reservationDTO.setVehicleId(reservation.getVehicle().getLicensePlate());
+        System.out.println(reservationDTO);
         return reservationDTO;
     }
 
@@ -43,5 +59,16 @@ public class ReservationMapperImpl {
         map.put("endDate", obj[5]);
         return map;
     }
+
+    public Reservation fromReservationDTO(ReservationDTO reservationDTO){
+        Reservation reservation = new Reservation();
+        reservation.setClient((Client) userRepository.findByCin(reservationDTO.getClientCIN()));
+        reservation.setVehicle(vehicleRepository.findById(reservationDTO.getVehicleId()).get());
+        reservation.setStartDate(reservationDTO.getStartDate());
+        reservation.setEndDate(reservationDTO.getEndDate());
+        reservation.setPaidAt(reservationDTO.getPaidAt());
+        return reservation;
+    }
+
 
 }
