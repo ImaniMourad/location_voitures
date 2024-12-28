@@ -14,6 +14,8 @@ type Reservation = {
   startDate: string;
   endDate: string;
   paid_at: string;
+  client: string;
+  vehicle: string;
 };
 
 type AlertType = {
@@ -46,6 +48,8 @@ export default function ReservationList() {
             Authorization: `Bearer ${token}`,
           },
         });
+
+        console.log(response.data);
         // afficher date de forme jj/mm/aaaa hh:mm sans seconds
         response.data.forEach((reservation: Reservation) => {
           reservation.startDate = new Date(
@@ -71,12 +75,22 @@ export default function ReservationList() {
   ];
 
   const handleAddReservation = (newReservation: any) => {
+    setIsAlertVisible({
+      visible: true,
+      message: "Reservation added successfully",
+      type_alert: "success",
+    });
+    console.log(newReservation);
+    console.log(reservations);
     const updatedReservations = [
       ...reservations,
       { ...newReservation, id: reservations.length + 1 },
     ];
     setReservations(updatedReservations);
     setIsFormAddOpen(false);
+    setTimeout(() => {
+      setIsAlertVisible({ visible: false, message: "", type_alert: "" });
+    }, 2500);
   };
 
   const handleEditReservation = (updatedReservation: Reservation) => {
@@ -115,6 +129,16 @@ export default function ReservationList() {
   };
 
   return (
+    <>
+
+    {isAlertVisible.visible && (
+      <div className="absolute top-0 left-0 w-full">
+        <Alert
+          message={isAlertVisible.message}
+          type_alert={isAlertVisible.type_alert}
+        />
+      </div>
+    )}
     <div className="w-[90%] mx-auto">
       <h1 className="text-3xl font-extrabold text-white mb-7 ml-5 pt-7">
         Reservations Management
@@ -148,5 +172,6 @@ export default function ReservationList() {
                 <FormEdit reservation={editingReservation} handleUpdateReservation={handleEditReservation} handleCancel={handleCancel} />
             )} */}
     </div>
+    </>
   );
 }

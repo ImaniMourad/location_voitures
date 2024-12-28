@@ -18,6 +18,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 
@@ -150,5 +151,10 @@ public class VehicleServiceImpl implements VehicleService {
         Vehicle vehicle = vehicleRepository.findByLicensePlate(licensePlate);
         vehicle.setDeletedAt(LocalDateTime.now());
         vehicleRepository.save(vehicle);
+    }
+
+    @Override
+    public List<Map<String, Object>> getAvailableVehicles(LocalDateTime start, LocalDateTime end) {
+        return vehicleMapper.fromObjetList(vehicleRepository.getAvailableVehicles(start, end));
     }
 }

@@ -89,10 +89,8 @@ export default function Header() {
             <li>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="relative text-slate-50"
+                  <div
+                    className="relative text-slate-50 cursor-pointer"
                   >
                     <ShoppingCart />
                     {reservations > 0 && (
@@ -100,16 +98,16 @@ export default function Header() {
                         {reservations}
                       </span>
                     )}
-                  </Button>
+                  </div>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48">
                   <DropdownMenuItem className="justify-between">
                     Active Reservations
-                    <span className="font-bold text-indigo-600">
-                      {reservations}
-                    </span>
+                    <span className="font-bold text-indigo-600">{reservations}</span>
                   </DropdownMenuItem>
-                  <DropdownMenuItem>View All Reservations</DropdownMenuItem>
+                  <DropdownMenuItem>
+                    View All Reservations
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </li>
