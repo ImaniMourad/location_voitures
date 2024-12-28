@@ -134,17 +134,6 @@ public class VehicleController {
         }
     }
 
-
-    @DeleteMapping("/vehicle/{licensePlate}")
-    public ResponseEntity<?> deleteVehicle(@PathVariable String licensePlate) {
-        try {
-            vehicleService.deleteVehicle(licensePlate);
-            return ResponseEntity.ok("Vehicle deleted successfully");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
-    }
-
     private String saveImage(MultipartFile image, String licensePlate) throws IOException, ImageNotValidException {
         if (image != null) {
             return vehicleService.saveImage(image, licensePlate);

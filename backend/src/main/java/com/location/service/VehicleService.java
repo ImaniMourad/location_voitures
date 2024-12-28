@@ -15,8 +15,6 @@ public interface VehicleService {
     List<VehicleDTO> getVehicles();
     // method to get vrhicle by id
     VehicleDTO getVehicleById(String licensePlate);
-    // method to delete a vehicle
-    void deleteVehicle(String licensePlate);
 
     String saveImage(MultipartFile image, String licensePlate) throws IOException, ImageNotValidException;
 
