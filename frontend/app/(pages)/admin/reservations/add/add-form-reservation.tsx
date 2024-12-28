@@ -1,24 +1,37 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
 } from "../../../../../components/cards/card-profile";
+import { Button } from "@/components/ui/button";
+import { X } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface Reservation {
-  client: string;
-  vehicle: string;
+  id: number;
+  clientId: string;
+  vehicleId: string;
   startDate: string;
+  startTime: string;
   endDate: string;
-  status: string;
+  endTime: string;
+  paid_at: string;
 }
 
-interface AdminFormProps {
+interface ReservationFormProps {
   handleAddReservation: (newReservation: Reservation) => void;
   handleCancel: () => void;
+  onErrorMessage: (message: string) => void;
 }
 
 const cars = [
@@ -35,16 +48,21 @@ const clients = [
   { id: 4, name: "Sophie Lefebvre" },
 ];
 
-export default function AdminForm({
+export default function ReservationForm({
   handleAddReservation,
   handleCancel,
-}: AdminFormProps) {
+  onErrorMessage,
+}: ReservationFormProps) {
+  const [loading, setLoading] = useState(false);
   const [reservation, setReservation] = useState<Reservation>({
-    client: "",
-    vehicle: "",
+    id: 0,
+    clientId: "",
+    vehicleId: "",
     startDate: "",
+    startTime: "",
     endDate: "",
-    status: "",
+    endTime: "",
+    paid_at: "",
   });
 
   const [filteredClients, setFilteredClients] = useState(clients);
@@ -71,6 +89,9 @@ export default function AdminForm({
     }
   };
 
+  // use effect to get all cars and clients from the database
+  useEffect(() => {}, []);
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <Card className="w-full max-w-lg bg-slate-900 text-slate-100 border border-slate-800">
@@ -79,12 +100,14 @@ export default function AdminForm({
             <CardTitle className="text-2xl text-slate-100">
               Add Reservation
             </CardTitle>
-            <button
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-slate-400 hover:text-white"
               onClick={handleCancel}
-              className="text-slate-500 hover:text-slate-100 text-[2em] "
             >
-              ✕
-            </button>
+              <X className="h-5 w-5" />
+            </Button>
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -95,20 +118,27 @@ export default function AdminForm({
             >
               Client
             </label>
-            <select
-              id="client"
-              value={reservation.client}
-              onChange={handleChange}
+            <Select
+              onValueChange={(value) =>
+                setReservation((prevReservation) => ({
+                  ...prevReservation,
+                  clientId: value,
+                }))
+              }
               required
-              className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-md text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              name="client"
             >
-              <option value="">Select client</option>
-              {filteredClients.map((client) => (
-                <option key={client.id} value={client.name}>
-                  {client.name}
-                </option>
-              ))}
-            </select>
+              <SelectTrigger className="bg-slate-800/50 border-slate-700 text-slate-100 focus:ring-slate-400 focus:border-slate-400">
+                <SelectValue placeholder="Select status" />
+              </SelectTrigger>
+              <SelectContent className="bg-slate-800 border-slate-700">
+                {filteredClients.map((client) => (
+                  <SelectItem key={client.id} value={client.id.toString()}>
+                    {client.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div className="space-y-2">
             <label
@@ -117,20 +147,27 @@ export default function AdminForm({
             >
               Vehicle
             </label>
-            <select
-              id="vehicle"
-              value={reservation.vehicle}
+            <Select
+              onValueChange={(value) =>
+                setReservation((prevReservation) => ({
+                  ...prevReservation,
+                  vehicleId: value,
+                }))
+              }
               required
-              onChange={handleChange}
-              className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-md text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              name="vehicle"
             >
-              <option value="">Select vehicle</option>
-              {filteredCars.map((car) => (
-                <option key={car.id} value={car.name}>
-                  {car.name}
-                </option>
-              ))}
-            </select>
+              <SelectTrigger className="bg-slate-800/50 border-slate-700 text-slate-100 focus:ring-slate-400 focus:border-slate-400">
+                <SelectValue placeholder="Select vehicle" />
+              </SelectTrigger>
+              <SelectContent className="bg-slate-800 border-slate-700">
+                {filteredCars.map((vehicle) => (
+                  <SelectItem key={vehicle.id} value={vehicle.id.toString()}>
+                    {vehicle.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div className="space-y-2">
             <label
@@ -139,14 +176,24 @@ export default function AdminForm({
             >
               Start Date
             </label>
-            <input
-              id="startDate"
-              type="date"
-              required
-              value={reservation.startDate}
-              onChange={handleChange}
-              className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-md text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-            />
+            <div className="flex space-x-2">
+              <input
+                id="startDate"
+                type="date"
+                required
+                value={reservation.startDate}
+                onChange={handleChange}
+                className="w-1/2 px-3 py-1 bg-slate-800 border border-slate-700 rounded-md text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              />
+              <input
+                id="startTime"
+                type="time"
+                required
+                value={reservation.startTime}
+                onChange={handleChange}
+                className="w-1/2 px-3 py-1 bg-slate-800 border border-slate-700 rounded-md text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              />
+            </div>
           </div>
           <div className="space-y-2">
             <label
@@ -155,48 +202,36 @@ export default function AdminForm({
             >
               End Date
             </label>
-            <input
-              id="endDate"
-              type="date"
-              required
-              value={reservation.endDate}
-              onChange={handleChange}
-              className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-md text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-            />
+            <div className="flex space-x-2">
+              <input
+                id="endDate"
+                type="date"
+                required
+                value={reservation.endDate}
+                onChange={handleChange}
+                className="w-1/2 px-3 py-1 bg-slate-800 border border-slate-700 rounded-md text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              />
+              <input
+                id="endTime"
+                type="time"
+                required
+                value={reservation.endTime}
+                onChange={handleChange}
+                className="w-1/2 px-3 py-1 bg-slate-800 border border-slate-700 rounded-md text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              />
+            </div>
           </div>
-          <div className="space-y-2">
-            <label
-              htmlFor="status"
-              className="block text-sm font-medium text-slate-200"
-            >
-              Status
-            </label>
-            <select
-              id="status"
-              value={reservation.status}
-              required
-              onChange={handleChange}
-              className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-md text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-            >
-              <option value="">Select status</option>
-              <option value="Pending">Pending</option>
-              <option value="Confirmed">Confirmed</option>
-              <option value="Cancelled">Cancelled</option>
-            </select>
-          </div>
-          <div className="flex items-center gap-4">
-            <button
-              className="flex-1 py-2 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-md transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-slate-900"
-              onClick={() => handleAddReservation(reservation)}
-            >
-              Save
-            </button>
-            <button
-              className="flex-1 py-2 px-4 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-md transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-slate-900"
+          <div className="grid grid-cols-1 gap-4 pt-4 sm:grid-cols-2">
+            <Button className="bg-indigo-600 text-white hover:bg-indigo-700">
+              {loading ? "Saving..." : "Save"}
+            </Button>
+            <Button
+              variant="secondary"
+              className="bg-slate-700 text-white hover:bg-slate-600"
               onClick={handleCancel}
             >
               Cancel
-            </button>
+            </Button>
           </div>
         </CardContent>
       </Card>

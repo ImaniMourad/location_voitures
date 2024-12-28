@@ -45,8 +45,20 @@ public class UserServiceImpl  implements UserService{
         if (userRepository.findByEmail(userDTO.getEmail()) != null ) {
             throw new UserAlreadyExistsException("User with this email already exists");
         }
+        if (userRepository.findByCin(userDTO.getCin()) != null ) {
+            throw new UserAlreadyExistsException("User with this CIN already exists");
+        }
+
+
+        if ( userDTO.getPassword() == null || userDTO.getPassword().isEmpty()) {
+            userDTO.setPassword(UUID.randomUUID().toString().substring(0, 8));
+            String subject = "Welcome to Location App";
+            String text = "Your email is " + userDTO.getEmail() + "\n" +
+                    "Your password is " + userDTO.getPassword();
+            emailService.sendEmail(userDTO.getEmail(), subject, text);
+        }
+        userDTO.setPassword(passwordEncoder.encode(userDTO.getPassword())); // Hashed password
         User user = userMapper.fromUserDTO(userDTO);
-        user.setPassword(passwordEncoder.encode(userDTO.getPassword())); // Hashed password
         User savedUser = userRepository.save(user);
         return userMapper.fromUser(savedUser);
     }
@@ -139,6 +151,26 @@ public class UserServiceImpl  implements UserService{
             throw new UserNotExistsException("Client with this CIN does not exist");
         }
         userRepository.delete(client);
+    }
+
+    @Override
+    public UserDTO updateUser(String cin, UserDTO userDTO) throws UserNotExistsException, UserAlreadyExistsException {
+        User user = userRepository.findByCin(cin);
+        if (user == null) {
+            throw new UserNotExistsException("User with this CIN does not exist");
+        }
+
+        // check  if the email is already used by another user
+        if (userRepository.findByEmail(userDTO.getEmail()) != null && !userDTO.getEmail().equals(user.getEmail())) {
+            throw new UserAlreadyExistsException("User with this email already exists");
+        }
+        user.setFirstName(userDTO.getFirstName());
+        user.setLastName(userDTO.getLastName());
+        user.setEmail(userDTO.getEmail());
+        user.setPhoneNumber(userDTO.getPhoneNumber());
+        user.setAddress(userDTO.getAddress());
+        User updatedUser = userRepository.save(user);
+        return userMapper.fromUser(updatedUser);
     }
 
 }

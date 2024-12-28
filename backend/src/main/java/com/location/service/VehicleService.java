@@ -21,4 +21,10 @@ public interface VehicleService {
     String saveImage(MultipartFile image, String licensePlate) throws IOException, ImageNotValidException;
 
     boolean isVehicleExists(String licensePlate);
+
+    VehicleDTO updateVehicle(VehicleDTO vehicleDTO) throws IOException, InterruptedException;
+
+    String getImagePath(String licensePlate);
+
+    void deleteImage(String licensePlate);
 }

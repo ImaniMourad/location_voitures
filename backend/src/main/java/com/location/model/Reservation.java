@@ -19,6 +19,10 @@ public class Reservation {
     private LocalDateTime startDate;
     private LocalDateTime endDate;
 
+    private LocalDateTime deletedAt;
+
+    private LocalDateTime paidAt;
+
     @ManyToOne
     @JoinColumn(name = "client_cin", nullable = false)
     private Client client;
