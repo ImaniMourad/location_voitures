@@ -10,6 +10,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
+  Select,
+  SelectTrigger,
+  SelectContent,
+  SelectItem,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Dialog,
   DialogContent,
   DialogFooter,
@@ -38,7 +45,7 @@ interface ListProps {
   onEdit: (item: any) => void; // Function to handle editing an item
   onDelete: (id: any) => void; // Function to handle deleting an item
   onAdd: () => void; // Function to open the form to add a new item
-  to: string; // Path to the item details page
+  handleClickedRow: (id: any) => void; // Function to handle clicking on a row
 }
 
 export default function List({
@@ -48,28 +55,40 @@ export default function List({
   onEdit,
   onDelete,
   onAdd,
-  to,
+  handleClickedRow,
 }: ListProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredRows, setFilteredRows] = useState(rows);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [row, setRow] = useState<any | null>(null);
+  const [filterStatus, setFilterStatus] = useState("actived"); // State for the select filter
 
-  // Fonction pour filtrer les lignes en fonction de la recherche
+  // Fonction pour filtrer les lignes en fonction de la recherche et du status
   useEffect(() => {
     const searchTerms = searchQuery
       .toLowerCase()
       .split(" ")
       .map((term) => term.trim());
-    const filtered = rows.filter((row) =>
-      searchTerms.every((term) =>
+
+    const filtered = rows.filter((row) => {
+      // Vérifie si la ligne correspond au filtre `filterStatus`
+      const isStatusMatch =
+        (filterStatus === "actived" && !row.deletedAt) ||
+        (filterStatus === "archived" && row.deletedAt);
+
+      // Vérifie si la ligne correspond à la recherche
+      const isSearchMatch = searchTerms.every((term) =>
         Object.values(row).some(
           (value) => value && value.toString().toLowerCase().includes(term)
         )
-      )
-    );
+      );
+
+      // Combine les deux conditions
+      return isStatusMatch && isSearchMatch;
+    });
+
     setFilteredRows(filtered);
-  }, [searchQuery, rows]);
+  }, [searchQuery, rows, filterStatus]);
 
   // Fonction pour confirmer la suppression d'un élément
   const handleConfirmDelete = (row: any) => () => {
@@ -86,6 +105,17 @@ export default function List({
     <>
       <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
         <div className="flex justify-end items-center mb-4 space-x-4">
+          <div>
+            <Select onValueChange={setFilterStatus} defaultValue="actived">
+              <SelectTrigger className="bg-gray-700 text-white border-gray-600 hover:bg-gray-600 focus:ring-indigo-500">
+                <SelectValue placeholder="Filter" />
+              </SelectTrigger>
+              <SelectContent className="bg-gray-700 text-white">
+                <SelectItem value="actived">Actived</SelectItem>
+                <SelectItem value="archived">Archived</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
           <div className="relative w-64">
             <Input
               type="text"
@@ -127,7 +157,11 @@ export default function List({
                   {col.header}
                 </TableHead>
               ))}
-              {onEdit !== undefined || onDelete !== undefined ? (
+              {filterStatus === "archived" && (
+                <TableHead className="text-indigo-300">Archived At</TableHead>
+              )}
+              {(onEdit !== undefined || onDelete !== undefined) &&
+              filterStatus === "actived" ? (
                 <TableHead className="text-indigo-300">Actions</TableHead>
               ) : null}
             </TableRow>
@@ -142,12 +176,20 @@ export default function List({
                 >
                   {columns.map((col, colIndex) => (
                     <TableCell key={colIndex} className="text-gray-300">
-                      <Link href={`${to}/${row.id}`} passHref>
+                      <Link onClick={() => handleClickedRow(row.id)} href={""}>
                         {row[col.accessor]}
                       </Link>
                     </TableCell>
                   ))}
-                  {onEdit !== undefined || onDelete !== undefined ? (
+                  {filterStatus === "archived" && (
+                    <TableCell className="text-gray-300">
+                      {row.deletedAt
+                        ? new Date(row.deletedAt).toLocaleString()
+                        : "N/A"}
+                    </TableCell>
+                  )}
+                  {(onEdit !== undefined || onDelete !== undefined) &&
+                  filterStatus === "actived" ? (
                     <TableCell>
                       {onEdit && (
                         <Button
