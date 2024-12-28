@@ -55,12 +55,6 @@ public class VehicleServiceImpl implements VehicleService {
     }
 
     @Override
-    public void deleteVehicle(String licensePlate) {
-        Vehicle vehicle = vehicleRepository.findByLicensePlate(licensePlate);
-        vehicleRepository.delete(vehicle);
-    }
-
-    @Override
     public String saveImage(MultipartFile image, String licensePlate) throws IOException, ImageNotValidException {
         if (image.isEmpty()) {
             throw new ImageNotValidException("Image is not valid");
