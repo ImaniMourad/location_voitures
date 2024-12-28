@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -32,7 +33,7 @@ public class Vehicle {
     @Enumerated(EnumType.STRING)
     private VehicleStatus  status;
 
-    @Column(precision = 10, scale = 2) // pour gérer les prix numériques
+    @Column(precision = 10, scale = 2)
     private BigDecimal price;
 
     @Size(max = 50)
@@ -46,6 +47,8 @@ public class Vehicle {
 
     @Size(max = 255)
     private String pathImg;
+
+    private LocalDateTime deletedAt;
 
     @OneToMany(mappedBy = "vehicle")
     private List<Reservation> reservations;

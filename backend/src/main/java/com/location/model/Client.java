@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
@@ -19,5 +20,7 @@ public class Client extends User {
 
     @OneToMany(mappedBy = "client", fetch = FetchType.LAZY)
     private List<Reservation> reservations; // Assuming Reservation is a class with appropriate fields and mappings
+
+    private LocalDateTime deletedAt;
 
 }
