@@ -9,13 +9,7 @@ import {
 } from "../../../../../components/cards/card-profile";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import axios from "axios";
 
 interface Reservation {
   id: number;
@@ -26,6 +20,21 @@ interface Reservation {
   endDate: string;
   endTime: string;
   paid_at: string;
+  price: string;
+}
+
+interface Client {
+  cin: string;
+  firstName: string;
+  lastName: string;
+}
+
+interface Vehicle {
+  licensePlate: string;
+  model: string;
+  brand: string;
+  year: string;
+  price: number;
 }
 
 interface ReservationFormProps {
@@ -33,20 +42,6 @@ interface ReservationFormProps {
   handleCancel: () => void;
   onErrorMessage: (message: string) => void;
 }
-
-const cars = [
-  { id: 1, name: "Renault Clio" },
-  { id: 2, name: "Peugeot 3008" },
-  { id: 3, name: "Citroën C3" },
-  { id: 4, name: "BMW Série 5" },
-];
-
-const clients = [
-  { id: 1, name: "Jean Dupont" },
-  { id: 2, name: "Marie Martin" },
-  { id: 3, name: "Pierre Durand" },
-  { id: 4, name: "Sophie Lefebvre" },
-];
 
 export default function ReservationForm({
   handleAddReservation,
@@ -63,34 +58,130 @@ export default function ReservationForm({
     endDate: "",
     endTime: "",
     paid_at: "",
+    price: "00.00",
   });
 
-  const [filteredClients, setFilteredClients] = useState(clients);
-  const [filteredCars, setFilteredCars] = useState(cars);
+  const [filteredClients, setFilteredClients] = useState<Client[]>([]);
+  const [filteredVehicles, setFilteredVehicles] = useState<Vehicle[]>([]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { id, value } = e.target;
     setReservation((prevReservation) => ({ ...prevReservation, [id]: value }));
+  };
 
-    if (id === "client") {
-      setFilteredClients(
-        clients.filter((client) =>
-          client.name.toLowerCase().includes(value.toLowerCase())
-        )
-      );
-    } else if (id === "vehicle") {
-      setFilteredCars(
-        cars.filter((car) =>
-          car.name.toLowerCase().includes(value.toLowerCase())
-        )
-      );
+  // useEffect to fetch clients and vehicles
+  useEffect(() => {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+    if (!apiUrl) {
+      throw new Error("API URL is not configured.");
+    }
+
+    const fetchClients = async () => {
+      try {
+        const token = localStorage.getItem("jwtToken");
+        if (!token) {
+          return;
+        }
+
+        const response = await axios.get(`${apiUrl}/clients`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        console.log("-------clients----------");
+        console.log(response.data);
+        setFilteredClients(response.data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    const fetchVehicles = async () => {
+      try {
+        const token = localStorage.getItem("jwtToken");
+        if (!token) {
+          return;
+        }
+
+        const response = await axios.get(`${apiUrl}/vehicles`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        console.log("-------vehicles----------");
+        console.log(response.data);
+        setFilteredVehicles(response.data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchClients();
+    fetchVehicles();
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const token = localStorage.getItem("jwtToken");
+      if (!token) {
+        throw new Error("You need to be signed in to perform this action.");
+      }
+
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+      if (!apiUrl) {
+        throw new Error("API URL is not configured.");
+      }
+
+      console.log("-------reservation----------");
+      console.log(reservation)
+
+      // const response = await axios.post(
+      //   `${apiUrl}/reservation`,
+      //   reservation,
+      //   {
+      //     headers: {
+      //       Authorization: `Bearer ${token}`,
+      //     },
+      //   }
+      // );
+
+      // if (response.status === 201) {
+      //   handleAddReservation(response.data);
+      // }
+    } catch (error: any) {
+      onErrorMessage(error.response?.data || "An unexpected error occurred.");
+    } finally {
+      setLoading(false);
     }
   };
 
-  // use effect to get all cars and clients from the database
-  useEffect(() => {}, []);
+  const handleCalculateTotal = () => {
+    // calculate nbr des jours bewteen start and end date si je depasse 24h je dois payer un jour de plus
+    const startDate = new Date(reservation.startDate + "T" + reservation.startTime);
+    const endDate = new Date(reservation.endDate + "T" + reservation.endTime);
+    const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    console.log(diffDays);
+    // get vehicle price
+    const vehicle = filteredVehicles.find(
+      (vehicle) => vehicle.licensePlate === reservation.vehicleId
+    );
+
+
+    if (vehicle) {
+      const price = vehicle.price * diffDays;
+      setReservation((prevReservation) => ({
+        ...prevReservation,
+        price: price.toFixed(2),
+      }));
+    }
+
+  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
@@ -110,130 +201,146 @@ export default function ReservationForm({
             </Button>
           </div>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <label
-              htmlFor="client"
-              className="block text-sm font-medium text-slate-200"
-            >
-              Client
-            </label>
-            <Select
-              onValueChange={(value) =>
-                setReservation((prevReservation) => ({
-                  ...prevReservation,
-                  clientId: value,
-                }))
-              }
-              required
-              name="client"
-            >
-              <SelectTrigger className="bg-slate-800/50 border-slate-700 text-slate-100 focus:ring-slate-400 focus:border-slate-400">
-                <SelectValue placeholder="Select status" />
-              </SelectTrigger>
-              <SelectContent className="bg-slate-800 border-slate-700">
+        <form onSubmit={handleSubmit}>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <label
+                htmlFor="clientId"
+                className="block text-sm font-medium text-slate-200"
+              >
+                Client
+              </label>
+              <input
+                id="clientId"
+                list="clients"
+                required
+                value={reservation.clientId}
+                onChange={handleChange}
+                className="w-full px-3 py-1 bg-slate-800 border border-slate-700 rounded-md text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                placeholder="Select client"
+              />
+              <datalist id="clients">
                 {filteredClients.map((client) => (
-                  <SelectItem key={client.id} value={client.id.toString()}>
-                    {client.name}
-                  </SelectItem>
+                  <option key={client.cin} value={client.cin}>
+                    {client.firstName + " " + client.lastName}
+                  </option>
                 ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-2">
-            <label
-              htmlFor="vehicle"
-              className="block text-sm font-medium text-slate-200"
-            >
-              Vehicle
-            </label>
-            <Select
-              onValueChange={(value) =>
-                setReservation((prevReservation) => ({
-                  ...prevReservation,
-                  vehicleId: value,
-                }))
-              }
-              required
-              name="vehicle"
-            >
-              <SelectTrigger className="bg-slate-800/50 border-slate-700 text-slate-100 focus:ring-slate-400 focus:border-slate-400">
-                <SelectValue placeholder="Select vehicle" />
-              </SelectTrigger>
-              <SelectContent className="bg-slate-800 border-slate-700">
-                {filteredCars.map((vehicle) => (
-                  <SelectItem key={vehicle.id} value={vehicle.id.toString()}>
-                    {vehicle.name}
-                  </SelectItem>
+              </datalist>
+            </div>
+            <div className="space-y-2">
+              <label
+                htmlFor="vehicleId"
+                className="block text-sm font-medium text-slate-200"
+              >
+                Vehicle
+              </label>
+              <input
+                id="vehicleId"
+                list="vehicles"
+                required
+                value={reservation.vehicleId}
+                onChange={handleChange}
+                className="w-full px-3 py-1 bg-slate-800 border border-slate-700 rounded-md text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                placeholder="Select vehicle"
+              />
+              <datalist id="vehicles">
+                {filteredVehicles.map((vehicle) => (
+                  <option key={vehicle.licensePlate} value={vehicle.licensePlate}>
+                    {vehicle.licensePlate + "/" + vehicle.brand + "-" + vehicle.model + "-" + vehicle.year}
+                  </option>
                 ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-2">
-            <label
-              htmlFor="startDate"
-              className="block text-sm font-medium text-slate-200"
-            >
-              Start Date
-            </label>
-            <div className="flex space-x-2">
-              <input
-                id="startDate"
-                type="date"
-                required
-                value={reservation.startDate}
-                onChange={handleChange}
-                className="w-1/2 px-3 py-1 bg-slate-800 border border-slate-700 rounded-md text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-              />
-              <input
-                id="startTime"
-                type="time"
-                required
-                value={reservation.startTime}
-                onChange={handleChange}
-                className="w-1/2 px-3 py-1 bg-slate-800 border border-slate-700 rounded-md text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-              />
+              </datalist>
             </div>
-          </div>
-          <div className="space-y-2">
-            <label
-              htmlFor="endDate"
-              className="block text-sm font-medium text-slate-200"
-            >
-              End Date
-            </label>
-            <div className="flex space-x-2">
-              <input
-                id="endDate"
-                type="date"
-                required
-                value={reservation.endDate}
-                onChange={handleChange}
-                className="w-1/2 px-3 py-1 bg-slate-800 border border-slate-700 rounded-md text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-              />
-              <input
-                id="endTime"
-                type="time"
-                required
-                value={reservation.endTime}
-                onChange={handleChange}
-                className="w-1/2 px-3 py-1 bg-slate-800 border border-slate-700 rounded-md text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-              />
+            <div className="space-y-2">
+              <label
+                htmlFor="startDate"
+                className="block text-sm font-medium text-slate-200"
+              >
+                Start Date
+              </label>
+              <div className="flex space-x-2">
+                <input
+                  id="startDate"
+                  type="date"
+                  required
+                  value={reservation.startDate}
+                  onChange={handleChange}
+                  className="w-1/2 px-3 py-1 bg-slate-800 border border-slate-700 rounded-md text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                />
+                <input
+                  id="startTime"
+                  type="time"
+                  required
+                  value={reservation.startTime}
+                  onChange={handleChange}
+                  className="w-1/2 px-3 py-1 bg-slate-800 border border-slate-700 rounded-md text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                />
+              </div>
             </div>
-          </div>
-          <div className="grid grid-cols-1 gap-4 pt-4 sm:grid-cols-2">
-            <Button className="bg-indigo-600 text-white hover:bg-indigo-700">
-              {loading ? "Saving..." : "Save"}
-            </Button>
-            <Button
-              variant="secondary"
-              className="bg-slate-700 text-white hover:bg-slate-600"
-              onClick={handleCancel}
-            >
-              Cancel
-            </Button>
-          </div>
-        </CardContent>
+            <div className="space-y-2">
+              <label
+                htmlFor="endDate"
+                className="block text-sm font-medium text-slate-200"
+              >
+                End Date
+              </label>
+              <div className="flex space-x-2">
+                <input
+                  id="endDate"
+                  type="date"
+                  required
+                  value={reservation.endDate}
+                  onChange={handleChange}
+                  className="w-1/2 px-3 py-1 bg-slate-800 border border-slate-700 rounded-md text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                />
+                <input
+                  id="endTime"
+                  type="time"
+                  required
+                  value={reservation.endTime}
+                  onChange={handleChange}
+                  className="w-1/2 px-3 py-1 bg-slate-800 border border-slate-700 rounded-md text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <label
+                htmlFor="price"
+                className="block text-sm font-medium text-slate-200"
+              >
+                Price
+              </label>
+              <div className="flex space-x-2">
+                <input
+                  id="price"
+                  type="text"
+                  value={reservation.price}
+                  disabled
+                  className="w-full px-3 py-1 bg-slate-800 border border-slate-700 rounded-md text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                />
+                <Button
+                  type="button"
+                  className="bg-indigo-600 text-white hover:bg-indigo-700"
+                  onClick={handleCalculateTotal}
+                >
+                  Calculate Total
+                </Button>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 gap-4 pt-4 sm:grid-cols-2">
+              <Button className="bg-indigo-600 text-white hover:bg-indigo-700">
+                {loading ? "Saving..." : "Save"}
+              </Button>
+              <Button
+                variant="secondary"
+                className="bg-slate-700 text-slate-200 hover:bg-slate-800"
+                onClick={handleCancel}
+              >
+                Cancel
+              </Button>
+            </div>
+          </CardContent>
+        </form>
       </Card>
     </div>
   );
