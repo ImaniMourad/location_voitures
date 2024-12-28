@@ -161,7 +161,7 @@ export default function VehicleList() {
       return;
     }
     axios
-      .delete(`${apiUrl}/vehicle/${id}`, {
+      .put(`${apiUrl}/vehicle/${id}/archive`, null, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

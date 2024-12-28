@@ -16,6 +16,7 @@ import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -150,5 +151,10 @@ public class VehicleServiceImpl implements VehicleService {
         }
     }
 
-
+    @Override
+    public void archiveVehicle(String licensePlate) {
+        Vehicle vehicle = vehicleRepository.findByLicensePlate(licensePlate);
+        vehicle.setDeletedAt(LocalDateTime.now());
+        vehicleRepository.save(vehicle);
+    }
 }

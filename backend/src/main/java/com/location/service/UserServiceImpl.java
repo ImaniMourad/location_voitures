@@ -41,26 +41,28 @@ public class UserServiceImpl  implements UserService{
     private OtpRepository otpRepository;
 
     @Override
-    public UserDTO saveUser(UserDTO userDTO) throws UserAlreadyExistsException {
-        if (userRepository.findByEmail(userDTO.getEmail()) != null ) {
+    public ClientDTO saveUser(ClientDTO clientDTO) throws UserAlreadyExistsException {
+        if (userRepository.findByEmail(clientDTO.getEmail()) != null ) {
             throw new UserAlreadyExistsException("User with this email already exists");
         }
-        if (userRepository.findByCin(userDTO.getCin()) != null ) {
+        if (userRepository.findByCin(clientDTO.getCin()) != null ) {
             throw new UserAlreadyExistsException("User with this CIN already exists");
         }
 
 
-        if ( userDTO.getPassword() == null || userDTO.getPassword().isEmpty()) {
-            userDTO.setPassword(UUID.randomUUID().toString().substring(0, 8));
+        if ( clientDTO.getPassword() == null || clientDTO.getPassword().isEmpty()) {
+            clientDTO.setPassword(UUID.randomUUID().toString().substring(0, 8));
             String subject = "Welcome to Location App";
-            String text = "Your email is " + userDTO.getEmail() + "\n" +
-                    "Your password is " + userDTO.getPassword();
-            emailService.sendEmail(userDTO.getEmail(), subject, text);
+            String text = "Your email is " + clientDTO.getEmail() + "\n" +
+                    "Your password is " + clientDTO.getPassword();
+            System.out.println(text);
+            emailService.sendEmail(clientDTO.getEmail(), subject, text);
         }
-        userDTO.setPassword(passwordEncoder.encode(userDTO.getPassword())); // Hashed password
-        User user = userMapper.fromUserDTO(userDTO);
-        User savedUser = userRepository.save(user);
-        return userMapper.fromUser(savedUser);
+        clientDTO.setPassword(passwordEncoder.encode(clientDTO.getPassword())); // Hashed password
+        System.out.println("clientDTO: " + clientDTO);
+        Client user = userMapper.fromClientDTO(clientDTO);
+        Client savedUser = userRepository.save(user);
+        return userMapper.fromClient(savedUser);
     }
 
     @Override
@@ -151,6 +153,16 @@ public class UserServiceImpl  implements UserService{
             throw new UserNotExistsException("Client with this CIN does not exist");
         }
         userRepository.delete(client);
+    }
+
+    @Override
+    public void archiveClient(String CIN) throws UserNotExistsException {
+        Client client = (Client) userRepository.findByCin(CIN);
+        if (client == null) {
+            throw new UserNotExistsException("Client with this CIN does not exist");
+        }
+        client.setDeletedAt(LocalDateTime.now());
+        userRepository.save(client);
     }
 
     @Override

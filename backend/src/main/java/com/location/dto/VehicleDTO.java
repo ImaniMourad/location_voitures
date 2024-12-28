@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -24,6 +25,7 @@ public class VehicleDTO {
     private String capacity;     // Capacity (e.g., number of seats)
     private String features;     // Additional features of the vehicle
     private String pathImg;      // Path to the image of the vehicle
+    private LocalDateTime deletedAt; // Date and time when the vehicle was deleted
 
     // No reservation details to keep the DTO lightweight
 }
