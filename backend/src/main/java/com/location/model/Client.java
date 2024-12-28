@@ -1,5 +1,6 @@
 package com.location.model;
 
+import jakarta.annotation.Nullable;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -21,6 +22,7 @@ public class Client extends User {
     @OneToMany(mappedBy = "client", fetch = FetchType.LAZY)
     private List<Reservation> reservations; // Assuming Reservation is a class with appropriate fields and mappings
 
+    @Nullable
     private LocalDateTime deletedAt;
 
 }

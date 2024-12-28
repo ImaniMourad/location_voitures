@@ -52,5 +52,12 @@ public class UserMapperImpl {
         BeanUtils.copyProperties(client,clientDTO);
         return clientDTO;
     }
+
+    public Client fromClientDTO(ClientDTO clientDTO){
+        Client client = new Client();
+        BeanUtils.copyProperties(clientDTO,client);
+        return client;
+    }
+
 }
 

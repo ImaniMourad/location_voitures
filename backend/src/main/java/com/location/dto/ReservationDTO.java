@@ -16,4 +16,6 @@ public class ReservationDTO {
     private String clientCIN;
     private Long vehicleId;
     private Long invoiceId;
+    private LocalDateTime deletedAt;
+    private LocalDateTime paidAt;
 }

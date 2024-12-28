@@ -57,7 +57,7 @@ public class VehicleController {
 
             VehicleDTO vehicleDTO = new VehicleDTO(
                     licensePlate, brand, model, year, type, status, price, horsePower, capacity,
-                    features, pathImg
+                    features, pathImg, null
             );
 
             VehicleDTO savedVehicle = vehicleService.saveVehicle(vehicleDTO);
@@ -115,7 +115,7 @@ public class VehicleController {
 
             VehicleDTO vehicleDTO = new VehicleDTO(
                     licensePlate, brand, model, year, type, status, price, horsePower, capacity,
-                    features, pathImg
+                    features, pathImg, null
             );
 
             VehicleDTO updatedVehicle = vehicleService.updateVehicle(vehicleDTO);
@@ -150,5 +150,15 @@ public class VehicleController {
             return vehicleService.saveImage(image, licensePlate);
         }
         return "";
+    }
+
+    @PutMapping("/vehicle/{licensePlate}/archive")
+    public ResponseEntity<?> archiveVehicle(@PathVariable String licensePlate) {
+        try {
+            vehicleService.archiveVehicle(licensePlate);
+            return ResponseEntity.ok("Vehicle archived successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 }

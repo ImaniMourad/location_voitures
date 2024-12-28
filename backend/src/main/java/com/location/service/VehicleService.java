@@ -27,4 +27,6 @@ public interface VehicleService {
     String getImagePath(String licensePlate);
 
     void deleteImage(String licensePlate);
+
+    void archiveVehicle(String licensePlate);
 }

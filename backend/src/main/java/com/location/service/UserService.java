@@ -11,7 +11,7 @@ import java.util.List;
 
 public interface UserService {
     // method to save a user
-    UserDTO saveUser(UserDTO userDTO) throws UserAlreadyExistsException;
+    ClientDTO saveUser(ClientDTO userDTO) throws UserAlreadyExistsException;
 
     // method to get all users
     List<UserDTO> getUsers();
@@ -27,6 +27,8 @@ public interface UserService {
     List<ClientDTO> getClients();
 
     void deleteClient(String CIN) throws UserNotExistsException;
+
+    void archiveClient(String CIN) throws UserNotExistsException;
 
     UserDTO updateUser(String cin, UserDTO userDTO) throws UserNotExistsException, UserAlreadyExistsException;
 }

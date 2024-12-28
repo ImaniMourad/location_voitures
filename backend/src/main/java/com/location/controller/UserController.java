@@ -1,6 +1,7 @@
 package com.location.controller;
 
 import com.location.config.JwtConfig;
+import com.location.dto.ClientDTO;
 import com.location.dto.UserDTO;
 import com.location.exceptions.UserAlreadyExistsException;
 import com.location.exceptions.UserNotExistsException;
@@ -25,10 +26,10 @@ public class UserController {
     private JwtConfig jwtConfig;
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody UserDTO userDTO) {
+    public ResponseEntity<?> registerUser(@RequestBody ClientDTO userDTO) {
         try {
             logger.info("Registering user: {}", userDTO);
-            UserDTO savedUser = userService.saveUser(userDTO);
+            ClientDTO savedUser = userService.saveUser(userDTO);
             return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
         } catch (Exception e) {
             logger.error("Error registering user", e);
@@ -37,11 +38,11 @@ public class UserController {
     }
 
     @PostMapping("/client")
-    public ResponseEntity<?> addUser(@RequestBody UserDTO userDTO) {
+    public ResponseEntity<?> addUser(@RequestBody ClientDTO userDTO) {
         try {
             System.out.println(userDTO);
-            logger.info("Adding user: {}", userDTO);
-            UserDTO savedUser = userService.saveUser(userDTO);
+            logger.info("Adding user: {}", userDTO.getEmail());
+            ClientDTO savedUser = userService.saveUser(userDTO);
             return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
         } catch ( UserAlreadyExistsException e) {
             logger.error("User already exists", e);
@@ -159,6 +160,19 @@ public class UserController {
         try {
             userService.deleteClient(CIN);
             return ResponseEntity.ok("Client deleted successfully");
+        } catch (UserNotExistsException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+
+    }
+
+    @PutMapping("/client/{CIN}/archive")
+    public ResponseEntity<?> archiveClient(@PathVariable String CIN) {
+        try {
+            userService.archiveClient(CIN);
+            return ResponseEntity.ok("Client archived successfully");
         } catch (UserNotExistsException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (Exception e) {
