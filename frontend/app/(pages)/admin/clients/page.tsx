@@ -6,6 +6,7 @@ import FormAdd from "./add/add-form-client";
 import FormEdit from "./edit/edit-form-client";
 import axios from "axios";
 import Alert from "@/components/ui/alert";
+// import ClientDetails from "./details/page";
 
 
 type Client = {
@@ -38,6 +39,8 @@ export default function ClientManagement() {
       message: "",
       type_alert: "",
     });
+
+  const [clientOpened, setClientOpened] = useState<string>("");
 
   useEffect(() => {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -114,8 +117,28 @@ export default function ClientManagement() {
 
   // Delete a client
   const handleDeleteClient = (id: string) => {
-    setClients((prev) => prev.filter((client) => client.id !== id));
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL; 
+    const token = localStorage.getItem("jwtToken");
+    const currentDateTime = new Date().toISOString();
+    if (!token) {
+      return;
+    }
+    axios
+      .put(`${apiUrl}/client/${id}/archive`, currentDateTime, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then(() => {
+        setClients((prevClients) =>
+          prevClients.map((client) =>
+            client.id === id ? { ...client, deletedAt: currentDateTime } : client
+          )
+        );
+      })
+      .catch((error) => console.error("Error deleting client:", error));
   };
+
 
   const handleErrorMessage = (message: string) => {
     setIsAlertVisible({
@@ -126,6 +149,10 @@ export default function ClientManagement() {
     setTimeout(() => {
       setIsAlertVisible({ visible: false, message: "", type_alert: "" });
     }, 2500);
+  };
+
+  const handleClickedRow = (cin: string) => {
+    setClientOpened(cin);
   };
 
   return (
@@ -156,7 +183,7 @@ export default function ClientManagement() {
           }}
           onDelete={handleDeleteClient}
           onAdd={() => setIsFormAddOpen(true)}
-          to="/admin/clients"
+          handleClickedRow={(id) => handleClickedRow(id)}
         />
         {isFormAddOpen && (
           <FormAdd
@@ -174,6 +201,12 @@ export default function ClientManagement() {
             onErrorMessage={handleErrorMessage}
           />
         )}
+        {/* clientOpened !== "" && (
+            <ClientDetails
+              cin={clientOpened}
+              handleCancel={() => setClientOpened("")}
+             />
+        )} */}
       </div>
       </>
   );
