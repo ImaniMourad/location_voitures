@@ -59,9 +59,6 @@ export default function Header() {
               </Label>
 
             </li>
-
-            {/* Sign In/Sign Up Links (if not authenticated) */}
-            {!isAuthenticated && (
               <>
                 <li>
                   <Link
@@ -80,7 +77,6 @@ export default function Header() {
                   </Link>
                 </li>
               </>
-            )}
             <li>
             <DropdownMenu>
             <DropdownMenuTrigger asChild>
