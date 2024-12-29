@@ -78,7 +78,7 @@ public class VehicleServiceImpl implements VehicleService {
         // Save the image
         Files.copy(image.getInputStream(), filePath);
 
-        return filePath.toString();
+        return newFilename;
     }
 
     @Override
