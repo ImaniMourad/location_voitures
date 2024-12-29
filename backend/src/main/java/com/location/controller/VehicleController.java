@@ -16,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -170,10 +171,12 @@ public class VehicleController {
             @RequestParam("startDate") String startDate,
             @RequestParam("endDate") String endDate) {
 
-        LocalDateTime start = LocalDateTime.parse(startDate);
-        LocalDateTime end = LocalDateTime.parse(endDate);
+        OffsetDateTime startOffset = OffsetDateTime.parse(startDate);
+        OffsetDateTime endOffset = OffsetDateTime.parse(endDate);
+
+        LocalDateTime start = startOffset.toLocalDateTime();
+        LocalDateTime end = endOffset.toLocalDateTime();
         return vehicleService.getAvailableVehicles(start, end);
     }
-
 
 }
