@@ -35,7 +35,7 @@ const TableHeader = React.forwardRef<
       ref={ref}
       className={cn(
         "[&_tr]:border-b",
-        isDarkMode ? "bg-gray-700 text-white" : "bg-gray-100 text-black", // Modifie le fond et la couleur du texte selon le mode
+        isDarkMode ? "bg-gray-700 text-white" : "bg-gray-300 text-black", // Modifie le fond et la couleur du texte selon le mode
         className
       )}
       {...props}
