@@ -1,5 +1,6 @@
 package com.location.repository;
 
+import com.location.model.Invoice;
 import com.location.model.Reservation;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -22,6 +23,5 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
             "JOIN r.client c " +
             "WHERE c.cin = :cin")
     List<Object[]> getReservationsByClientCin(@Param("cin") String cin);
-
 
 }

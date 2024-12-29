@@ -1,9 +1,7 @@
 package com.location.service;
 
 import com.location.dto.ReservationDTO;
-import org.springframework.http.ResponseEntity;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -13,6 +11,6 @@ public interface ReservationService {
 
     List<Map<String, Object>> getReservationsByClientCin(String cin);
 
-    ReservationDTO addReservation(ReservationDTO reservationDTO);
+    Map<String, Object> addReservation(ReservationDTO reservationDTO);
 
 }
