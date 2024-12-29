@@ -171,11 +171,14 @@ public class VehicleController {
             @RequestParam("startDate") String startDate,
             @RequestParam("endDate") String endDate) {
 
-        OffsetDateTime startOffset = OffsetDateTime.parse(startDate);
-        OffsetDateTime endOffset = OffsetDateTime.parse(endDate);
+//        OffsetDateTime startOffset = OffsetDateTime.parse(startDate);
+//        OffsetDateTime endOffset = OffsetDateTime.parse(endDate);
+//
+//        LocalDateTime start = startOffset.toLocalDateTime();
+//        LocalDateTime end = endOffset.toLocalDateTime();
 
-        LocalDateTime start = startOffset.toLocalDateTime();
-        LocalDateTime end = endOffset.toLocalDateTime();
+        LocalDateTime start = LocalDateTime.parse(startDate);
+        LocalDateTime end = LocalDateTime.parse(endDate);
         return vehicleService.getAvailableVehicles(start, end);
     }
 
