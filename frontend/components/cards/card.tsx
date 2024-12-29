@@ -57,7 +57,7 @@ export default function Card({imageSrc, marque, modele, annee, tarifLocation, ty
             </span>
                     </div>
                     <p className="text-indigo-200/65 mb-2">Année: {annee}</p>
-                    <p className="text-indigo-200/65 font-semibold">Tarif: {tarifLocation}€/jour</p>
+                    <p className="text-indigo-200/65 font-semibold">Tarif: {tarifLocation} MAD/jour</p>
                 </div>
             </div>
         </a>

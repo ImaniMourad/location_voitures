@@ -11,7 +11,7 @@ import java.util.List;
 public interface  VehicleRepository extends JpaRepository<Vehicle, String> {
     Vehicle findByLicensePlate(String licensePlate);
 
-    @Query(value = "SELECT v.license_plate, v.model , v.brand , v.year , v.price FROM Vehicle v WHERE v.license_plate NOT IN (" +
+    @Query(value = "SELECT v.license_plate, v.model , v.brand , v.year , v.price , v.path_img FROM Vehicle v WHERE v.license_plate NOT IN (" +
             "SELECT r.vehicle_id FROM Reservation r WHERE " +
             "(r.start_date BETWEEN :start AND :end) OR " +
             "(r.end_date BETWEEN :start AND :end) OR " +

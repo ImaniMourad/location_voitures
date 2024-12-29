@@ -48,6 +48,7 @@ public class VehicleMapperImpl {
         map.put("brand", obj[2]);
         map.put("year", obj[3]);
         map.put("price", obj[4]);
+        map.put("pathImg", obj[5]);
         return map;
     }
 }

@@ -142,7 +142,9 @@ export default function List({
                 </TooltipTrigger>
                 <TooltipContent
                   className={`${
-                    isDarkMode ? "bg-gray-800 text-white" : "bg-white text-black"
+                    isDarkMode
+                      ? "bg-gray-800 text-white"
+                      : "bg-white text-black"
                   } p-2 rounded-md shadow-lg max-w-xs`}
                 >
                   <p>
@@ -178,6 +180,13 @@ export default function List({
                   {col.header}
                 </TableHead>
               ))}
+              {filterStatus === "archived" && (
+                <TableHead className="text-indigo-300">Archived At</TableHead>
+              )}
+              {(onEdit !== undefined || onDelete !== undefined) &&
+              filterStatus === "actived" ? (
+                <TableHead className="text-indigo-300">Actions</TableHead>
+              ) : null}
             </TableRow>
           </TableHeader>
 
@@ -202,6 +211,39 @@ export default function List({
                       </Link>
                     </TableCell>
                   ))}
+                  {filterStatus === "archived" && (
+                    <TableCell className="text-gray-300">
+                      {row.deletedAt
+                        ? new Date(row.deletedAt).toLocaleString()
+                        : "N/A"}
+                    </TableCell>
+                  )}
+                  {(onEdit !== undefined || onDelete !== undefined) &&
+                  filterStatus === "actived" ? (
+                    <TableCell>
+                      {onEdit && (
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={() => onEdit(row.id)}
+                          className="mr-2 bg-gray-700 hover:bg-gray-600 text-indigo-300"
+                        >
+                          <Pencil2Icon className="h-4 w-4" />
+                        </Button>
+                      )}
+                      <Button
+                        variant="destructive"
+                        size="icon"
+                        onClick={() => {
+                          setRow(row.id);
+                          setShowConfirmation(true);
+                        }}
+                        className="bg-red-600 hover:bg-red-700 text-white"
+                      >
+                        <TrashIcon className="h-4 w-4" />
+                      </Button>
+                    </TableCell>
+                  ) : null}
                 </TableRow>
               ))
             ) : (
@@ -235,7 +277,9 @@ export default function List({
               variant="outline"
               onClick={handleCancel}
               className={`bg-transparent ${
-                isDarkMode ? "text-white border-white" : "text-black border-black"
+                isDarkMode
+                  ? "text-white border-white"
+                  : "text-black border-black"
               } hover:bg-white/10`}
             >
               Cancel
@@ -244,7 +288,9 @@ export default function List({
               variant="destructive"
               onClick={handleConfirmDelete(row)}
               className={`${
-                isDarkMode ? "bg-purple-600 hover:bg-purple-700" : "bg-red-600 hover:bg-red-700"
+                isDarkMode
+                  ? "bg-purple-600 hover:bg-purple-700"
+                  : "bg-red-600 hover:bg-red-700"
               }`}
             >
               Delete
