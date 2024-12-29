@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import CustomerProfile from "../profileClient";
+import CustomerProfile from "../profileSelf";
 import { useTheme } from "../../context/context";
 
 export default function Sidebar() {

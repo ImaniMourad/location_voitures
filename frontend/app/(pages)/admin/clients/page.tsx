@@ -6,7 +6,7 @@ import FormAdd from "./add/add-form-client";
 import FormEdit from "./edit/edit-form-client";
 import axios from "axios";
 import Alert from "@/components/ui/alert";
-// import ClientDetails from "./details/page";
+import CustomerProfile from "./details/page";
 
 
 type Client = {
@@ -201,12 +201,13 @@ export default function ClientManagement() {
             onErrorMessage={handleErrorMessage}
           />
         )}
-        {/* clientOpened !== "" && (
-            <ClientDetails
+
+        {clientOpened !== "" && (
+          <CustomerProfile
               cin={clientOpened}
               handleCancel={() => setClientOpened("")}
              />
-        )} */}
+        )}
       </div>
       </>
   );
