@@ -29,6 +29,16 @@ public class VehicleController {
         return ResponseEntity.ok(vehicleService.getVehicleById(licensePlate));
     }
 
+    @GetMapping("/vehicle/{licensePlate}/image")
+    public ResponseEntity<?> getVehicleImage(@PathVariable String licensePlate) {
+        try {
+            String imagePath = vehicleService.getImagePath(licensePlate);
+            return ResponseEntity.ok(imagePath);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Image not found");
+        }
+    }
+
     @GetMapping("/vehicles")
     public ResponseEntity<?> getVehicles() {
         return ResponseEntity.ok(vehicleService.getVehicles());
