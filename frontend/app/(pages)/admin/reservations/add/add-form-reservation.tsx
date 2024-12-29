@@ -11,6 +11,9 @@ import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 import axios from "axios";
 import { DateTime } from "luxon";
+import generatePDF from './generateDocument/invoice-document';
+
+
 
 interface Reservation {
   id?: string;
@@ -107,7 +110,7 @@ export default function ReservationForm({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-
+  
     // Combine date and time for startDate and endDate
     const startDateTime = DateTime.fromISO(
       `${reservation.startDate}T${reservation.startTime}`
@@ -116,7 +119,7 @@ export default function ReservationForm({
       `${reservation.endDate}T${reservation.endTime}`
     ).toLocal().toFormat("yyyy-MM-dd'T'HH:mm:ss");
     const paidAt = DateTime.now().toLocal().toFormat("yyyy-MM-dd'T'HH:mm:ss");
-
+  
     // Validate data
     if (
       !reservation.clientCIN ||
@@ -130,30 +133,29 @@ export default function ReservationForm({
       setLoading(false);
       return;
     }
-
+  
     // Validate startDate and endDate
     const today = DateTime.now().startOf("day");
     const startDate = DateTime.fromISO(reservation.startDate);
     const endDate = DateTime.fromISO(reservation.endDate);
-
+  
     if (startDate < today || endDate < today) {
       onErrorMessage("Start Date and End Date must be greater than or equal to today's date.");
       setLoading(false);
       return;
     }
-
+  
     try {
       const token = localStorage.getItem("jwtToken");
       if (!token) {
         throw new Error("You must be logged in to perform this action.");
       }
-
+  
       const apiUrl = process.env.NEXT_PUBLIC_API_URL;
       if (!apiUrl) {
         throw new Error("API URL is not configured.");
       }
-
-
+  
       const response = await axios.post(
         `${apiUrl}/reservation`,
         {
@@ -171,17 +173,30 @@ export default function ReservationForm({
           },
         }
       );
-
+  
       console.log("API response:", response.data);
       handleAddReservation({
         client: `${filteredClients.find((client) => client.cin === reservation.clientCIN)?.firstName} ${filteredClients.find((client) => client.cin === reservation.clientCIN)?.lastName}`,
-        id : response.data.id,
-        vehicle : response.data.vehicle,
-        startDate : response.data.startDate,
-        endDate : response.data.endDate,
+        id: response.data.id,
+        vehicle: response.data.vehicle,
+        startDate: response.data.startDate,
+        endDate: response.data.endDate,
       });
+  
+      // Generate and download the PDF
+      const fakeReservationData = {
+        id: response.data.id, // Use the actual ID from the API response
+        client: `${filteredClients.find((client) => client.cin === reservation.clientCIN)?.firstName} ${filteredClients.find((client) => client.cin === reservation.clientCIN)?.lastName}`,
+        vehicle: `${filteredVehicles.find((vehicle) => vehicle.licensePlate === reservation.vehicleId)?.brand} ${filteredVehicles.find((vehicle) => vehicle.licensePlate === reservation.vehicleId)?.model} ${filteredVehicles.find((vehicle) => vehicle.licensePlate === reservation.vehicleId)?.year}`,
+        startDate: startDateTime,
+        endDate: endDateTime,
+        price: reservation.price
+      };
+
+      await generatePDF();
+
     } catch (error) {
-      console.error("Error during submission:", error);
+      console.log("Error during submission:", error);
       onErrorMessage("Failed to add reservation.");
     } finally {
       setLoading(false);
