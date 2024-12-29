@@ -37,15 +37,16 @@ import {
 } from "@/components/ui/tooltip";
 import { InfoCircledIcon } from "@radix-ui/react-icons";
 import Link from "next/link";
+import { useTheme } from "../context/context";
 
 interface ListProps {
-  name: string; // Name of the items (clients, vehicles, etc.)
-  columns: { header: string; accessor: string }[]; // List of columns with header and accessor (key)
-  rows: any[]; // Array of data (clients, vehicles, etc.)
-  onEdit: (item: any) => void; // Function to handle editing an item
-  onDelete: (id: any) => void; // Function to handle deleting an item
-  onAdd: () => void; // Function to open the form to add a new item
-  handleClickedRow: (id: any) => void; // Function to handle clicking on a row
+  name: string;
+  columns: { header: string; accessor: string }[];
+  rows: any[];
+  onEdit: (item: any) => void;
+  onDelete: (id: any) => void;
+  onAdd: () => void;
+  handleClickedRow: (id: any) => void;
 }
 
 export default function List({
@@ -61,9 +62,9 @@ export default function List({
   const [filteredRows, setFilteredRows] = useState(rows);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [row, setRow] = useState<any | null>(null);
-  const [filterStatus, setFilterStatus] = useState("actived"); // State for the select filter
+  const [filterStatus, setFilterStatus] = useState("actived");
+  const { isDarkMode } = useTheme();
 
-  // Fonction pour filtrer les lignes en fonction de la recherche et du status
   useEffect(() => {
     const searchTerms = searchQuery
       .toLowerCase()
@@ -71,46 +72,53 @@ export default function List({
       .map((term) => term.trim());
 
     const filtered = rows.filter((row) => {
-      // Vérifie si la ligne correspond au filtre `filterStatus`
       const isStatusMatch =
         (filterStatus === "actived" && !row.deletedAt) ||
         (filterStatus === "archived" && row.deletedAt);
 
-      // Vérifie si la ligne correspond à la recherche
       const isSearchMatch = searchTerms.every((term) =>
         Object.values(row).some(
           (value) => value && value.toString().toLowerCase().includes(term)
         )
       );
 
-      // Combine les deux conditions
       return isStatusMatch && isSearchMatch;
     });
 
     setFilteredRows(filtered);
   }, [searchQuery, rows, filterStatus]);
 
-  // Fonction pour confirmer la suppression d'un élément
   const handleConfirmDelete = (row: any) => () => {
     setShowConfirmation(false);
     onDelete(row);
   };
 
-  // Fonfirmation de la suppression
   const handleCancel = () => {
     setShowConfirmation(false);
   };
 
   return (
     <>
-      <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
+      <div
+        className={`${
+          isDarkMode ? "bg-gray-800" : "bg-white"
+        } p-6 rounded-lg shadow-lg`}
+      >
         <div className="flex justify-end items-center mb-4 space-x-4">
           <div>
             <Select onValueChange={setFilterStatus} defaultValue="actived">
-              <SelectTrigger className="bg-gray-700 text-white border-gray-600 hover:bg-gray-600 focus:ring-indigo-500">
+              <SelectTrigger
+                className={`${
+                  isDarkMode ? "bg-gray-700 text-white" : "bg-white text-black"
+                } border-gray-600 hover:bg-gray-600 focus:ring-indigo-500`}
+              >
                 <SelectValue placeholder="Filter" />
               </SelectTrigger>
-              <SelectContent className="bg-gray-700 text-white">
+              <SelectContent
+                className={`${
+                  isDarkMode ? "bg-gray-700 text-white" : "bg-white text-black"
+                } border-gray-600`}
+              >
                 <SelectItem value="actived">Actived</SelectItem>
                 <SelectItem value="archived">Archived</SelectItem>
               </SelectContent>
@@ -122,7 +130,9 @@ export default function List({
               placeholder="Search..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 bg-gray-700 text-white border-gray-600 focus:border-indigo-500"
+              className={`pl-10 ${
+                isDarkMode ? "bg-gray-700 text-white" : "bg-white text-black"
+              } border-gray-600 focus:border-indigo-500`}
             />
             <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
             <TooltipProvider>
@@ -130,7 +140,11 @@ export default function List({
                 <TooltipTrigger asChild>
                   <InfoCircledIcon className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5 cursor-help" />
                 </TooltipTrigger>
-                <TooltipContent className="bg-gray-800 text-white p-2 rounded-md shadow-lg max-w-xs">
+                <TooltipContent
+                  className={`${
+                    isDarkMode ? "bg-gray-800 text-white" : "bg-white text-black"
+                  } p-2 rounded-md shadow-lg max-w-xs`}
+                >
                   <p>
                     Search by multiple criteria separated by spaces (ex:
                     criterion1 criterion2 ...)
@@ -142,7 +156,11 @@ export default function List({
           {onAdd && (
             <Button
               onClick={onAdd}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white"
+              className={`${
+                isDarkMode
+                  ? "bg-indigo-600 hover:bg-indigo-700"
+                  : "bg-blue-600 hover:bg-blue-700"
+              } text-white`}
             >
               <PlusIcon className="mr-2 h-4 w-4" /> Add {name}
             </Button>
@@ -153,17 +171,13 @@ export default function List({
           <TableHeader>
             <TableRow className="border-b border-gray-700">
               {columns.map((col, index) => (
-                <TableHead key={index} className="text-indigo-300">
+                <TableHead
+                  key={index}
+                  className={isDarkMode ? "text-indigo-300" : "text-black"}
+                >
                   {col.header}
                 </TableHead>
               ))}
-              {filterStatus === "archived" && (
-                <TableHead className="text-indigo-300">Archived At</TableHead>
-              )}
-              {(onEdit !== undefined || onDelete !== undefined) &&
-              filterStatus === "actived" ? (
-                <TableHead className="text-indigo-300">Actions</TableHead>
-              ) : null}
             </TableRow>
           </TableHeader>
 
@@ -172,55 +186,31 @@ export default function List({
               filteredRows.map((row, index) => (
                 <TableRow
                   key={index}
-                  className="border-b border-gray-700 cursor-pointer hover:bg-gray-700"
+                  className={`border-b ${
+                    isDarkMode
+                      ? "border-gray-700 hover:bg-gray-700"
+                      : "border-gray-200 hover:bg-gray-100"
+                  } cursor-pointer`}
                 >
                   {columns.map((col, colIndex) => (
-                    <TableCell key={colIndex} className="text-gray-300">
+                    <TableCell
+                      key={colIndex}
+                      className={isDarkMode ? "text-gray-300" : "text-black"}
+                    >
                       <Link onClick={() => handleClickedRow(row.id)} href={""}>
                         {row[col.accessor]}
                       </Link>
                     </TableCell>
                   ))}
-                  {filterStatus === "archived" && (
-                    <TableCell className="text-gray-300">
-                      {row.deletedAt
-                        ? new Date(row.deletedAt).toLocaleString()
-                        : "N/A"}
-                    </TableCell>
-                  )}
-                  {(onEdit !== undefined || onDelete !== undefined) &&
-                  filterStatus === "actived" ? (
-                    <TableCell>
-                      {onEdit && (
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          onClick={() => onEdit(row.id)}
-                          className="mr-2 bg-gray-700 hover:bg-gray-600 text-indigo-300"
-                        >
-                          <Pencil2Icon className="h-4 w-4" />
-                        </Button>
-                      )}
-                      <Button
-                        variant="destructive"
-                        size="icon"
-                        onClick={() => {
-                          setRow(row.id);
-                          setShowConfirmation(true);
-                        }}
-                        className="bg-red-600 hover:bg-red-700 text-white"
-                      >
-                        <TrashIcon className="h-4 w-4" />
-                      </Button>
-                    </TableCell>
-                  ) : null}
                 </TableRow>
               ))
             ) : (
               <TableRow>
                 <TableCell
                   colSpan={columns.length + 1}
-                  className="text-center text-gray-400"
+                  className={`text-center ${
+                    isDarkMode ? "text-gray-400" : "text-black"
+                  }`}
                 >
                   Aucun élément trouvé
                 </TableCell>
@@ -231,7 +221,11 @@ export default function List({
       </div>
 
       <Dialog open={showConfirmation} onOpenChange={setShowConfirmation}>
-        <DialogContent className="sm:max-w-[425px] bg-[#0f1725] text-white border-purple-600">
+        <DialogContent
+          className={`sm:max-w-[425px] ${
+            isDarkMode ? "bg-gray-800 text-white" : "bg-white text-black"
+          } border-purple-600`}
+        >
           <DialogHeader>
             <DialogTitle>Confirm Delete</DialogTitle>
           </DialogHeader>
@@ -240,14 +234,18 @@ export default function List({
             <Button
               variant="outline"
               onClick={handleCancel}
-              className="bg-transparent text-white border-white hover:bg-white/10"
+              className={`bg-transparent ${
+                isDarkMode ? "text-white border-white" : "text-black border-black"
+              } hover:bg-white/10`}
             >
               Cancel
             </Button>
             <Button
               variant="destructive"
               onClick={handleConfirmDelete(row)}
-              className="bg-purple-600 hover:bg-purple-700"
+              className={`${
+                isDarkMode ? "bg-purple-600 hover:bg-purple-700" : "bg-red-600 hover:bg-red-700"
+              }`}
             >
               Delete
             </Button>

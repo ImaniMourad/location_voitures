@@ -15,6 +15,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 public class VehicleController {
@@ -144,17 +147,6 @@ public class VehicleController {
         }
     }
 
-
-    @DeleteMapping("/vehicle/{licensePlate}")
-    public ResponseEntity<?> deleteVehicle(@PathVariable String licensePlate) {
-        try {
-            vehicleService.deleteVehicle(licensePlate);
-            return ResponseEntity.ok("Vehicle deleted successfully");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
-    }
-
     private String saveImage(MultipartFile image, String licensePlate) throws IOException, ImageNotValidException {
         if (image != null) {
             return vehicleService.saveImage(image, licensePlate);
@@ -171,4 +163,17 @@ public class VehicleController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
+
+    // get available vehicles
+    @GetMapping("/vehicles/available")
+    public List<Map<String, Object>> getAvailableVehicles(
+            @RequestParam("startDate") String startDate,
+            @RequestParam("endDate") String endDate) {
+
+        LocalDateTime start = LocalDateTime.parse(startDate);
+        LocalDateTime end = LocalDateTime.parse(endDate);
+        return vehicleService.getAvailableVehicles(start, end);
+    }
+
+
 }

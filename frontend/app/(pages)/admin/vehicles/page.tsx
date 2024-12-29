@@ -14,8 +14,10 @@ import VehicleDetails from "./details/page";
 import PageIllustration from "@/components/page-illustration";
 import axios from "axios";
 import Alert from "@/components/ui/alert";
+import { useTheme } from "@/context/context";
 
 export default function VehicleList() {
+  const { isDarkMode } = useTheme();
   const [isAlertVisible, setIsAlertVisible] = useState<AlertType>({
     visible: false,
     message: "",
@@ -38,7 +40,6 @@ export default function VehicleList() {
     }>
   >([]);
 
-  
   const [isFormAddOpen, setIsFormAddOpen] = useState(false);
   const [isFormEditOpen, setIsFormEditOpen] = useState(false);
   const [editingVehicle, setEditingVehicle] = useState<{
@@ -90,8 +91,7 @@ export default function VehicleList() {
     { header: "Price", accessor: "price" },
     { header: "Type", accessor: "type" },
     { header: "Status", accessor: "status" },
-    ];
-
+  ];
 
   const handleAddVehicle = (newVehicle: {
     id: string;
@@ -177,9 +177,12 @@ export default function VehicleList() {
       })
       .then(() => {
         setVehicles((prevVehicles) =>
-        prevVehicles.map((vehicle) =>
-          vehicle.id === id ? { ...vehicle, deletedAt: currentDateTime } : vehicle
-        ));
+          prevVehicles.map((vehicle) =>
+            vehicle.id === id
+              ? { ...vehicle, deletedAt: currentDateTime }
+              : vehicle
+          )
+        );
       })
       .catch((error) => console.error("Error deleting vehicle:", error));
   };
@@ -206,7 +209,6 @@ export default function VehicleList() {
 
   return (
     <>
-
       {isAlertVisible.visible && (
         <div className="absolute top-0 left-0 w-full">
           <Alert
@@ -217,7 +219,11 @@ export default function VehicleList() {
       )}
       <div className="w-[90%] mx-auto">
         <PageIllustration />
-        <h1 className="text-3xl font-extrabold text-white mb-7 ml-5 pt-7">
+        <h1
+          className={`text-3xl font-extrabold mb-7 ml-5 pt-7 ${
+            isDarkMode ? "text-white" : "text-black"
+          }`}
+        >
           Vehicle Management
         </h1>
         <List

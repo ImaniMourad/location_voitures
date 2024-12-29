@@ -10,16 +10,18 @@ import {
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 import axios from "axios";
+import { DateTime } from "luxon";
 
 interface Reservation {
-  id: number;
-  clientId: string;
+  id?: string;
+  startTime: any;
+  endTime: any;
+  clientCIN: string;
   vehicleId: string;
   startDate: string;
-  startTime: string;
   endDate: string;
-  endTime: string;
-  paid_at: string;
+  deletedAt: string;
+  paidAt: string;
   price: string;
 }
 
@@ -38,7 +40,7 @@ interface Vehicle {
 }
 
 interface ReservationFormProps {
-  handleAddReservation: (newReservation: Reservation) => void;
+  handleAddReservation: (newReservation: any) => void;
   handleCancel: () => void;
   onErrorMessage: (message: string) => void;
 }
@@ -50,19 +52,20 @@ export default function ReservationForm({
 }: ReservationFormProps) {
   const [loading, setLoading] = useState(false);
   const [reservation, setReservation] = useState<Reservation>({
-    id: 0,
-    clientId: "",
+    startTime: "",
+    endTime: "",
+    clientCIN: "",
     vehicleId: "",
     startDate: "",
-    startTime: "",
     endDate: "",
-    endTime: "",
-    paid_at: "",
+    deletedAt: "",
+    paidAt: "",
     price: "00.00",
   });
 
   const [filteredClients, setFilteredClients] = useState<Client[]>([]);
   const [filteredVehicles, setFilteredVehicles] = useState<Vehicle[]>([]);
+  const [inputsDisabled, setInputsDisabled] = useState(true);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -98,38 +101,51 @@ export default function ReservationForm({
       }
     };
 
-    const fetchVehicles = async () => {
-      try {
-        const token = localStorage.getItem("jwtToken");
-        if (!token) {
-          return;
-        }
-
-        const response = await axios.get(`${apiUrl}/vehicles`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        console.log("-------vehicles----------");
-        console.log(response.data);
-        setFilteredVehicles(response.data);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
     fetchClients();
-    fetchVehicles();
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
+    // Combine date and time for startDate and endDate
+    const startDateTime = DateTime.fromISO(
+      `${reservation.startDate}T${reservation.startTime}`
+    ).toLocal().toFormat("yyyy-MM-dd'T'HH:mm:ss");
+    const endDateTime = DateTime.fromISO(
+      `${reservation.endDate}T${reservation.endTime}`
+    ).toLocal().toFormat("yyyy-MM-dd'T'HH:mm:ss");
+    const paidAt = DateTime.now().toLocal().toFormat("yyyy-MM-dd'T'HH:mm:ss");
+
+    // Validate data
+    if (
+      !reservation.clientCIN ||
+      !reservation.vehicleId ||
+      !reservation.startDate ||
+      !reservation.startTime ||
+      !reservation.endDate ||
+      !reservation.endTime
+    ) {
+      onErrorMessage("Please fill in all required fields.");
+      setLoading(false);
+      return;
+    }
+
+    // Validate startDate and endDate
+    const today = DateTime.now().startOf("day");
+    const startDate = DateTime.fromISO(reservation.startDate);
+    const endDate = DateTime.fromISO(reservation.endDate);
+
+    if (startDate < today || endDate < today) {
+      onErrorMessage("Start Date and End Date must be greater than or equal to today's date.");
+      setLoading(false);
+      return;
+    }
+
     try {
       const token = localStorage.getItem("jwtToken");
       if (!token) {
-        throw new Error("You need to be signed in to perform this action.");
+        throw new Error("You must be logged in to perform this action.");
       }
 
       const apiUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -137,24 +153,36 @@ export default function ReservationForm({
         throw new Error("API URL is not configured.");
       }
 
-      console.log("-------reservation----------");
-      console.log(reservation)
 
-      // const response = await axios.post(
-      //   `${apiUrl}/reservation`,
-      //   reservation,
-      //   {
-      //     headers: {
-      //       Authorization: `Bearer ${token}`,
-      //     },
-      //   }
-      // );
+      const response = await axios.post(
+        `${apiUrl}/reservation`,
+        {
+          clientCIN: reservation.clientCIN,
+          vehicleId: reservation.vehicleId,
+          startDate: startDateTime,
+          endDate: endDateTime,
+          paidAt: paidAt,
+          deletedAt: "",
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-      // if (response.status === 201) {
-      //   handleAddReservation(response.data);
-      // }
-    } catch (error: any) {
-      onErrorMessage(error.response?.data || "An unexpected error occurred.");
+      console.log("API response:", response.data);
+      handleAddReservation({
+        client: `${filteredClients.find((client) => client.cin === reservation.clientCIN)?.firstName} ${filteredClients.find((client) => client.cin === reservation.clientCIN)?.lastName}`,
+        id : response.data.id,
+        vehicle : response.data.vehicle,
+        startDate : response.data.startDate,
+        endDate : response.data.endDate,
+      });
+    } catch (error) {
+      console.error("Error during submission:", error);
+      onErrorMessage("Failed to add reservation.");
     } finally {
       setLoading(false);
     }
@@ -162,26 +190,90 @@ export default function ReservationForm({
 
   const handleCalculateTotal = () => {
     // calculate nbr des jours bewteen start and end date si je depasse 24h je dois payer un jour de plus
-    const startDate = new Date(reservation.startDate + "T" + reservation.startTime);
-    const endDate = new Date(reservation.endDate + "T" + reservation.endTime);
-    const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const startDate = DateTime.fromISO(
+      reservation.startDate + "T" + reservation.startTime
+    );
+    const endDate = DateTime.fromISO(
+      reservation.endDate + "T" + reservation.endTime
+    );
+    const diffDays = endDate.diff(startDate, "days").days;
     console.log(diffDays);
     // get vehicle price
     const vehicle = filteredVehicles.find(
       (vehicle) => vehicle.licensePlate === reservation.vehicleId
     );
 
-
     if (vehicle) {
-      const price = vehicle.price * diffDays;
+      const price = vehicle.price * diffDays || 0;
       setReservation((prevReservation) => ({
         ...prevReservation,
         price: price.toFixed(2),
       }));
     }
-
   };
+
+  const getAvailableVehicles = async (startDate: string, endDate: string) => {
+    try {
+      const token = localStorage.getItem("jwtToken");
+      if (!token) {
+        throw new Error("You must be logged in to perform this action.");
+      }
+
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+      if (!apiUrl) {
+        throw new Error("API URL is not configured.");
+      }
+
+      console.log("Fetching available vehicles...");
+      console.log("startDate:", startDate);
+      const response = await axios.get(`${apiUrl}/vehicles/available`, {
+        params: {
+          startDate,
+          endDate,
+        },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching available vehicles:", error);
+      throw error;
+    }
+  };
+
+  useEffect(() => {
+    const fetchAvailableVehicles = async () => {
+      if (
+        reservation.startDate &&
+        reservation.startTime &&
+        reservation.endDate &&
+        reservation.endTime
+      ) {
+        try {
+          const startDateTime = DateTime.fromISO(
+            `${reservation.startDate}T${reservation.startTime}`
+          ).toLocal().toFormat("yyyy-MM-dd'T'HH:mm:ss");
+          const endDateTime = DateTime.fromISO(
+            `${reservation.endDate}T${reservation.endTime}`
+          ).toLocal().toFormat("yyyy-MM-dd'T'HH:mm:ss");
+
+          const availableVehicles = await getAvailableVehicles(
+            startDateTime,
+            endDateTime
+          );
+          setFilteredVehicles(availableVehicles);
+          setReservation((prevReservation) => ({ ...prevReservation, vehicleId: "" }));
+          setInputsDisabled(false); // Enable inputs after fetching vehicles
+        } catch (error) {
+          onErrorMessage("Failed to fetch available vehicles.");
+        }
+      }
+    };
+
+    fetchAvailableVehicles();
+  }, [reservation.startDate, reservation.startTime, reservation.endDate, reservation.endTime]);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
@@ -205,50 +297,28 @@ export default function ReservationForm({
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <label
-                htmlFor="clientId"
+                htmlFor="clientCIN"
                 className="block text-sm font-medium text-slate-200"
               >
                 Client
               </label>
               <input
-                id="clientId"
+                id="clientCIN"
                 list="clients"
                 required
-                value={reservation.clientId}
+                value={reservation.clientCIN}
                 onChange={handleChange}
                 className="w-full px-3 py-1 bg-slate-800 border border-slate-700 rounded-md text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                 placeholder="Select client"
               />
               <datalist id="clients">
-                {filteredClients.map((client) => (
-                  <option key={client.cin} value={client.cin}>
-                    {client.firstName + " " + client.lastName}
-                  </option>
-                ))}
-              </datalist>
-            </div>
-            <div className="space-y-2">
-              <label
-                htmlFor="vehicleId"
-                className="block text-sm font-medium text-slate-200"
-              >
-                Vehicle
-              </label>
-              <input
-                id="vehicleId"
-                list="vehicles"
-                required
-                value={reservation.vehicleId}
-                onChange={handleChange}
-                className="w-full px-3 py-1 bg-slate-800 border border-slate-700 rounded-md text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                placeholder="Select vehicle"
-              />
-              <datalist id="vehicles">
-                {filteredVehicles.map((vehicle) => (
-                  <option key={vehicle.licensePlate} value={vehicle.licensePlate}>
-                    {vehicle.licensePlate + "/" + vehicle.brand + "-" + vehicle.model + "-" + vehicle.year}
-                  </option>
-                ))}
+                {filteredClients
+                  .filter((client) => client.cin !== reservation.clientCIN)
+                  .map((client) => (
+                    <option key={client.cin} value={client.cin}>
+                      {client.firstName + " " + client.lastName}
+                    </option>
+                  ))}
               </datalist>
             </div>
             <div className="space-y-2">
@@ -302,6 +372,40 @@ export default function ReservationForm({
                   className="w-1/2 px-3 py-1 bg-slate-800 border border-slate-700 rounded-md text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                 />
               </div>
+            </div>
+            <div className="space-y-2">
+              <label
+                htmlFor="vehicleId"
+                className="block text-sm font-medium text-slate-200"
+              >
+                Vehicle
+              </label>
+              <input
+                id="vehicleId"
+                list="vehicles"
+                required
+                value={reservation.vehicleId}
+                onChange={handleChange}
+                className="w-full px-3 py-1 bg-slate-800 border border-slate-700 rounded-md text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                placeholder="Select vehicle"
+                disabled={inputsDisabled}
+              />
+                <datalist id="vehicles">
+                {filteredVehicles.map((vehicle) => (
+                  <option
+                  key={vehicle.licensePlate}
+                  value={vehicle.licensePlate}
+                  >
+                  {vehicle.licensePlate +
+                  "/" +
+                  vehicle.brand +
+                  "-" +
+                  vehicle.model +
+                  "-" +
+                  vehicle.year}
+                  </option>
+                ))}
+                </datalist>
             </div>
             <div className="space-y-2">
               <label

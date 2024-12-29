@@ -6,7 +6,9 @@ import com.location.exceptions.VehicleAlreadyExistsException;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 public interface VehicleService {
     // method to save a vehicle
@@ -15,8 +17,6 @@ public interface VehicleService {
     List<VehicleDTO> getVehicles();
     // method to get vrhicle by id
     VehicleDTO getVehicleById(String licensePlate);
-    // method to delete a vehicle
-    void deleteVehicle(String licensePlate);
 
     String saveImage(MultipartFile image, String licensePlate) throws IOException, ImageNotValidException;
 
@@ -29,4 +29,6 @@ public interface VehicleService {
     void deleteImage(String licensePlate);
 
     void archiveVehicle(String licensePlate);
+
+    List<Map<String, Object>> getAvailableVehicles(LocalDateTime start, LocalDateTime end);
 }
