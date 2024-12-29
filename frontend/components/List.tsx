@@ -181,11 +181,11 @@ export default function List({
                 </TableHead>
               ))}
               {filterStatus === "archived" && (
-                <TableHead className="text-indigo-300">Archived At</TableHead>
+                <TableHead className={isDarkMode ? "text-gray-300" : "text-black"}>Archived At</TableHead>
               )}
               {(onEdit !== undefined || onDelete !== undefined) &&
               filterStatus === "actived" ? (
-                <TableHead className="text-indigo-300">Actions</TableHead>
+                <TableHead className={isDarkMode ? "text-gray-300" : "text-black"}>Actions</TableHead>
               ) : null}
             </TableRow>
           </TableHeader>
@@ -212,7 +212,7 @@ export default function List({
                     </TableCell>
                   ))}
                   {filterStatus === "archived" && (
-                    <TableCell className="text-gray-300">
+                    <TableCell className={isDarkMode ? "text-gray-300" : "text-black"}>
                       {row.deletedAt
                         ? new Date(row.deletedAt).toLocaleString()
                         : "N/A"}
