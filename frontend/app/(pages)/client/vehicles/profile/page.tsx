@@ -1,5 +1,5 @@
 import PageIllustration from "@/components/page-illustration";
-import CustomerProfile from "@/components/profileClient";
+import CustomerProfile from "@/components/profileSelf";
 import VehicleProfile from "@/components/profileVehicule";
 
 export default function ProfilePage() {

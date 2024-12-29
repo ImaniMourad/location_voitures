@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import CustomerProfile from "@/components/profileClient";
+import CustomerProfile from "@/components/profileSelf";
 import EditProfile from "../../../../components/edit-profile";
 
 export default function ProfilePage() {
