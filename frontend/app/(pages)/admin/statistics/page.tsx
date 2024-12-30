@@ -48,7 +48,7 @@ export default function AdminStatisticsPage() {
   const { isDarkMode } = useTheme();
   const [totaleIcome, setTotalIncome] = useState(0);
   const [reservations, setReservations] = useState(0);
-  const [activeVehicles, setActiveVehicles] = useState(0);
+  const [availableVehicles, setAvailableVehicles] = useState(0);
   const [occupancyRate, setOccupancyRate] = useState(0);
   const [monthlyIncome, setMonthlyIncome] = useState([]);
   const [vehicleRotation, setVehicleRotation] = useState([]);
@@ -87,12 +87,12 @@ export default function AdminStatisticsPage() {
 
     const fetchActiveVehicles = async () => {
         try {
-            const response = await axios.get(`${apiUrl}/statistics/activeVehicles`, {
+            const response = await axios.get(`${apiUrl}/statistics/availableVehicles`, {
             headers: {
                 Authorization: `Bearer ${token}`,
             },
             });
-            setActiveVehicles(response.data);
+            setAvailableVehicles(response.data);
         } catch (error) {
             console.error(error);
         }
@@ -196,11 +196,11 @@ export default function AdminStatisticsPage() {
           >
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
-                Active Vehicles
+              Available Vehicles
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">12</div>
+              <div className="text-2xl font-bold">{availableVehicles}</div>
             </CardContent>
           </Card>
           <Card

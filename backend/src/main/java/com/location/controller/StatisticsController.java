@@ -23,9 +23,9 @@ public class StatisticsController {
         return ResponseEntity.ok(statisticsService.getReservations());
     }
 
-    @GetMapping("/activeVehicles")
-    public ResponseEntity<?> getActiveVehicles() {
-        return ResponseEntity.ok(statisticsService.getActiveVehicles());
+    @GetMapping("/availableVehicles")
+    public ResponseEntity<?> getAvailableVehicles() {
+        return ResponseEntity.ok(statisticsService.getAvailableVehicles());
     }
 
     @GetMapping("/occupancyRate")

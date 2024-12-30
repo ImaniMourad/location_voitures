@@ -13,4 +13,7 @@ public interface StatisticsRepository extends JpaRepository<Vehicle, String> {
 
     @Query(value = "SELECT COUNT(*) FROM reservation", nativeQuery = true)
     int getReservations();
+
+    @Query(value = "SELECT COUNT(*) FROM vehicle v WHERE v.status = 'AVAILABLE'", nativeQuery = true)
+    int getAvailableVehicles();
 }
