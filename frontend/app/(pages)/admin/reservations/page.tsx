@@ -28,13 +28,15 @@ export default function ReservationList() {
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [isFormAddOpen, setIsFormAddOpen] = useState(false);
   const [isFormEditOpen, setIsFormEditOpen] = useState(false);
-  const [editingReservation, setEditingReservation] = useState<Reservation | null>(null);
+  const [editingReservation, setEditingReservation] = useState<any | null>(null);
   const [isAlertVisible, setIsAlertVisible] = useState<AlertType>({
     visible: false,
     message: "",
     type_alert: "",
   });
 
+
+  console.log(reservations);
   useEffect(() => {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
     const fetchReservations = async () => {
@@ -170,9 +172,10 @@ export default function ReservationList() {
           onErrorMessage={handleErrorMessage}
         />
       )}
-      {/* {isFormEditOpen && editingReservation && (
-                <FormEdit reservation={editingReservation} handleUpdateReservation={handleEditReservation} handleCancel={handleCancel} />
-            )} */}
+      {isFormEditOpen && editingReservation && (
+        console.log(editingReservation),
+       <FormEdit reservationId={editingReservation.id} handleUpdateReservation={handleEditReservation} handleCancel={handleCancel} onErrorMessage={handleErrorMessage} />
+            )}
     </div>
     </>
   );

@@ -203,6 +203,7 @@ export default function ReservationForm({
         vehicle: reservation.vehicleId,
         startDate: response.data.reservation.startDate,
         endDate: response.data.reservation.endDate,
+        totalPrice : parseFloat(reservation.totalPrice),
       });
 
       // Generate and download the PDF invoice

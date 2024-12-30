@@ -13,4 +13,5 @@ public interface ReservationService {
 
     Map<String, Object> addReservation(ReservationDTO reservationDTO);
 
+    Map<String, String> getReservation(Long reservationId);
 }

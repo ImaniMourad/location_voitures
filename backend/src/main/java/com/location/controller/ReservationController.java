@@ -51,4 +51,14 @@ public class ReservationController {
         }
 
     }
+
+    @GetMapping("/reservation/{reservationId}")
+    public Map<String, String> getReservation(@PathVariable Long reservationId) {
+       try {
+           return reservationService.getReservation(reservationId);
+       } catch (Exception e) {
+           logger.error("Error while getting reservation with id: {}", reservationId, e);
+           return null;
+       }
+    }
 }
