@@ -34,11 +34,11 @@ export default function ClientManagement() {
   const [isFormAddOpen, setIsFormAddOpen] = useState(false);
   const [isFormEditOpen, setIsFormEditOpen] = useState(false);
   const [editingClient, setEditingClient] = useState<Client | null>(null);
-    const [isAlertVisible, setIsAlertVisible] = useState<AlertType>({
-      visible: false,
-      message: "",
-      type_alert: "",
-    });
+  const [isAlertVisible, setIsAlertVisible] = useState<AlertType>({
+    visible: false,
+    message: "",
+    type_alert: "",
+  });
 
   const [clientOpened, setClientOpened] = useState<string>("");
 
