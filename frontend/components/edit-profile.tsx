@@ -1,236 +1,253 @@
 "use client";
 
-import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "./cards/card-profile";
+import { X, Eye, EyeOff } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import axios from "axios";
 
-interface User {
-  id: number;
-  firstname: string;
-  lastname: string;
+interface Customer {
+  cin: string;
+  lastName: string;
+  firstName: string;
   email: string;
-  phone: string;
-  address: string;
-  membership: string;
-  photo: string;
-  password: string;
+  phoneNumber: string;
+  address?: string;
+  password?: string;
 }
 
-export default function AdminForm({
-  handleCancel,
-}: {
+interface AdminFormProps {
+  customerData: Customer;
+  handleUpdateCustomer: (updatedCustomer: any) => void;
   handleCancel: () => void;
-}) {
-  const [user, setUser] = useState<User>({
-    id: 1,
-    firstname: "John",
-    lastname: "Doe",
-    email: "john.doe@example.com",
-    phone: "123-456-7890",
-    address: "123 Main St, Casablanca, Morocco",
-    membership: "Premium",
-    photo: "/images/default-avatar.png",
-    password: "password",
+  onErrorMessage: (message: string) => void;
+}
+
+export default function EditCustomerForm({
+  customerData,
+  handleCancel,
+  handleUpdateCustomer,
+  onErrorMessage,
+}: AdminFormProps) {
+  const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const router = useRouter();
+  const [customer, setCustomer] = useState<Customer>({
+    ...customerData,
+    password: "",
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { id, value } = e.target;
-    setUser((prevUser) => ({ ...prevUser, [id]: value }));
+
+  useEffect(() => {
+    setCustomer({
+      ...customerData,
+      password: "",
+    });
+
+    console.log(customer);
+  }, [customerData]);
+
+  const handleInputChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
+  ) => {
+    const { name, value } = e.target;
+    setCustomer((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setUser((prevUser) => ({
-        ...prevUser,
-        photo: URL.createObjectURL(file),
-      }));
-    }
-  };
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
 
-  const togglePasswordVisibility = () => {
-    const passwordInput = document.getElementById(
-      "password"
-    ) as HTMLInputElement;
-    if (passwordInput) {
-      passwordInput.type =
-        passwordInput.type === "password" ? "text" : "password";
+    try {
+      const token = localStorage.getItem("jwtToken");
+      if (!token) {
+        throw new Error("You need to be signed in to perform this action.");
+      }
+
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+      if (!apiUrl) {
+        throw new Error("API URL is not configured.");
+      }
+
+      const response = await axios.put(
+        `${apiUrl}/customer/${customer.cin}`,
+        customer,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        handleUpdateCustomer(response.data);
+      }
+    } catch (error: any) {
+      onErrorMessage(error.response.data || "An unexpected error occurred.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4 z-50 fixed inset-0">
-      <Card className="w-full max-w-lg bg-slate-900 text-slate-100 border border-slate-800">
-        <CardHeader>
-          <div className="flex justify-between ">
-            <CardTitle className="text-2xl text-slate-100">
-              Edit Profile
-            </CardTitle>
-            <button
-              onClick={handleCancel}
-              className="text-slate-500 hover:text-slate-100 text-[2em] "
-            >
-              ✕
-            </button>
-          </div>
+    <div className="fixed inset-0 bg-slate-950/80 flex items-center justify-center p-4 overflow-y-auto ml-0 z-40">
+      <Card className="w-full max-w-lg bg-slate-900">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-7">
+          <CardTitle className="text-2xl font-bold text-white">
+            Edit Customer
+          </CardTitle>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="text-slate-400 hover:text-white"
+            onClick={handleCancel}
+          >
+            <X className="h-5 w-5" />
+          </Button>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+        <form onSubmit={handleSubmit}>
+          <CardContent className="space-y-4">
             <div className="space-y-2">
-              <label
-                htmlFor="firstname"
-                className="block text-sm font-medium text-slate-200"
-              >
-                First Name
-              </label>
-              <input
-                id="firstname"
-                value={user.firstname}
-                onChange={handleChange}
-                placeholder="Enter your first name"
-                className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-md text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              <Label htmlFor="cin" className="text-white">
+                CIN
+              </Label>
+              <Input
+                id="cin"
+                name="cin"
+                placeholder="Enter the CIN"
+                className="bg-slate-800 border-slate-700 text-white placeholder:text-slate-400"
+                onChange={handleInputChange}
+                value={customer.cin}
+                required
+                disabled
               />
             </div>
-            <div className="space-y-2">
-              <label
-                htmlFor="lastname"
-                className="block text-sm font-medium text-slate-200"
-              >
-                Last Name
-              </label>
-              <input
-                id="lastname"
-                value={user.lastname}
-                onChange={handleChange}
-                placeholder="Enter your last name"
-                className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-md text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-              />
-            </div>
-          </div>
-          <div className="flex gap-4">
-            <div className="space-y-2 flex-1">
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-slate-200"
-              >
-                Email
-              </label>
-              <input
-                id="email"
-                type="email"
-                value={user.email}
-                onChange={handleChange}
-                placeholder="Enter your email"
-                className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-md text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-              />
-            </div>
-            <div className="space-y-2 flex-1">
-              <label
-                htmlFor="phone"
-                className="block text-sm font-medium text-slate-200"
-              >
-                Phone
-              </label>
-              <input
-                id="phone"
-                type="tel"
-                value={user.phone}
-                onChange={handleChange}
-                placeholder="Enter your phone number"
-                className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-md text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-              />
-            </div>
-          </div>
 
-          <div className="space-y-2">
-            <label
-              htmlFor="address"
-              className="block text-sm font-medium text-slate-200"
-            >
-              Address
-            </label>
-            <input
-              id="address"
-              value={user.address}
-              onChange={handleChange}
-              placeholder="Enter your address"
-              className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-md text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-            />
-          </div>
-          <div className="space-y-2">
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-slate-200"
-            >
-              Password
-            </label>
-            <div className="relative">
-              <input
-                id="password"
-                type="password"
-                value={user.password}
-                onChange={handleChange}
-                placeholder="Enter your password"
-                className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-md text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-              />
-              <button
-                type="button"
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400"
-                onClick={togglePasswordVisibility}
-              >
-                <svg
-                  className="h-5 w-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                  />
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                  />
-                </svg>
-              </button>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="firstName" className="text-white">
+                  First Name
+                </Label>
+                <Input
+                  id="firstName"
+                  name="firstName"
+                  placeholder="Enter the first name"
+                  className="bg-slate-800 border-slate-700 text-white placeholder:text-slate-400"
+                  onChange={handleInputChange}
+                  value={customer.firstName}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="lastName" className="text-white">
+                  Last Name
+                </Label>
+                <Input
+                  id="lastName"
+                  name="lastName"
+                  placeholder="Enter the last name"
+                  className="bg-slate-800 border-slate-700 text-white placeholder:text-slate-400"
+                  onChange={handleInputChange}
+                  value={customer.lastName}
+                  required
+                />
+              </div>
             </div>
-          </div>
-          <div className="space-y-2">
-            <label
-              htmlFor="photo"
-              className="block text-sm font-medium text-slate-200"
-            >
-              Photo
-            </label>
-            <input
-              id="photo"
-              name="photo"
-              type="file"
-              accept="image/*"
-              className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-md text-slate-100 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700"
-              onChange={handleImageChange}
-            />
-          </div>
-          <div className="flex items-center gap-4">
-            <button
-              className="flex-1 py-2 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-md transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-slate-900"
-              onClick={() => console.log("Save Changes", user)}
-            >
-              Save Changes
-            </button>
-            <button
-              className="flex-1 py-2 px-4 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-md transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-slate-900"
-              onClick={handleCancel}
-            >
-              Cancel
-            </button>
-          </div>
-        </CardContent>
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-white">
+                  Email
+                </Label>
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  placeholder="Enter the email"
+                  className="bg-slate-800 border-slate-700 text-white placeholder:text-slate-400"
+                  onChange={handleInputChange}
+                  value={customer.email}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="phoneNumber" className="text-white">
+                  Phone Number
+                </Label>
+                <Input
+                  id="phoneNumber"
+                  name="phoneNumber"
+                  type="tel"
+                  placeholder="Enter the phone number"
+                  className="bg-slate-800 border-slate-700 text-white placeholder:text-slate-400"
+                  onChange={handleInputChange}
+                  value={customer.phoneNumber}
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="address" className="text-white">
+                Address
+              </Label>
+              <Input
+                id="address"
+                name="address"
+                placeholder="Enter the address"
+                className="bg-slate-800 border-slate-700 text-white placeholder:text-slate-400"
+                onChange={handleInputChange}
+                value={customer.address}
+                required
+              />
+            </div>
+
+            <div className="space-y-2 relative">
+              <Label htmlFor="password" className="text-white">
+                New Password
+              </Label>
+              <Input
+                id="password"
+                name="password"
+                type={showPassword ? "text" : "password"}
+                placeholder="Enter the password"
+                className="bg-slate-800 border-slate-700 text-white placeholder:text-slate-400"
+                onChange={handleInputChange}
+                value={""}
+              />
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute right-2 top-6 text-slate-400 hover:text-white"
+                onClick={() => setShowPassword(!showPassword)}
+                type="button"
+              >
+                {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+              </Button>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 pt-4 sm:grid-cols-2">
+              <Button className="bg-indigo-600 text-white hover:bg-indigo-700">
+                {loading ? "Saving..." : "Save"}
+              </Button>
+              <Button
+                variant="secondary"
+                className="bg-slate-700 text-white hover:bg-slate-600"
+                onClick={handleCancel}
+              >
+                Cancel
+              </Button>
+            </div>
+          </CardContent>
+        </form>
       </Card>
     </div>
   );

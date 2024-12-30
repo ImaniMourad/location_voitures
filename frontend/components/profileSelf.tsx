@@ -2,19 +2,20 @@
 
 import Image from "next/image";
 import { jwtDecode } from "jwt-decode";
-import { useEffect, useState, useRef } from 'react';
-import { Mail, Phone, MapPin } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badger';
-import { useTheme } from '@/context/context';
+import { useEffect, useState, useRef } from "react";
+import { Mail, Phone, MapPin } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badger";
+import { useTheme } from "@/context/context";
 
 interface Customer {
   cin: string;
-  firstName: string;
   lastName: string;
+  firstName: string;
   email: string;
   phoneNumber: string;
-  address: string;
+  address?: string;
+  password?: string;
 }
 
 interface JWTPayload {
@@ -28,20 +29,26 @@ type AlertType = {
   type_alert: "" | "success" | "error";
 };
 
-export default function CustomerProfile() {
-  const [customer, setCustomer] = useState<Customer | null>(null);
-  const [isEditMode, setIsEditMode] = useState(false);
-  const [showMessage, setShowMessage] = useState(false);
+export default function CustomerProfile({
+  customer,
+  setCustomer,
+  handleEditClick,
+  setShowProfile,
+}: {
+  customer: Customer;
+  setCustomer: any;
+  handleEditClick: any;
+  setShowProfile: any;
+}) {
   const [error, setError] = useState<string | null>(null);
   const [editedCustomer, setEditedCustomer] = useState<Customer | null>(null);
   const cardRef = useRef<HTMLDivElement>(null);
   const { isDarkMode } = useTheme();
   const [isAlertVisible, setIsAlertVisible] = useState<AlertType>({
-        visible: false,
-        message: "",
-        type_alert: "",
-      });
-  
+    visible: false,
+    message: "",
+    type_alert: "",
+  });
 
   useEffect(() => {
     async function fetchCustomerData() {
@@ -88,19 +95,6 @@ export default function CustomerProfile() {
     fetchCustomerData();
   }, []);
 
-
-  const handleEditClick = () => {
-    setShowMessage(true);
-    setTimeout(() => {
-      setShowMessage(false);
-    }, 3000); // Hide message after 3 seconds
-  };
-
-  const handleCancelEdit = () => {
-    setIsEditMode(false);
-    setEditedCustomer(customer); // Reset edited data
-  };
-
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     if (editedCustomer) {
@@ -136,7 +130,6 @@ export default function CustomerProfile() {
 
       const updatedCustomer = await response.json();
       setCustomer(updatedCustomer);
-      setIsEditMode(false);
       setIsAlertVisible({
         visible: true,
         message: "Profile updated successfully",
@@ -170,13 +163,6 @@ export default function CustomerProfile() {
   return (
     <section className="bg-gray-800 rounded-lg shadow-lg">
       <div>
-        {showMessage && (
-          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-            <div className="bg-white dark:bg-gray-800 p-0 rounded-lg shadow-xl">
-              <p className="text-xl font-semibold text-gray-900 dark:text-white">Changement de profil</p>
-            </div>
-          </div>
-        )}
         <div className="flex items-center justify-center">
           <Card
             ref={cardRef}
@@ -292,7 +278,6 @@ export default function CustomerProfile() {
                   className="w-full py-2 px-4 bg-indigo-600 text-white font-semibold rounded hover:bg-indigo-500 transition mt-6"
                   onClick={() => {
                     handleEditClick();
-                    setShowMessage(true);
                   }}
                 >
                   Edit Profile
@@ -303,15 +288,16 @@ export default function CustomerProfile() {
         </div>
       </div>
       {isAlertVisible.visible && (
-        <div className={`fixed bottom-4 right-4 p-4 rounded-md ${
-          isAlertVisible.type_alert === 'success' ? 'bg-green-500' : 'bg-red-500'
-        } text-white`}>
+        <div
+          className={`fixed bottom-4 right-4 p-4 rounded-md ${
+            isAlertVisible.type_alert === "success"
+              ? "bg-green-500"
+              : "bg-red-500"
+          } text-white`}
+        >
           {isAlertVisible.message}
         </div>
       )}
     </section>
   );
 }
-
-
-

@@ -25,8 +25,8 @@ public class StatisticsServiceImpl implements StatisticsService {
     }
 
     @Override
-    public int getActiveVehicles() {
-        return 0;
+    public int getAvailableVehicles() {
+        return statisticsRepository.getAvailableVehicles();
     }
 
     @Override

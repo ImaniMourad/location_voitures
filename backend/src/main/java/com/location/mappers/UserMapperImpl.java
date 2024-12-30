@@ -17,7 +17,7 @@ public class UserMapperImpl {
 
     public UserDTO fromUser(User user){
         UserDTO userDTO = new UserDTO();
-        BeanUtils.copyProperties(user,userDTO);
+        BeanUtils.copyProperties(user,userDTO,"password");
         return userDTO;
     }
 

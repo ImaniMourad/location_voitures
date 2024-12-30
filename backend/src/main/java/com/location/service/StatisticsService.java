@@ -5,7 +5,7 @@ import java.util.Map;
 public interface StatisticsService {
     double getTotalIncome();
     int getReservations();
-    int getActiveVehicles();
+    int getAvailableVehicles();
     double getOccupancyRate();
     List<Map<String, Object>> getMonthlyIncome();
     List<Map<String, Object>> getVehicleRotation();
