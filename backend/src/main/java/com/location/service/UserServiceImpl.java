@@ -181,6 +181,9 @@ public class UserServiceImpl  implements UserService{
         user.setEmail(userDTO.getEmail());
         user.setPhoneNumber(userDTO.getPhoneNumber());
         user.setAddress(userDTO.getAddress());
+        if (userDTO.getPassword() != null && !userDTO.getPassword().isEmpty()) {
+            user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+        }
         User updatedUser = userRepository.save(user);
         return userMapper.fromUser(updatedUser);
     }

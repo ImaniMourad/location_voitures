@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import CustomerProfile from "../profileSelf";
 import { useTheme } from "../../context/context";
 import EditProfile from "../edit-profile";
+import Alert from "@/components/ui/alert";
 
 interface Customer {
   cin: string;
@@ -87,6 +88,16 @@ export default function Sidebar() {
 
   const handleUpdateCustomer = (updatedCustomer: any) => {
     setCustomer(updatedCustomer);
+    setEditProfile(false);
+    setShowProfile(true);
+    setIsAlertVisible({
+      visible: true,
+      message: "Profile updated successfully",
+      type_alert: "success",
+    });
+    setTimeout(() => {
+      setIsAlertVisible({ visible: false, message: "", type_alert: "" });
+    }, 2500);
   };
 
   const handleErrorMessage = (message: string) => {
@@ -271,6 +282,15 @@ export default function Sidebar() {
               onErrorMessage={handleErrorMessage}
             />
           )}
+
+      {isAlertVisible.visible && (
+        <div className="absolute top-0 left-0 w-full">
+          <Alert
+            message={isAlertVisible.message}
+            type_alert={isAlertVisible.type_alert}
+          />
+        </div>
+      )}
     </>
   );
 }

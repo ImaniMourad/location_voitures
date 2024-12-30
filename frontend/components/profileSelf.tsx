@@ -84,6 +84,7 @@ export default function CustomerProfile({
 
         const data: Customer = await response.json();
         setCustomer(data);
+        console.log("Customer data:", data);
         setEditedCustomer(data);
         setError(null);
       } catch (error) {

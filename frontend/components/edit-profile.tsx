@@ -1,12 +1,9 @@
-"use client";
-
+import { useState, useEffect } from "react";
 import { X, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import axios from "axios";
 
 interface Customer {
@@ -33,21 +30,19 @@ export default function EditCustomerForm({
   onErrorMessage,
 }: AdminFormProps) {
   const [loading, setLoading] = useState(false);
+  const [isDisabled, setIsDisabled] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
-  const router = useRouter();
   const [customer, setCustomer] = useState<Customer>({
     ...customerData,
-    password: "",
+    password: "", // Initialiser le mot de passe avec une chaîne vide
   });
 
-
   useEffect(() => {
-    setCustomer({
+    setCustomer((prev) => ({
+      ...prev,
       ...customerData,
-      password: "",
-    });
-
-    console.log(customer);
+      password: "", // Réinitialiser le mot de passe à une chaîne vide
+    }));
   }, [customerData]);
 
   const handleInputChange = (
@@ -78,7 +73,7 @@ export default function EditCustomerForm({
       }
 
       const response = await axios.put(
-        `${apiUrl}/customer/${customer.cin}`,
+        `${apiUrl}/user/${customer.cin}`,
         customer,
         {
           headers: {
@@ -102,7 +97,7 @@ export default function EditCustomerForm({
       <Card className="w-full max-w-lg bg-slate-900">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-7">
           <CardTitle className="text-2xl font-bold text-white">
-            Edit Customer
+            Edit Profile
           </CardTitle>
           <Button
             variant="ghost"
@@ -221,7 +216,13 @@ export default function EditCustomerForm({
                 placeholder="Enter the password"
                 className="bg-slate-800 border-slate-700 text-white placeholder:text-slate-400"
                 onChange={handleInputChange}
-                value={""}
+                value={customer.password} // Utiliser la valeur de l'état
+                autoComplete="off"
+                readOnly={isDisabled} // Désactiver la modification du mot de passe
+                onClick={() => {
+                  setCustomer((prev) => ({ ...prev, password: "" }));
+                  setIsDisabled(false);
+                }} // Réinitialiser le mot de passe lorsqu'il est en focus
               />
               <Button
                 variant="ghost"
@@ -230,13 +231,16 @@ export default function EditCustomerForm({
                 onClick={() => setShowPassword(!showPassword)}
                 type="button"
               >
-                {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                {showPassword ? (
+                  <EyeOff className="h-5 w-5" />
+                ) : (
+                  <Eye className="h-5 w-5" />
+                )}
               </Button>
             </div>
-
             <div className="grid grid-cols-1 gap-4 pt-4 sm:grid-cols-2">
-              <Button className="bg-indigo-600 text-white hover:bg-indigo-700">
-                {loading ? "Saving..." : "Save"}
+              <Button className="bg-indigo-600 text-white hover:bg-indigo-700" type="submit">
+                {loading ? "Updating..." : "Update"}
               </Button>
               <Button
                 variant="secondary"
