@@ -116,7 +116,7 @@ const generatePDF = async ({ invoiceData }: { invoiceData: InvoiceData }) => {
   const columnStarts = [
     leftMargin,                    // CARS
     leftMargin + 200,             // PRICE
-    leftMargin + 300,             // NUMBER OF DAYS
+    leftMargin + 320,             // NUMBER OF DAYS (adjusted for extra space)
     rightMargin - 100,            // TOTAL
   ];
 
@@ -316,4 +316,3 @@ const generatePDF = async ({ invoiceData }: { invoiceData: InvoiceData }) => {
 };
 
 export default generatePDF;
-

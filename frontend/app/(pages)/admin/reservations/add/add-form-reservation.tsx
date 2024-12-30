@@ -249,6 +249,26 @@ export default function ReservationForm({
   };
 
   const handleCalculateTotal = () => {
+    // check if the client is selected and it is valid and exists in the list of clients
+    if (
+      !reservation.clientCIN ||
+      !filteredClients.find((client) => client.cin === reservation.clientCIN)
+    ) {
+      onErrorMessage("Please select a valid client.");
+      return;
+    }
+
+    // check if the vehicle is selected and it is valid and exists in the list of vehicles
+    if (
+      !reservation.vehicleId ||
+      !filteredVehicles.find(
+        (vehicle) => vehicle.licensePlate === reservation.vehicleId
+      )
+    ) {
+      onErrorMessage("Please select a valid vehicle.");
+      return;
+    }
+
     const startDate = DateTime.fromISO(
       reservation.startDate + "T" + reservation.startTime
     );
