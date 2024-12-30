@@ -3,10 +3,33 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import CustomerProfile from "../profileSelf";
 import { useTheme } from "../../context/context";
+import EditProfile from "../edit-profile";
+
+interface Customer {
+  cin: string;
+  lastName: string;
+  firstName: string;
+  email: string;
+  phoneNumber: string;
+  address?: string;
+  password?: string;
+}
+
+type AlertType = {
+  visible: boolean;
+  message: string;
+  type_alert: "" | "success" | "error";
+};
 
 export default function Sidebar() {
   const { isDarkMode, setIsDarkMode } = useTheme();
@@ -21,6 +44,20 @@ export default function Sidebar() {
   const [activeItem, setActiveItem] = useState<string | null>(null);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
+  const [editProfile, setEditProfile] = useState(false);
+  const [customer, setCustomer] = useState<Customer | null>(null);
+    const [isAlertVisible, setIsAlertVisible] = useState<AlertType>({
+          visible: false,
+          message: "",
+          type_alert: "",
+        });
+    
+
+   const handleEditClick = () => {
+    setEditProfile(true);
+    setShowProfile(false);
+  }
+
 
   useEffect(() => {
     setActiveItem(activePath);
@@ -46,6 +83,21 @@ export default function Sidebar() {
 
   const handleProfileClick = () => {
     setShowProfile(true);
+  };
+
+  const handleUpdateCustomer = (updatedCustomer: any) => {
+    setCustomer(updatedCustomer);
+  };
+
+  const handleErrorMessage = (message: string) => {
+    setIsAlertVisible({
+      visible: true,
+      message: message,
+      type_alert: "error",
+    });
+    setTimeout(() => {
+      setIsAlertVisible({ visible: false, message: "", type_alert: "" });
+    }, 2500);
   };
 
   const menuItems = [
@@ -139,7 +191,11 @@ export default function Sidebar() {
 
   return (
     <>
-      <div className={`h-screen w-64 ${isDarkMode ? 'bg-[#0f1725] text-white' : 'bg-[#f5f5f5] text-black'} sticky top-0 left-0 z-50`}>
+      <div
+        className={`h-screen w-64 ${
+          isDarkMode ? "bg-[#0f1725] text-white" : "bg-[#f5f5f5] text-black"
+        } sticky top-0 left-0 z-50`}
+      >
         <nav className="p-4">
           <ul className="space-y-2 mt-12">
             {menuItems.map((item) => (
@@ -184,10 +240,18 @@ export default function Sidebar() {
           </DialogHeader>
           <p className="py-4">Are you sure you want to log out?</p>
           <DialogFooter>
-            <Button variant="outline" onClick={handleCancel} className="bg-transparent text-white border-white hover:bg-white/10">
+            <Button
+              variant="outline"
+              onClick={handleCancel}
+              className="bg-transparent text-white border-white hover:bg-white/10"
+            >
               Cancel
             </Button>
-            <Button variant="destructive" onClick={handleConfirmLogout} className="bg-purple-600 hover:bg-purple-700">
+            <Button
+              variant="destructive"
+              onClick={handleConfirmLogout}
+              className="bg-purple-600 hover:bg-purple-700"
+            >
               Log Out
             </Button>
           </DialogFooter>
@@ -196,10 +260,17 @@ export default function Sidebar() {
 
       <Dialog open={showProfile} onOpenChange={setShowProfile}>
         <DialogContent className="sm:max-w-[400px] bg-gray-800 text-white border-blue-600 p-0">
-          <CustomerProfile />
+          <CustomerProfile customer={customer}  setCustomer={setCustomer}   handleEditClick={handleEditClick} setShowProfile={setShowProfile} />
         </DialogContent>
       </Dialog>
+          {editProfile && (
+            <EditProfile
+              customerData={customer || { cin: '', lastName: '', firstName: '', email: '', phoneNumber: '' }}
+              handleUpdateCustomer={handleUpdateCustomer}
+              handleCancel={() => setEditProfile(false)}
+              onErrorMessage={handleErrorMessage}
+            />
+          )}
     </>
   );
 }
-
