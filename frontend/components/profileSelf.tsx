@@ -1,8 +1,12 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import Image from 'next/image';
-import { jwtDecode } from 'jwt-decode';
+import Image from "next/image";
+import { jwtDecode } from "jwt-decode";
+import { useEffect, useState, useRef } from 'react';
+import { Mail, Phone, MapPin } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badger';
+import { useTheme } from '@/context/context';
 
 interface Customer {
   cin: string;
@@ -18,31 +22,46 @@ interface JWTPayload {
   sub?: string;
 }
 
+type AlertType = {
+  visible: boolean;
+  message: string;
+  type_alert: "" | "success" | "error";
+};
+
 export default function CustomerProfile() {
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [showMessage, setShowMessage] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [editedCustomer, setEditedCustomer] = useState<Customer | null>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
+  const { isDarkMode } = useTheme();
+  const [isAlertVisible, setIsAlertVisible] = useState<AlertType>({
+        visible: false,
+        message: "",
+        type_alert: "",
+      });
+  
 
   useEffect(() => {
     async function fetchCustomerData() {
       try {
-        const jwtToken = localStorage.getItem('jwtToken');
+        const jwtToken = localStorage.getItem("jwtToken");
         if (!jwtToken) {
-          setError('Not authenticated. Please login again.');
+          setError("Not authenticated. Please login again.");
           return;
         }
 
         let cin: string;
         try {
           const decodedToken = jwtDecode<JWTPayload>(jwtToken);
-          cin = decodedToken.cin || decodedToken.sub || '';
+          cin = decodedToken.cin || decodedToken.sub || "";
           if (!cin) {
-            throw new Error('CIN not found in token');
+            throw new Error("CIN not found in token");
           }
         } catch (decodeError) {
-          console.error('Error decoding token:', decodeError);
-          setError('Invalid authentication token');
+          console.error("Error decoding token:", decodeError);
+          setError("Invalid authentication token");
           return;
         }
 
@@ -61,16 +80,20 @@ export default function CustomerProfile() {
         setEditedCustomer(data);
         setError(null);
       } catch (error) {
-        console.error('Error fetching customer data:', error);
-        setError('Failed to load profile data');
+        console.error("Error fetching customer data:", error);
+        setError("Failed to load profile data");
       }
     }
 
     fetchCustomerData();
   }, []);
 
+
   const handleEditClick = () => {
-    setIsEditMode(true);
+    setShowMessage(true);
+    setTimeout(() => {
+      setShowMessage(false);
+    }, 3000); // Hide message after 3 seconds
   };
 
   const handleCancelEdit = () => {
@@ -89,20 +112,23 @@ export default function CustomerProfile() {
     if (!editedCustomer) return;
 
     try {
-      const jwtToken = localStorage.getItem('jwtToken');
+      const jwtToken = localStorage.getItem("jwtToken");
       if (!jwtToken) {
-        setError('Not authenticated. Please login again.');
+        setError("Not authenticated. Please login again.");
         return;
       }
 
-      const response = await fetch(`http://localhost:8081/User/${editedCustomer.cin}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${jwtToken}`,
-        },
-        body: JSON.stringify(editedCustomer),
-      });
+      const response = await fetch(
+        `http://localhost:8081/User/${editedCustomer.cin}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${jwtToken}`,
+          },
+          body: JSON.stringify(editedCustomer),
+        }
+      );
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -111,9 +137,25 @@ export default function CustomerProfile() {
       const updatedCustomer = await response.json();
       setCustomer(updatedCustomer);
       setIsEditMode(false);
+      setIsAlertVisible({
+        visible: true,
+        message: "Profile updated successfully",
+        type_alert: "success",
+      });
+      setTimeout(() => {
+        setIsAlertVisible({ visible: false, message: "", type_alert: "" });
+      }, 2500);
     } catch (error) {
-      console.error('Error saving changes:', error);
-      setError('Failed to save changes');
+      console.error("Error saving changes:", error);
+      setError("Failed to save changes");
+      setIsAlertVisible({
+        visible: true,
+        message: "Failed to update profile",
+        type_alert: "error",
+      });
+      setTimeout(() => {
+        setIsAlertVisible({ visible: false, message: "", type_alert: "" });
+      }, 2500);
     }
   };
 
@@ -126,112 +168,150 @@ export default function CustomerProfile() {
   }
 
   return (
-    <section className="max-w-md mx-auto mt-8 p-6 bg-gray-800 rounded-lg shadow-lg">
-      {isEditMode ? (
-        <div>
-          <h2 className="text-xl font-semibold text-indigo-300">Edit Profile</h2>
-          <div className="mt-4 space-y-4">
-            <div>
-              <label className="block text-gray-300">First Name</label>
-              <input
-                name="firstName"
-                value={editedCustomer?.firstName || ''}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded"
-              />
-            </div>
-            <div>
-              <label className="block text-gray-300">Last Name</label>
-              <input
-                name="lastName"
-                value={editedCustomer?.lastName || ''}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded"
-              />
-            </div>
-            <div>
-              <label className="block text-gray-300">Email</label>
-              <input
-                name="email"
-                value={editedCustomer?.email || ''}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded"
-              />
-            </div>
-            <div>
-              <label className="block text-gray-300">Phone</label>
-              <input
-                name="phoneNumber"
-                value={editedCustomer?.phoneNumber || ''}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded"
-              />
-            </div>
-            <div>
-              <label className="block text-gray-300">Address</label>
-              <input
-                name="address"
-                value={editedCustomer?.address || ''}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded"
-              />
+    <section className="bg-gray-800 rounded-lg shadow-lg">
+      <div>
+        {showMessage && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+            <div className="bg-white dark:bg-gray-800 p-0 rounded-lg shadow-xl">
+              <p className="text-xl font-semibold text-gray-900 dark:text-white">Changement de profil</p>
             </div>
           </div>
-          <div className="mt-4 flex gap-4">
-            <button
-              onClick={handleSaveChanges}
-              className="flex-1 py-2 px-4 bg-indigo-600 text-white rounded hover:bg-indigo-500"
-            >
-              Save Changes
-            </button>
-            <button
-              onClick={handleCancelEdit}
-              className="flex-1 py-2 px-4 bg-red-600 text-white rounded hover:bg-red-500"
-            >
-              Cancel
-            </button>
-          </div>
+        )}
+        <div className="flex items-center justify-center">
+          <Card
+            ref={cardRef}
+            className={`w-full max-w-md shadow-2xl ${
+              isDarkMode ? "bg-gray-900" : "bg-white"
+            }`}
+          >
+            <CardContent className="">
+              <div className="flex flex-col items-center pt-6">
+                <div
+                  className={`w-20 h-20 rounded-full overflow-hidden mb-4 border-2 ${
+                    isDarkMode ? "border-gray-700" : "border-gray-200"
+                  }`}
+                >
+                  <Image
+                    src="/images/default-avatar.png"
+                    width={80}
+                    height={80}
+                    alt={`${customer.firstName} ${customer.lastName}`}
+                    className="object-cover"
+                  />
+                </div>
+
+                <div className="text-center mb-6">
+                  <h1
+                    className={`text-xl font-bold mb-2 ${
+                      isDarkMode ? "text-white" : "text-gray-900"
+                    }`}
+                  >
+                    {customer.firstName} {customer.lastName}
+                  </h1>
+                  <Badge
+                    variant="outline"
+                    className={`text-xs ${
+                      isDarkMode
+                        ? "border-gray-700 text-gray-300"
+                        : "border-gray-200 text-gray-600"
+                    }`}
+                  >
+                    {customer.cin}
+                  </Badge>
+                </div>
+
+                <div
+                  className={`w-full space-y-4 p-4 rounded-lg ${
+                    isDarkMode ? "bg-gray-800" : "bg-gray-50"
+                  }`}
+                >
+                  <div className="flex items-center space-x-3">
+                    <div
+                      className={`p-2 rounded-full ${
+                        isDarkMode ? "bg-blue-900/30" : "bg-blue-100"
+                      }`}
+                    >
+                      <Mail
+                        className={`w-4 h-4 ${
+                          isDarkMode ? "text-blue-400" : "text-blue-500"
+                        }`}
+                      />
+                    </div>
+                    <span
+                      className={`text-sm ${
+                        isDarkMode ? "text-gray-300" : "text-gray-600"
+                      }`}
+                    >
+                      {customer.email}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center space-x-3">
+                    <div
+                      className={`p-2 rounded-full ${
+                        isDarkMode ? "bg-green-900/30" : "bg-green-100"
+                      }`}
+                    >
+                      <Phone
+                        className={`w-4 h-4 ${
+                          isDarkMode ? "text-green-400" : "text-green-500"
+                        }`}
+                      />
+                    </div>
+                    <span
+                      className={`text-sm ${
+                        isDarkMode ? "text-gray-300" : "text-gray-600"
+                      }`}
+                    >
+                      {customer.phoneNumber}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center space-x-3">
+                    <div
+                      className={`p-2 rounded-full ${
+                        isDarkMode ? "bg-purple-900/30" : "bg-purple-100"
+                      }`}
+                    >
+                      <MapPin
+                        className={`w-4 h-4 ${
+                          isDarkMode ? "text-purple-400" : "text-purple-500"
+                        }`}
+                      />
+                    </div>
+                    <span
+                      className={`text-sm ${
+                        isDarkMode ? "text-gray-300" : "text-gray-600"
+                      }`}
+                    >
+                      {customer.address}
+                    </span>
+                  </div>
+                </div>
+                <button
+                  className="w-full py-2 px-4 bg-indigo-600 text-white font-semibold rounded hover:bg-indigo-500 transition mt-6"
+                  onClick={() => {
+                    handleEditClick();
+                    setShowMessage(true);
+                  }}
+                >
+                  Edit Profile
+                </button>
+              </div>
+            </CardContent>
+          </Card>
         </div>
-      ) : (
-        <div>
-          <div className="flex items-center gap-4">
-            <Image
-              className="rounded-full"
-              src="/images/default-avatar.png"
-              alt={`${customer.firstName} ${customer.lastName}`}
-              width={60}
-              height={60}
-            />
-            <div>
-              <h2 className="text-xl font-semibold text-indigo-300">
-                {customer.firstName} {customer.lastName}
-              </h2>
-              <p className="text-gray-400">{customer.email}</p>
-            </div>
-          </div>
-          <div className="mt-6">
-            <h3 className="text-lg font-semibold text-gray-200">Details</h3>
-            <ul className="mt-2 space-y-2 text-gray-400">
-              <li>
-                <span className="font-medium text-gray-300">Phone:</span>{' '}
-                {customer.phoneNumber}
-              </li>
-              <li>
-                <span className="font-medium text-gray-300">Address:</span>{' '}
-                {customer.address}
-              </li>
-            </ul>
-          </div>
-          <div className="mt-6">
-            <button
-              className="w-full py-2 px-4 bg-indigo-600 text-white font-semibold rounded hover:bg-indigo-500 transition"
-              onClick={handleEditClick}
-            >
-              Edit Profile
-            </button>
-          </div>
+      </div>
+      {isAlertVisible.visible && (
+        <div className={`fixed bottom-4 right-4 p-4 rounded-md ${
+          isAlertVisible.type_alert === 'success' ? 'bg-green-500' : 'bg-red-500'
+        } text-white`}>
+          {isAlertVisible.message}
         </div>
       )}
     </section>
   );
 }
+
+
+
