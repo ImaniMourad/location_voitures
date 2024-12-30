@@ -101,8 +101,6 @@ export default function ClientManagement() {
       message: "Client updated successfully",
       type_alert: "success",
     });
-    console.log(updatedClient);
-    console.log(clients);
     setClients((prev) =>
       prev.map((client) =>
         client.cin === updatedClient.cin ? updatedClient : client

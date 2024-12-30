@@ -15,6 +15,7 @@ import CustomerProfile from "../profileSelf";
 import { useTheme } from "../../context/context";
 import EditProfile from "../edit-profile";
 import Alert from "@/components/ui/alert";
+import { jwtDecode } from "jwt-decode";
 
 interface Customer {
   cin: string;
@@ -32,6 +33,11 @@ type AlertType = {
   type_alert: "" | "success" | "error";
 };
 
+interface JWTPayload {
+  cin?: string;
+  sub?: string;
+}
+
 export default function Sidebar() {
   const { isDarkMode, setIsDarkMode } = useTheme();
   const pathname = usePathname();
@@ -47,18 +53,59 @@ export default function Sidebar() {
   const [showProfile, setShowProfile] = useState(false);
   const [editProfile, setEditProfile] = useState(false);
   const [customer, setCustomer] = useState<Customer | null>(null);
-    const [isAlertVisible, setIsAlertVisible] = useState<AlertType>({
-          visible: false,
-          message: "",
-          type_alert: "",
-        });
-    
+  const [isAlertVisible, setIsAlertVisible] = useState<AlertType>({
+    visible: false,
+    message: "",
+    type_alert: "",
+  });
 
-   const handleEditClick = () => {
+  useEffect(() => {
+    async function fetchCustomerData() {
+      try {
+        const jwtToken = localStorage.getItem("jwtToken");
+        if (!jwtToken) {
+          handleErrorMessage("Not authenticated. Please login again.");
+          return;
+        }
+
+        let cin: string;
+        try {
+          const decodedToken = jwtDecode<JWTPayload>(jwtToken);
+          cin = decodedToken.cin || decodedToken.sub || "";
+          if (!cin) {
+            throw new Error("CIN not found in token");
+          }
+        } catch (decodeError) {
+          console.error("Error decoding token:", decodeError);
+          handleErrorMessage("Invalid authentication token");
+          return;
+        }
+
+        const response = await fetch(`http://localhost:8081/User/${cin}`, {
+          headers: {
+            Authorization: `Bearer ${jwtToken}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data: Customer = await response.json();
+        setCustomer(data);
+      } catch (error) {
+        console.error("Error fetching customer data:", error);
+        handleErrorMessage("Failed to load profile data");
+      }
+    }
+
+    fetchCustomerData();
+  }, []);
+
+  const handleEditClick = () => {
     setEditProfile(true);
     setShowProfile(false);
-  }
-
+  };
 
   useEffect(() => {
     setActiveItem(activePath);
@@ -271,17 +318,32 @@ export default function Sidebar() {
 
       <Dialog open={showProfile} onOpenChange={setShowProfile}>
         <DialogContent className="sm:max-w-[400px] bg-gray-800 text-white border-blue-600 p-0">
-          <CustomerProfile customer={customer}  setCustomer={setCustomer}   handleEditClick={handleEditClick} setShowProfile={setShowProfile} />
-        </DialogContent>
-      </Dialog>
-          {editProfile && (
-            <EditProfile
-              customerData={customer || { cin: '', lastName: '', firstName: '', email: '', phoneNumber: '' }}
-              handleUpdateCustomer={handleUpdateCustomer}
-              handleCancel={() => setEditProfile(false)}
-              onErrorMessage={handleErrorMessage}
+          {customer && (
+            <CustomerProfile
+              customer={customer}
+              setCustomer={setCustomer}
+              handleEditClick={handleEditClick}
+              setShowProfile={setShowProfile}
             />
           )}
+        </DialogContent>
+      </Dialog>
+      {editProfile && (
+        <EditProfile
+          customerData={
+            customer || {
+              cin: "",
+              lastName: "",
+              firstName: "",
+              email: "",
+              phoneNumber: "",
+            }
+          }
+          handleUpdateCustomer={handleUpdateCustomer}
+          handleCancel={() => setEditProfile(false)}
+          onErrorMessage={handleErrorMessage}
+        />
+      )}
 
       {isAlertVisible.visible && (
         <div className="absolute top-0 left-0 w-full">
