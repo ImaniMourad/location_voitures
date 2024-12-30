@@ -1,196 +1,312 @@
-'use client';
+"use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Bar, BarChart, Line, LineChart, ResponsiveContainer, XAxis, YAxis, Tooltip } from "recharts"
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Bar,
+  BarChart,
+  ResponsiveContainer,
+  XAxis,
+  YAxis,
+  Tooltip,
+} from "recharts";
+import { useTheme } from "@/context/context";
+import axios from "axios";
 
 // Sample data - in a real application, this would come from your backend
-const monthlyRevenue = [
-    { month: "Jan", revenue: 4000 },
-    { month: "Feb", revenue: 3000 },
-    { month: "Mar", revenue: 5000 },
-    { month: "Apr", revenue: 4500 },
-    { month: "May", revenue: 6000 },
-    { month: "Jun", revenue: 7000 },
-    { month: "Jul", revenue: 8000 },
-    { month: "Aug", revenue: 9000 },
-    { month: "Sep", revenue: 10000 },
-    { month: "Oct", revenue: 11000 },
-    { month: "Nov", revenue: 12000 },
-    { month: "Dec", revenue: 13000 },
-]
+const monthlyIncome = [
+  { month: "Jan", income: 4000 },
+  { month: "Feb", income: 3000 },
+  { month: "Mar", income: 5000 },
+  { month: "Apr", income: 4500 },
+  { month: "May", income: 6000 },
+  { month: "Jun", income: 7000 },
+  { month: "Jul", income: 8000 },
+  { month: "Aug", income: 9000 },
+  { month: "Sep", income: 10000 },
+  { month: "Oct", income: 11000 },
+  { month: "Nov", income: 12000 },
+  { month: "Dec", income: 13000 },
+];
 
-const reservationsByType = [
-    { type: "Citadine", count: 120 },
-    { type: "Berline", count: 80 },
-    { type: "SUV", count: 60 },
-    { type: "Utilitaire", count: 40 },
-]
-
-const occupancyRate = [
-    { month: "Jan", rate: 75 },
-    { month: "Feb", rate: 68 },
-    { month: "Mar", rate: 80 },
-    { month: "Apr", rate: 85 },
-    { month: "May", rate: 90 },
-    { month: "Jun", rate: 95 },
-]
+const vehicleRotation = [
+  { month: "Jan", days: 2.5 },
+  { month: "Feb", days: 2.8 },
+  { month: "Mar", days: 2.3 },
+  { month: "Apr", days: 2.0 },
+  { month: "May", days: 1.8 },
+  { month: "Jun", days: 1.5 },
+  { month: "Jul", days: 1.7 },
+  { month: "Aug", days: 1.6 },
+  { month: "Sep", days: 1.9 },
+  { month: "Oct", days: 2.0 },
+  { month: "Nov", days: 1.8 },
+  { month: "Dec", days: 1.5 },
+];
 
 export default function AdminStatisticsPage() {
-    return (
-        <div className="min-h-screen bg-[#030712] py-12 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-7xl mx-auto">
-                <h1 className="text-3xl font-extrabold text-white mb-10">Statistiques</h1>
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                    <Card className="bg-gray-800 text-white">
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">Revenu Total</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold">29,500€</div>
-                            <p className="text-xs text-gray-400">+20.1% par rapport au mois dernier</p>
-                        </CardContent>
-                    </Card>
-                    <Card className="bg-gray-800 text-white">
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">Réservations</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold">+2350</div>
-                            <p className="text-xs text-gray-400">+180.1% par rapport au mois dernier</p>
-                        </CardContent>
-                    </Card>
-                    <Card className="bg-gray-800 text-white">
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">Active Vehicles</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold">12</div>
-                            <p className="text-xs text-gray-400">+2 par rapport au mois dernier</p>
-                        </CardContent>
-                    </Card>
-                    <Card className="bg-gray-800 text-white">
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">Taux d'Occupation</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold">85%</div>
-                            <p className="text-xs text-gray-400">+5% par rapport au mois dernier</p>
-                        </CardContent>
-                    </Card>
-                    <Card className="col-span-4 bg-gray-800 text-white">
-                        <CardHeader>
-                            <CardTitle>Revenu Mensuel</CardTitle>
-                        </CardHeader>
-                        <CardContent className="pl-2">
-                            <ChartContainer
-                                config={{
-                                    revenue: {
-                                        label: "Revenu",
-                                        color: "hsl(var(--chart-1))",
-                                    },
-                                }}
-                                className="h-[300px]"
-                            >
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <BarChart data={monthlyRevenue}>
-                                        <XAxis
-                                            dataKey="month"
-                                            stroke="#888888"
-                                            fontSize={12}
-                                            tickLine={false}
-                                            axisLine={false}
-                                        />
-                                        <YAxis
-                                            stroke="#888888"
-                                            fontSize={12}
-                                            tickLine={false}
-                                            axisLine={false}
-                                            tickFormatter={(value) => `${value}€`}
-                                        />
-                                        <ChartTooltip content={<ChartTooltipContent/>}/>
-                                        <Bar dataKey="revenue" fill="var(--color-revenue)" radius={[4, 4, 0, 0]}/>
-                                    </BarChart>
-                                </ResponsiveContainer>
-                            </ChartContainer>
-                        </CardContent>
-                    </Card>
-                    <Card className="col-span-2 bg-gray-800 text-white">
-                        <CardHeader>
-                            <CardTitle>Reservations by Vehicle Type</CardTitle>
-                        </CardHeader>
-                        <CardContent className="pl-2">
-                            <ChartContainer
-                                config={{
-                                    count: {
-                                        label: "Number of Reservations",
-                                        color: "hsl(var(--chart-2))",
-                                    },
-                                }}
-                                className="h-[300px]"
-                            >
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <BarChart data={reservationsByType}>
-                                        <XAxis
-                                            dataKey="type"
-                                            stroke="#888888"
-                                            fontSize={12}
-                                            tickLine={false}
-                                            axisLine={false}
-                                        />
-                                        <YAxis
-                                            stroke="#888888"
-                                            fontSize={12}
-                                            tickLine={false}
-                                            axisLine={false}
-                                        />
-                                        <ChartTooltip content={<ChartTooltipContent/>}/>
-                                        <Bar dataKey="count" fill="var(--color-count)" radius={[4, 4, 0, 0]}/>
-                                    </BarChart>
-                                </ResponsiveContainer>
-                            </ChartContainer>
-                        </CardContent>
-                    </Card>
-                    <Card className="col-span-2 bg-gray-800 text-white">
-                        <CardHeader>
-                            <CardTitle>Taux d'Occupation Mensuel</CardTitle>
-                        </CardHeader>
-                        <CardContent className="pl-2">
-                            <ChartContainer
-                                config={{
-                                    rate: {
-                                        label: "Taux d'occupation",
-                                        color: "hsl(var(--chart-3))",
-                                    },
-                                }}
-                                className="h-[300px]"
-                            >
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <LineChart data={occupancyRate}>
-                                        <XAxis
-                                            dataKey="month"
-                                            stroke="#888888"
-                                            fontSize={12}
-                                            tickLine={false}
-                                            axisLine={false}
-                                        />
-                                        <YAxis
-                                            stroke="#888888"
-                                            fontSize={12}
-                                            tickLine={false}
-                                            axisLine={false}
-                                            tickFormatter={(value) => `${value}%`}
-                                        />
-                                        <ChartTooltip content={<ChartTooltipContent/>}/>
-                                        <Line type="monotone" dataKey="rate" stroke="var(--color-rate)"
-                                              strokeWidth={2}/>
-                                    </LineChart>
-                                </ResponsiveContainer>
-                            </ChartContainer>
-                        </CardContent>
-                    </Card>
-                </div>
-            </div>
+  const { isDarkMode } = useTheme();
+  const [totaleIcome, setTotalIncome] = useState(0);
+  const [reservations, setReservations] = useState(0);
+  const [activeVehicles, setActiveVehicles] = useState(0);
+  const [occupancyRate, setOccupancyRate] = useState(0);
+  const [monthlyIncome, setMonthlyIncome] = useState([]);
+  const [vehicleRotation, setVehicleRotation] = useState([]);
+
+  useEffect(() => {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+    const token = localStorage.getItem("jwtToken");
+    if (!token) {
+      return;
+    }
+    const fetchTotaleIcome = async () => {
+      try {
+        const response = await axios.get(`${apiUrl}/statistics/totalIncome`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setTotalIncome(response.data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    const fetchReservations = async () => {
+        try {
+            const response = await axios.get(`${apiUrl}/statistics/reservations`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+            });
+            setReservations(response.data);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const fetchActiveVehicles = async () => {
+        try {
+            const response = await axios.get(`${apiUrl}/statistics/activeVehicles`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+            });
+            setActiveVehicles(response.data);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const fetchOccupancyRate = async () => {
+        try {
+            const response = await axios.get(`${apiUrl}/statistics/occupancyRate`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+            });
+            setOccupancyRate(response.data);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const fetchMonthlyIncome = async () => {
+        try {
+            const response = await axios.get(`${apiUrl}/statistics/monthlyIncome`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+            });
+            setMonthlyIncome(response.data);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const fetchVehicleRotation = async () => {
+        try {
+            const response = await axios.get(`${apiUrl}/statistics/vehicleRotation`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+            });
+            setVehicleRotation(response.data);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    fetchTotaleIcome();
+    fetchReservations();
+    fetchActiveVehicles();
+    fetchOccupancyRate();
+    fetchMonthlyIncome();
+    fetchVehicleRotation();
+
+  }, []);
+
+  return (
+    <div
+      className={`min-h-screen ${
+        isDarkMode ? "bg-[#030712]" : "bg-gray-300"
+      } py-12 px-4 sm:px-6 lg:px-8`}
+    >
+      <div className="max-w-7xl mx-auto">
+        <h1
+          className={`text-3xl font-extrabold ${
+            isDarkMode ? "text-white" : "text-black"
+          } mb-10`}
+        >
+          Statistics
+        </h1>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <Card
+            className={`${
+              isDarkMode ? "bg-gray-800 text-white" : "bg-white text-black"
+            }`}
+          >
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Total Income
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{totaleIcome} MAD</div>
+            </CardContent>
+          </Card>
+          <Card
+            className={`${
+              isDarkMode ? "bg-gray-800 text-white" : "bg-white text-black"
+            }`}
+          >
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Reservations
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">+{reservations}</div>
+            </CardContent>
+          </Card>
+          <Card
+            className={`${
+              isDarkMode ? "bg-gray-800 text-white" : "bg-white text-black"
+            }`}
+          >
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Active Vehicles
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">12</div>
+            </CardContent>
+          </Card>
+          <Card
+            className={`${
+              isDarkMode ? "bg-gray-800 text-white" : "bg-white text-black"
+            }`}
+          >
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Occupancy Rate
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">85%</div>
+            </CardContent>
+          </Card>
+          <Card
+            className={`col-span-2 ${
+              isDarkMode ? "bg-gray-800 text-white" : "bg-white text-black"
+            }`}
+          >
+            <CardHeader>
+              <CardTitle className="text-lg font-medium">
+                Monthly Income (MAD)
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[300px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={monthlyIncome}>
+                    <XAxis
+                      dataKey="month"
+                      stroke="#aaaaaa"
+                      fontSize={11}
+                      tickLine={false}
+                      axisLine={false}
+                    />
+                    <YAxis
+                      stroke="#aaaaaa"
+                      fontSize={11}
+                      tickLine={false}
+                      axisLine={false}
+                      tickFormatter={(value) => `${value}`}
+                    />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "#404040",
+                        borderRadius: "4px",
+                        border: "none",
+                        color: "#ffffff",
+                      }}
+                    />
+                    <Bar
+                      dataKey="income"
+                      fill="#7D3DCB"
+                      radius={[4, 4, 0, 0]}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+          <Card
+            className={`col-span-2 ${
+              isDarkMode ? "bg-gray-800 text-white" : "bg-white text-black"
+            }`}
+          >
+            <CardHeader>
+              <CardTitle className="text-lg font-medium">
+                Average vehicle turnover time (days)
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[300px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={vehicleRotation}>
+                    <XAxis
+                      dataKey="month"
+                      stroke="#aaaaaa"
+                      fontSize={11}
+                      tickLine={false}
+                      axisLine={false}
+                    />
+                    <YAxis
+                      stroke="#aaaaaa"
+                      fontSize={11}
+                      tickLine={false}
+                      axisLine={false}
+                      tickFormatter={(value) => `${value} j`}
+                    />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "#404040",
+                        borderRadius: "4px",
+                        border: "none",
+                        color: "#ffffff",
+                      }}
+                    />
+                    <Bar dataKey="days" fill="#FFB74D" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
         </div>
-    )
+      </div>
+    </div>
+  );
 }

@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -50,6 +51,7 @@ public class Vehicle {
 
     private LocalDateTime deletedAt;
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "vehicle")
     private List<Reservation> reservations;
 }

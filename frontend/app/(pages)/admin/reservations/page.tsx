@@ -48,8 +48,6 @@ export default function ReservationList() {
             Authorization: `Bearer ${token}`,
           },
         });
-
-        console.log(response.data);
         // afficher date de forme jj/mm/aaaa hh:mm sans seconds
         response.data.forEach((reservation: Reservation) => {
           reservation.startDate = new Date(
@@ -80,11 +78,16 @@ export default function ReservationList() {
       message: "Reservation added successfully",
       type_alert: "success",
     });
-    console.log(newReservation);
-    console.log(reservations);
+    newReservation.startDate = new Date(newReservation.startDate).toLocaleString(
+      "fr-FR"
+    );
+    newReservation.endDate = new Date(newReservation.endDate).toLocaleString(
+      "fr-FR"
+    );
+
     const updatedReservations = [
       ...reservations,
-      { ...newReservation, id: reservations.length + 1 },
+      { ...newReservation },
     ];
     setReservations(updatedReservations);
     setIsFormAddOpen(false);
@@ -144,23 +147,22 @@ export default function ReservationList() {
         Reservations Management
       </h1>
       <List
-        name="Reservation"
-        columns={columns}
-        rows={reservations}
-        onEdit={(reservationId: number) => {
-          const reservationToEdit = reservations.find(
-            (r) => r.id === reservationId
-          );
-          if (reservationToEdit) {
-            setEditingReservation(reservationToEdit);
-            console.log(reservationToEdit);
-            setIsFormEditOpen(true);
-          }
-        }}
-        onDelete={handleDeleteReservation}
-        onAdd={() => setIsFormAddOpen(true)}
-        to="/admin/reservations"
-      />
+          name="Reservation"
+          columns={columns}
+          rows={reservations}
+          onEdit={(reservationId: number) => {
+            const reservationToEdit = reservations.find(
+              (r) => r.id === reservationId
+            );
+            if (reservationToEdit) {
+              setEditingReservation(reservationToEdit);
+              setIsFormEditOpen(true);
+            }
+          } }
+          onDelete={handleDeleteReservation}
+          onAdd={() => setIsFormAddOpen(true)} handleClickedRow={function (id: any): void {
+            throw new Error("Function not implemented.");
+          } }      />
       {isFormAddOpen && (
         <FormAdd
           handleAddReservation={handleAddReservation}

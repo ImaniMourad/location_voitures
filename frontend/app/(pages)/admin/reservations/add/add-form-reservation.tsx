@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -23,7 +23,8 @@ interface Reservation {
   endDate: string;
   deletedAt: string;
   paidAt: string;
-  price: string;
+  totalPrice: string;
+  diffDays: number;
 }
 
 interface Client {
@@ -51,6 +52,7 @@ export default function ReservationForm({
   handleCancel,
   onErrorMessage,
 }: ReservationFormProps) {
+  const [isCalculated, setIsCalculated] = useState(true);
   const [loading, setLoading] = useState(false);
   const [reservation, setReservation] = useState<Reservation>({
     startTime: "",
@@ -61,7 +63,8 @@ export default function ReservationForm({
     endDate: "",
     deletedAt: "",
     paidAt: "",
-    price: "00.00",
+    totalPrice: "00.00",
+    diffDays: 0,
   });
 
   const [filteredClients, setFilteredClients] = useState<Client[]>([]);
@@ -72,7 +75,12 @@ export default function ReservationForm({
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { id, value } = e.target;
-    setReservation((prevReservation) => ({ ...prevReservation, [id]: value }));
+    setReservation((prevReservation) => {
+      if (id === "startTime" || id === "endTime") {
+        return { ...prevReservation, startTime: value, endTime: value };
+      }
+      return { ...prevReservation, [id]: value };
+    });
   };
 
   // useEffect to fetch clients and vehicles
@@ -169,6 +177,9 @@ export default function ReservationForm({
           endDate: endDateTime,
           paidAt: paidAt,
           deletedAt: "",
+          total: parseFloat(reservation.totalPrice),
+          paymentMethod: "Cash on delivery",
+          paymentStatus: "Paid",
         },
         {
           headers: {
@@ -179,6 +190,7 @@ export default function ReservationForm({
       );
 
       console.log("API response:", response.data);
+
       handleAddReservation({
         client: `${
           filteredClients.find((client) => client.cin === reservation.clientCIN)
@@ -187,41 +199,47 @@ export default function ReservationForm({
           filteredClients.find((client) => client.cin === reservation.clientCIN)
             ?.lastName
         }`,
-        id: response.data.id,
-        vehicle: response.data.vehicle,
-        startDate: response.data.startDate,
-        endDate: response.data.endDate,
+        id: response.data.reservation.id,
+        vehicle: reservation.vehicleId,
+        startDate: response.data.reservation.startDate,
+        endDate: response.data.reservation.endDate,
       });
 
-      // Generate and download the PDF
-      const fakeReservationData = {
-        id: response.data.id, // Use the actual ID from the API response
-        client: `${
-          filteredClients.find((client) => client.cin === reservation.clientCIN)
-            ?.firstName
-        } ${
-          filteredClients.find((client) => client.cin === reservation.clientCIN)
-            ?.lastName
-        }`,
-        vehicle: `${
-          filteredVehicles.find(
-            (vehicle) => vehicle.licensePlate === reservation.vehicleId
-          )?.brand
-        } ${
-          filteredVehicles.find(
-            (vehicle) => vehicle.licensePlate === reservation.vehicleId
-          )?.model
-        } ${
-          filteredVehicles.find(
-            (vehicle) => vehicle.licensePlate === reservation.vehicleId
-          )?.year
-        }`,
-        startDate: startDateTime,
-        endDate: endDateTime,
-        price: reservation.price,
+      // Generate and download the PDF invoice
+      //object json to pass to generatePDF
+      const vehicle = filteredVehicles.find(
+        (vehicle) => vehicle.licensePlate === reservation.vehicleId
+      );
+
+      console.log("id invoice", response.data.invoice.id);
+
+      const invoiceData = {
+        id: response.data.invoice.id,
+        date: formatDate(response.data.reservation.paidAt),
+        client: {
+          name:
+            response.data.client.firstName +
+            " " +
+            response.data.client.lastName,
+          email: response.data.client.email,
+          address: response.data.client.address,
+          phone: response.data.client.phoneNumber,
+        },
+        items: [
+          {
+            licensePlate: vehicle ? vehicle.licensePlate : "Unknown",
+            price: parseFloat(vehicle ? vehicle.price.toString() : "0"),
+            days: reservation.diffDays,
+            total: parseFloat(reservation.totalPrice),
+          },
+        ],
+        payment: {
+          method: "Cash on delivery",
+        },
+        total: parseFloat(reservation.totalPrice),
       };
 
-      await generatePDF();
+      await generatePDF({ invoiceData });
     } catch (error) {
       console.log("Error during submission:", error);
       onErrorMessage("Failed to add reservation.");
@@ -231,27 +249,37 @@ export default function ReservationForm({
   };
 
   const handleCalculateTotal = () => {
-    // calculate nbr des jours bewteen start and end date si je depasse 24h je dois payer un jour de plus
     const startDate = DateTime.fromISO(
       reservation.startDate + "T" + reservation.startTime
     );
     const endDate = DateTime.fromISO(
       reservation.endDate + "T" + reservation.endTime
     );
+
     const diffDays = endDate.diff(startDate, "days").days;
-    console.log(diffDays);
-    // get vehicle price
     const vehicle = filteredVehicles.find(
       (vehicle) => vehicle.licensePlate === reservation.vehicleId
     );
 
-    if (vehicle) {
-      const price = vehicle.price * diffDays || 0;
-      setReservation((prevReservation) => ({
-        ...prevReservation,
-        price: price.toFixed(2),
-      }));
+    const price = vehicle ? vehicle.price * diffDays : 0;
+
+    setReservation((prevReservation) => ({
+      ...prevReservation,
+      diffDays: diffDays,
+      totalPrice: price.toFixed(2),
+    }));
+  };
+
+  useEffect(() => {
+    if (reservation.diffDays > 0 && reservation.totalPrice !== "00.00") {
+      setIsCalculated(false);
     }
+  }, [reservation.diffDays, reservation.totalPrice]);
+
+  // formatter date "2024-12-29T20:18:08" to Novembre 12, 2021
+  const formatDate = (date: string) => {
+    const formattedDate = DateTime.fromISO(date).toFormat("LLLL d, yyyy");
+    return formattedDate;
   };
 
   const getAvailableVehicles = async (startDate: string, endDate: string) => {
@@ -468,13 +496,13 @@ export default function ReservationForm({
                 htmlFor="price"
                 className="block text-sm font-medium text-slate-200"
               >
-                Price
+                Total Price
               </label>
               <div className="flex space-x-2">
                 <input
                   id="price"
                   type="text"
-                  value={reservation.price}
+                  value={reservation.totalPrice}
                   disabled
                   className="w-full px-3 py-1 bg-slate-800 border border-slate-700 rounded-md text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                 />
@@ -488,7 +516,11 @@ export default function ReservationForm({
               </div>
             </div>
             <div className="grid grid-cols-1 gap-4 pt-4 sm:grid-cols-2">
-              <Button className="bg-indigo-600 text-white hover:bg-indigo-700">
+              <Button
+                className="bg-indigo-600 text-white hover:bg-indigo-700"
+                type="submit"
+                disabled={isCalculated}
+              >
                 {loading ? "Saving..." : "Save"}
               </Button>
               <Button
