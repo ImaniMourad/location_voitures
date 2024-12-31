@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.format.DateTimeParseException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -24,7 +25,7 @@ public class ReservationController {
 
 
     @GetMapping("/reservations")
-    public List<Map<String, Object>> getAllReservations() {
+    public List<Map<String, Object>> getReservations() {
         return reservationService.getReservations();
     }
 
@@ -77,5 +78,15 @@ public class ReservationController {
            logger.error("Error while getting reservation with id: {}", reservationId, e);
            return null;
        }
+    }
+
+    @PutMapping("/reservations/{id}/archive")
+    public ResponseEntity<?> archiveReservation(@PathVariable Long id) {
+        try {
+            reservationService.archiveReservation(id);
+            return ResponseEntity.ok("Reservation archived successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 }

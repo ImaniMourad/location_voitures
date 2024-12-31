@@ -16,6 +16,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,10 +42,21 @@ public class ReservationServiceImpl implements ReservationService {
     private static final Logger logger = LoggerFactory.getLogger(ReservationServiceImpl.class);
 
 
-
     @Override
     public List<Map<String, Object>> getReservations() {
-        return reservationMapper.fromObjetList(reservationRepository.getReservations());
+        List<Object[]> reservations = reservationRepository.getReservations();
+        List<Map<String, Object>> response = new ArrayList<>();
+        for (Object[] reservation : reservations) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("id", reservation[0]);
+            map.put("client", reservation[1] + " " + reservation[2]);
+            map.put("startDate", reservation[3]);
+            map.put("endDate", reservation[4]);
+            map.put("vehicle", reservation[5] + " " + reservation[6]);
+            map.put("deletedAt", reservation[7]);
+            response.add(map);
+        }
+        return response;
     }
 
     @Override
@@ -162,5 +175,12 @@ public class ReservationServiceImpl implements ReservationService {
         return response;
     }
 
-
+    @Override
+    public void archiveReservation(Long reservationId) {
+        Reservation reservation = reservationRepository.findById(reservationId).orElse(null);
+        if (reservation != null) {
+            reservation.setDeletedAt(LocalDateTime.now());
+        }
+        reservationRepository.save(reservation);
+    }
 }

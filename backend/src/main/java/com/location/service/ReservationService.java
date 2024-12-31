@@ -2,6 +2,7 @@ package com.location.service;
 
 import com.location.dto.ReservationDTO;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -16,4 +17,6 @@ public interface ReservationService {
     Map<String, String> getReservation(Long reservationId);
 
     Map<String, Object> updateReservation(Long reservationId, ReservationDTO reservationDTO);
+
+    void archiveReservation(Long reservationId);
 }

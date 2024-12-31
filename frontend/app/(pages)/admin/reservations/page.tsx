@@ -124,10 +124,28 @@ export default function ReservationList() {
   };
 
   const handleDeleteReservation = (id: number) => {
-    const updatedReservations = reservations.filter(
-      (reservation) => reservation.id !== id
-    );
-    setReservations(updatedReservations);
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+    const token = localStorage.getItem("jwtToken");
+    const currentDateTime = new Date().toISOString();
+    if (!token) {
+      return;
+    }
+    axios
+      .put(`${apiUrl}/reservations/${id}/archive`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then(() => {
+        setReservations((prevReservations) =>
+          prevReservations.map((reservation) =>
+            reservation.id === id
+              ? { ...reservation, deletedAt: currentDateTime }
+              : reservation
+          )
+        );
+      })
+      .catch((error) => console.error("Error deleting reservation:", error));
   };
 
   const handleCancel = () => {
