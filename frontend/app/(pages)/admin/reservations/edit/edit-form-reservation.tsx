@@ -152,7 +152,7 @@ export default function ReservationForm({
     };
 
     fetchClients();
-  }, [onErrorMessage]);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

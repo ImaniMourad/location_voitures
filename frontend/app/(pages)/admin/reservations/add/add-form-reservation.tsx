@@ -120,8 +120,6 @@ export default function ReservationForm({
             Authorization: `Bearer ${token}`,
           },
         });
-        console.log("-------clients----------");
-        console.log(response.data);
         setFilteredClients(response.data);
       } catch (error) {
         console.error(error);
@@ -207,8 +205,6 @@ export default function ReservationForm({
         }
       );
 
-      console.log("API response:", response.data);
-
       handleAddReservation({
         client: `${
           filteredClients.find((client) => client.cin === reservation.clientCIN)
@@ -229,8 +225,6 @@ export default function ReservationForm({
       const vehicle = filteredVehicles.find(
         (vehicle) => vehicle.licensePlate === reservation.vehicleId
       );
-
-      console.log("id invoice", response.data.invoice.id);
 
       const invoiceData = {
         id: response.data.invoice.id,
@@ -333,8 +327,6 @@ export default function ReservationForm({
         throw new Error("API URL is not configured.");
       }
 
-      console.log("Fetching available vehicles...");
-      console.log("startDate:", startDate);
       const response = await axios.get(`${apiUrl}/vehicles/available`, {
         params: {
           startDate,
@@ -513,7 +505,6 @@ export default function ReservationForm({
                 disabled={inputsDisabled}
                 autoComplete="off"
                 onClick={() => {
-                  console.log("inputsDisabled", inputsDisabled);
                   if (!inputsDisabled && filteredVehicles.length === 0) {
                     onErrorMessage(
                       "No vehicles available for the selected dates."
