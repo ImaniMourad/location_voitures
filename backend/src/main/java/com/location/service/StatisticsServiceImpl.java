@@ -31,7 +31,7 @@ public class StatisticsServiceImpl implements StatisticsService {
 
     @Override
     public double getOccupancyRate() {
-        return 0;
+        return statisticsRepository.getOccupancyRate();
     }
 
     @Override
