@@ -183,7 +183,7 @@ const generatePDF = async ({ invoiceData }: { invoiceData: InvoiceData }) => {
     });
 
     // Price (left-aligned with $)
-    page.drawText(`$${item.price}`, {
+    page.drawText(`${item.price}Dhs`, {
       x: columnStarts[1],
       y: currentY,
       size: 12,
@@ -203,7 +203,7 @@ const generatePDF = async ({ invoiceData }: { invoiceData: InvoiceData }) => {
     });
 
     // Total (right-aligned)
-    const totalText = `$${item.total}`;
+    const totalText = `${item.total}Dhs`;
     const totalWidth = regular.widthOfTextAtSize(totalText, 12);
     page.drawText(totalText, {
       x: rightMargin - totalWidth,
@@ -246,7 +246,7 @@ const generatePDF = async ({ invoiceData }: { invoiceData: InvoiceData }) => {
   // Total (right-aligned)
   const totalY = currentY;
   const totalLabel = "Total :";
-  const totalValue = `$${invoiceData.total}`;
+  const totalValue = `${invoiceData.total}Dhs`;
 
   const labelWidth = bold.widthOfTextAtSize(totalLabel, 12);
   const valueWidth = regular.widthOfTextAtSize(totalValue, 12);

@@ -75,6 +75,24 @@ export default function ReservationForm({
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { id, value } = e.target;
+    const today = DateTime.now().toISODate();
+    if (id === "startDate" && value < today) {
+      onErrorMessage(
+        "Start Date must be greater than or equal to today's date."
+      );
+      return;
+    }
+
+    if (id === "endDate" && value < today) {
+      onErrorMessage("End Date must be greater than or equal to today's date.");
+      return;
+    }
+
+    if (id === "endDate" && value < reservation.startDate) {
+      onErrorMessage("End Date must be greater than Start Date.");
+      return;
+    }
+
     setReservation((prevReservation) => {
       if (id === "startTime" || id === "endTime") {
         return { ...prevReservation, startTime: value, endTime: value };
@@ -203,7 +221,7 @@ export default function ReservationForm({
         vehicle: reservation.vehicleId,
         startDate: response.data.reservation.startDate,
         endDate: response.data.reservation.endDate,
-        totalPrice : parseFloat(reservation.totalPrice),
+        totalPrice: parseFloat(reservation.totalPrice),
       });
 
       // Generate and download the PDF invoice
@@ -494,6 +512,14 @@ export default function ReservationForm({
                 placeholder="Select vehicle"
                 disabled={inputsDisabled}
                 autoComplete="off"
+                onClick={() => {
+                  console.log("inputsDisabled", inputsDisabled);
+                  if (!inputsDisabled && filteredVehicles.length === 0) {
+                    onErrorMessage(
+                      "No vehicles available for the selected dates."
+                    );
+                  }
+                }}
               />
               <datalist id="vehicles">
                 {filteredVehicles.map((vehicle) => (
