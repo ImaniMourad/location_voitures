@@ -355,7 +355,7 @@ export default function ReservationForm({
         throw new Error("API URL is not configured.");
       }
 
-      const response = await axios.get(`${apiUrl}/vehicles/available`, {
+      const response = await axios.get(`${apiUrl}/vehicles/available/${reservationId}`, {
         params: {
           startDate,
           endDate,

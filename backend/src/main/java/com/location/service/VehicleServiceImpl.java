@@ -157,4 +157,9 @@ public class VehicleServiceImpl implements VehicleService {
     public List<Map<String, Object>> getAvailableVehicles(LocalDateTime start, LocalDateTime end) {
         return vehicleMapper.fromObjetList(vehicleRepository.getAvailableVehicles(start, end));
     }
+
+    @Override
+    public List<Map<String, Object>> getAvailableVehiclesForUpdate(Long reservationId, LocalDateTime start, LocalDateTime end) {
+        return vehicleMapper.fromObjetList(vehicleRepository.getAvailableVehiclesForUpdate(reservationId, start, end));
+    }
 }
