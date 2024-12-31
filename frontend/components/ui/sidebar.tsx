@@ -259,9 +259,9 @@ export default function Sidebar() {
             {menuItems.map((item) => (
               <li key={item.title}>
                 {item.path === "/logout" || item.title === "Profile" ? (
-                  <button
+                  <a
                     onClick={item.onClick}
-                    className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors ${
+                    className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors cursor-pointer ${
                       activeItem === item.title
                         ? "bg-purple-600"
                         : "hover:bg-white/10"
@@ -269,12 +269,16 @@ export default function Sidebar() {
                   >
                     {item.icon}
                     <span>{item.title}</span>
-                  </button>
+                  </a>
                 ) : (
-                  <Link href={item.path} passHref>
-                    <button
+                  <Link
+                    href={item.path}
+                    passHref
+                    legacyBehavior
+                  >
+                    <a
                       onClick={() => setActiveItem(item.title)}
-                      className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors ${
+                      className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors cursor-pointer ${
                         activeItem === item.title
                           ? "bg-purple-600 text-white"
                           : "hover:bg-black/10"
@@ -282,7 +286,7 @@ export default function Sidebar() {
                     >
                       {item.icon}
                       <span>{item.title}</span>
-                    </button>
+                    </a>
                   </Link>
                 )}
               </li>
