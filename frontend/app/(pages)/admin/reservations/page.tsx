@@ -99,14 +99,28 @@ export default function ReservationList() {
   };
 
   const handleEditReservation = (updatedReservation: Reservation) => {
+    setIsAlertVisible({
+      visible: true,
+      message: "Reservation updated successfully",
+      type_alert: "success",
+    });
+    updatedReservation.startDate = new Date(
+      updatedReservation.startDate
+    ).toLocaleString("fr-FR");
+    updatedReservation.endDate = new Date(
+      updatedReservation.endDate
+    ).toLocaleString("fr-FR");
+
     const updatedReservations = reservations.map((reservation) =>
       reservation.id === updatedReservation.id
-        ? updatedReservation
+        ? { ...updatedReservation }
         : reservation
     );
     setReservations(updatedReservations);
-    setEditingReservation(null);
     setIsFormEditOpen(false);
+    setTimeout(() => {
+      setIsAlertVisible({ visible: false, message: "", type_alert: "" });
+    }, 2500);
   };
 
   const handleDeleteReservation = (id: number) => {

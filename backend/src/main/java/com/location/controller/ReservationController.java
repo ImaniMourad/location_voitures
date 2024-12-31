@@ -51,6 +51,23 @@ public class ReservationController {
         }
 
     }
+    @PutMapping("/reservation/{reservationId}")
+    public ResponseEntity<Map<String, Object>> updateReservation(@PathVariable Long reservationId, @RequestBody Map<String, Object> reservationData) {
+        try {
+            ReservationDTO reservationDTO = new ReservationDTO(reservationData);
+            Map<String, Object> updatedReservation = reservationService.updateReservation(reservationId, reservationDTO);
+            return ResponseEntity.ok(updatedReservation);
+        } catch (DateTimeParseException e) {
+            logger.error("Date parsing error for startDate: {}, endDate: {}, paidAt: {}",
+                    reservationData.get("startDate"),
+                    reservationData.get("endDate"),
+                    reservationData.get("paidAt"), e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        } catch (Exception e) {
+            logger.error("Error while updating reservation with id: {}", reservationId, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
 
     @GetMapping("/reservation/{reservationId}")
     public Map<String, String> getReservation(@PathVariable Long reservationId) {

@@ -43,7 +43,7 @@ interface Vehicle {
 
 type ReservationFormProps = {
   reservationId: string;
-  handleUpdateReservation: (updatedReservation: Reservation) => void;
+  handleUpdateReservation: (updatedReservation: any) => void;
   handleCancel: () => void;
   onErrorMessage: (message: string) => void;
 };
@@ -85,10 +85,10 @@ export default function ReservationForm({
         console.log(fetchedReservation);
         setReservation({
           id: fetchedReservation.id,
-          startTime: DateTime.fromISO(fetchedReservation.startDate).toFormat("HH:mm"),
-          endTime: DateTime.fromISO(fetchedReservation.endDate).toFormat("HH:mm"),
-          clientCIN: getCinFromClient(fetchedReservation.client),
-          vehicleId: fetchedReservation.vehicle,
+          startTime: DateTime.fromISO(fetchedReservation.startTime).toFormat("HH:mm"),
+          endTime: DateTime.fromISO(fetchedReservation.endTime).toFormat("HH:mm"),
+          clientCIN: fetchedReservation.clientCIN,
+          vehicleId: fetchedReservation.vehicleId,
           startDate: DateTime.fromISO(fetchedReservation.startDate).toFormat("yyyy-MM-dd"),
           endDate: DateTime.fromISO(fetchedReservation.endDate).toFormat("yyyy-MM-dd"),
           deletedAt: "",
@@ -104,23 +104,32 @@ export default function ReservationForm({
     fetchReservation();
   }, [reservationId]);
 
-  function getCinFromClient(client: string): string | undefined {
-    for (const c of filteredClients) {
-      const fullName = (c.firstName + " " + c.lastName).toLowerCase();
-      if (fullName === client.toLowerCase()) {
-        return c.cin;
-      }
-    }
-    return undefined;
-  }
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { id, value } = e.target;
+    const today = DateTime.now().toISODate();
+    if (id === "startDate" && value < today) {
+      onErrorMessage(
+        "Start Date must be greater than or equal to today's date."
+      );
+      return;
+    }
+
+    if (id === "endDate" && value < today) {
+      onErrorMessage("End Date must be greater than or equal to today's date.");
+      return;
+    }
+
+    if (id === "endDate" && value < reservation.startDate) {
+      onErrorMessage("End Date must be greater than Start Date.");
+      return;
+    }
+
     setReservation((prevReservation: any) => {
       if (id === "startTime" || id === "endTime") {
-        return { ...prevReservation, [id]: value };
+        return { ...prevReservation, startTime: value, endTime: value };
       }
       return { ...prevReservation, [id]: value };
     });
@@ -228,11 +237,22 @@ export default function ReservationForm({
       );
 
       handleUpdateReservation({
-        ...reservation,
-        startDate: startDateTime,
-        endDate: endDateTime,
+        client: `${
+          filteredClients.find((client) => client.cin === reservation.clientCIN)
+            ?.firstName
+        } ${
+          filteredClients.find((client) => client.cin === reservation.clientCIN)
+            ?.lastName
+        }`,
+        id: response.data.reservation.id,
+        vehicle: reservation.vehicleId,
+        startDate: response.data.reservation.startDate,
+        endDate: response.data.reservation.endDate,
+        totalPrice: parseFloat(reservation.totalPrice),
       });
 
+      // Generate and download the PDF invoice
+      //object json to pass to generatePDF
       const vehicle = filteredVehicles.find(
         (vehicle) => vehicle.licensePlate === reservation.vehicleId
       );
@@ -348,7 +368,7 @@ export default function ReservationForm({
       return response.data;
     } catch (error) {
       console.error("Error fetching available vehicles:", error);
-      throw error;
+      onErrorMessage("Failed to fetch available vehicles.");
     }
   };
 
@@ -379,11 +399,12 @@ export default function ReservationForm({
           setFilteredVehicles(availableVehicles);
           setReservation((prevReservation: any) => ({
             ...prevReservation,
-            vehicleId: "",
+            vehicleId: reservation.vehicleId,
           }));
           setInputsDisabled(false);
         } catch (error) {
           onErrorMessage("Failed to fetch available vehicles.");
+          return;
         }
       }
     };
@@ -394,7 +415,6 @@ export default function ReservationForm({
     reservation?.startTime,
     reservation?.endDate,
     reservation?.endTime,
-    onErrorMessage,
   ]);
 
   if (!reservation) {

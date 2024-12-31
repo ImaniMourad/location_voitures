@@ -115,6 +115,52 @@ public class ReservationServiceImpl implements ReservationService {
         return response;
     }
 
+    @Override
+    public Map<String, Object> updateReservation(Long reservationId, ReservationDTO reservationDTO) {
+        Reservation reservation = reservationRepository.findById(reservationId).orElse(null);
+        if (reservation == null) {
+            throw new IllegalArgumentException("Reservation with id " + reservationId + " not found.");
+        }
+
+        // Update reservation
+        reservation.setStartDate(reservationDTO.getStartDate());
+        reservation.setEndDate(reservationDTO.getEndDate());
+        reservation.setDeletedAt(reservationDTO.getDeletedAt());
+
+        // Save reservation
+        reservation = reservationRepository.save(reservation);
+
+        // Find client by CIN
+        User client = userRepository.findByCin(reservationDTO.getClientCIN());
+        if (client == null) {
+            throw new IllegalArgumentException("Client with CIN " + reservationDTO.getClientCIN() + " not found.");
+        }
+
+        // modifier invoice exist
+        Invoice invoice = invoiceRepository.findByReservationId(reservationId);
+        if (invoice == null) {
+            throw new IllegalArgumentException("Invoice for reservation with id " + reservationId + " not found.");
+        }
+
+        // Update invoice
+        invoice.setAmount(reservationDTO.getTotal());
+        invoice.setPaymentMethod(reservationDTO.getPaymentMethod());
+        invoice.setPaymentStatus(reservationDTO.getPaymentStatus());
+        invoice.setPaymentDate(reservationDTO.getPaidAt());
+
+        // Save invoice
+        Invoice newInvoice = invoiceRepository.save(invoice);
+
+        // Prepare response
+        Map<String, Object> response = new HashMap<>();
+        response.put("client", client);
+        response.put("reservation", reservation);
+        response.put("invoice", newInvoice);
+
+        // Log and return
+        logger.info("Reservation updated with client info: {}", response);
+        return response;
+    }
 
 
 }
