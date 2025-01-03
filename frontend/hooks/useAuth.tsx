@@ -34,7 +34,7 @@ const useAuth = (): AuthHook => {
         if (!token) {
           console.error('User is not authenticated');
           setIsAuthenticated(false);
-          router.push('/signin');
+          router.push('/');
           return;
         }
 
