@@ -54,7 +54,8 @@ public class UserController {
         }
     }
 
-    @PutMapping("/client/{CIN}")
+
+    @PutMapping("/user/{CIN}")
     public ResponseEntity<?> updateUser(@PathVariable String CIN, @RequestBody UserDTO userDTO) {
         try {
             logger.info("Updating user with CIN: {}", CIN);

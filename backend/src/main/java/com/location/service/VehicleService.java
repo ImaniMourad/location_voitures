@@ -31,4 +31,6 @@ public interface VehicleService {
     void archiveVehicle(String licensePlate);
 
     List<Map<String, Object>> getAvailableVehicles(LocalDateTime start, LocalDateTime end);
+
+    List<Map<String, Object>> getAvailableVehiclesForUpdate(Long reservationId, LocalDateTime start, LocalDateTime end);
 }

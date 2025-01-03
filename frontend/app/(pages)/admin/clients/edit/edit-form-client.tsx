@@ -69,7 +69,7 @@ export default function EditClientForm({
       }
 
       const response = await axios.put(
-        `${apiUrl}/client/${client.cin}`,
+        `${apiUrl}/user/${client.cin}`,
         client,
         {
           headers: {

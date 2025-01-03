@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.format.DateTimeParseException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -24,7 +25,7 @@ public class ReservationController {
 
 
     @GetMapping("/reservations")
-    public List<Map<String, Object>> getAllReservations() {
+    public List<Map<String, Object>> getReservations() {
         return reservationService.getReservations();
     }
 
@@ -50,5 +51,42 @@ public class ReservationController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
 
+    }
+    @PutMapping("/reservation/{reservationId}")
+    public ResponseEntity<Map<String, Object>> updateReservation(@PathVariable Long reservationId, @RequestBody Map<String, Object> reservationData) {
+        try {
+            ReservationDTO reservationDTO = new ReservationDTO(reservationData);
+            Map<String, Object> updatedReservation = reservationService.updateReservation(reservationId, reservationDTO);
+            return ResponseEntity.ok(updatedReservation);
+        } catch (DateTimeParseException e) {
+            logger.error("Date parsing error for startDate: {}, endDate: {}, paidAt: {}",
+                    reservationData.get("startDate"),
+                    reservationData.get("endDate"),
+                    reservationData.get("paidAt"), e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        } catch (Exception e) {
+            logger.error("Error while updating reservation with id: {}", reservationId, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    @GetMapping("/reservation/{reservationId}")
+    public Map<String, String> getReservation(@PathVariable Long reservationId) {
+       try {
+           return reservationService.getReservation(reservationId);
+       } catch (Exception e) {
+           logger.error("Error while getting reservation with id: {}", reservationId, e);
+           return null;
+       }
+    }
+
+    @PutMapping("/reservations/{id}/archive")
+    public ResponseEntity<?> archiveReservation(@PathVariable Long id) {
+        try {
+            reservationService.archiveReservation(id);
+            return ResponseEntity.ok("Reservation archived successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 }

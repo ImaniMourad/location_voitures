@@ -16,4 +16,8 @@ public interface StatisticsRepository extends JpaRepository<Vehicle, String> {
 
     @Query(value = "SELECT COUNT(*) FROM vehicle v WHERE v.status = 'AVAILABLE'", nativeQuery = true)
     int getAvailableVehicles();
+
+    @Query(value = "SELECT (SUM(EXTRACT(EPOCH FROM AGE(end_date, start_date)) / 86400) / ((SELECT COUNT(*) FROM vehicle) * 30)) * 100 AS occupancy_rate FROM reservation", nativeQuery = true)
+    double getOccupancyRate();
+
 }

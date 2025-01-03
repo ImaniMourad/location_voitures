@@ -214,7 +214,7 @@ export default function AdminStatisticsPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">85%</div>
+              <div className="text-2xl font-bold">{occupancyRate}%</div>
             </CardContent>
           </Card>
           <Card

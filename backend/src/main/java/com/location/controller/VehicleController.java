@@ -182,4 +182,15 @@ public class VehicleController {
         return vehicleService.getAvailableVehicles(start, end);
     }
 
+    @GetMapping("/vehicles/available/{reservationId}")
+    public List<Map<String, Object>> getAvailableVehiclesForUpdate(
+            @PathVariable Long reservationId,
+            @RequestParam("startDate") String startDate,
+            @RequestParam("endDate") String endDate) {
+
+        LocalDateTime start = LocalDateTime.parse(startDate);
+        LocalDateTime end = LocalDateTime.parse(endDate);
+        return vehicleService.getAvailableVehiclesForUpdate(reservationId, start, end);
+    }
+
 }

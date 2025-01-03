@@ -28,13 +28,15 @@ export default function ReservationList() {
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [isFormAddOpen, setIsFormAddOpen] = useState(false);
   const [isFormEditOpen, setIsFormEditOpen] = useState(false);
-  const [editingReservation, setEditingReservation] = useState<Reservation | null>(null);
+  const [editingReservation, setEditingReservation] = useState<any | null>(null);
   const [isAlertVisible, setIsAlertVisible] = useState<AlertType>({
     visible: false,
     message: "",
     type_alert: "",
   });
 
+
+  console.log(reservations);
   useEffect(() => {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
     const fetchReservations = async () => {
@@ -97,21 +99,53 @@ export default function ReservationList() {
   };
 
   const handleEditReservation = (updatedReservation: Reservation) => {
+    setIsAlertVisible({
+      visible: true,
+      message: "Reservation updated successfully",
+      type_alert: "success",
+    });
+    updatedReservation.startDate = new Date(
+      updatedReservation.startDate
+    ).toLocaleString("fr-FR");
+    updatedReservation.endDate = new Date(
+      updatedReservation.endDate
+    ).toLocaleString("fr-FR");
+
     const updatedReservations = reservations.map((reservation) =>
       reservation.id === updatedReservation.id
-        ? updatedReservation
+        ? { ...updatedReservation }
         : reservation
     );
     setReservations(updatedReservations);
-    setEditingReservation(null);
     setIsFormEditOpen(false);
+    setTimeout(() => {
+      setIsAlertVisible({ visible: false, message: "", type_alert: "" });
+    }, 2500);
   };
 
   const handleDeleteReservation = (id: number) => {
-    const updatedReservations = reservations.filter(
-      (reservation) => reservation.id !== id
-    );
-    setReservations(updatedReservations);
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+    const token = localStorage.getItem("jwtToken");
+    const currentDateTime = new Date().toISOString();
+    if (!token) {
+      return;
+    }
+    axios
+      .put(`${apiUrl}/reservations/${id}/archive`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then(() => {
+        setReservations((prevReservations) =>
+          prevReservations.map((reservation) =>
+            reservation.id === id
+              ? { ...reservation, deletedAt: currentDateTime }
+              : reservation
+          )
+        );
+      })
+      .catch((error) => console.error("Error deleting reservation:", error));
   };
 
   const handleCancel = () => {
@@ -170,9 +204,10 @@ export default function ReservationList() {
           onErrorMessage={handleErrorMessage}
         />
       )}
-      {/* {isFormEditOpen && editingReservation && (
-                <FormEdit reservation={editingReservation} handleUpdateReservation={handleEditReservation} handleCancel={handleCancel} />
-            )} */}
+      {isFormEditOpen && editingReservation && (
+        console.log(editingReservation),
+       <FormEdit reservationId={editingReservation.id} handleUpdateReservation={handleEditReservation} handleCancel={handleCancel} onErrorMessage={handleErrorMessage} />
+            )}
     </div>
     </>
   );

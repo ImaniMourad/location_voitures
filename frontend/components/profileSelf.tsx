@@ -1,8 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { jwtDecode } from "jwt-decode";
-import { useEffect, useState, useRef } from "react";
+import { useState, useRef } from "react";
 import { Mail, Phone, MapPin } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badger";
@@ -16,11 +15,6 @@ interface Customer {
   phoneNumber: string;
   address?: string;
   password?: string;
-}
-
-interface JWTPayload {
-  cin?: string;
-  sub?: string;
 }
 
 type AlertType = {
@@ -49,51 +43,6 @@ export default function CustomerProfile({
     message: "",
     type_alert: "",
   });
-
-  useEffect(() => {
-    async function fetchCustomerData() {
-      try {
-        const jwtToken = localStorage.getItem("jwtToken");
-        if (!jwtToken) {
-          setError("Not authenticated. Please login again.");
-          return;
-        }
-
-        let cin: string;
-        try {
-          const decodedToken = jwtDecode<JWTPayload>(jwtToken);
-          cin = decodedToken.cin || decodedToken.sub || "";
-          if (!cin) {
-            throw new Error("CIN not found in token");
-          }
-        } catch (decodeError) {
-          console.error("Error decoding token:", decodeError);
-          setError("Invalid authentication token");
-          return;
-        }
-
-        const response = await fetch(`http://localhost:8081/User/${cin}`, {
-          headers: {
-            Authorization: `Bearer ${jwtToken}`,
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const data: Customer = await response.json();
-        setCustomer(data);
-        setEditedCustomer(data);
-        setError(null);
-      } catch (error) {
-        console.error("Error fetching customer data:", error);
-        setError("Failed to load profile data");
-      }
-    }
-
-    fetchCustomerData();
-  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;

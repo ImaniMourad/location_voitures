@@ -14,6 +14,8 @@ import { Button } from "@/components/ui/button";
 import CustomerProfile from "../profileSelf";
 import { useTheme } from "../../context/context";
 import EditProfile from "../edit-profile";
+import Alert from "@/components/ui/alert";
+import { jwtDecode } from "jwt-decode";
 
 interface Customer {
   cin: string;
@@ -30,6 +32,11 @@ type AlertType = {
   message: string;
   type_alert: "" | "success" | "error";
 };
+
+interface JWTPayload {
+  cin?: string;
+  sub?: string;
+}
 
 export default function Sidebar() {
   const { isDarkMode } = useTheme();
@@ -52,13 +59,59 @@ export default function Sidebar() {
     email: "",
     phoneNumber: "",
   });
-  const [isAlertVisible, setIsAlertVisible] = useState<AlertType>({
-    visible: false,
-    message: "",
-    type_alert: "",
-  });
+    const [isAlertVisible, setIsAlertVisible] = useState<AlertType>({
+          visible: false,
+          message: "",
+          type_alert: "",
+        });
+    
 
-  const handleEditClick = () => {
+        useEffect(() => {
+          async function fetchCustomerData() {
+            try {
+              const jwtToken = localStorage.getItem("jwtToken");
+              if (!jwtToken) {
+                handleErrorMessage("Not authenticated. Please login again.");
+                return;
+              }
+      
+              let cin: string;
+              try {
+                const decodedToken = jwtDecode<JWTPayload>(jwtToken);
+                cin = decodedToken.cin || decodedToken.sub || "";
+                if (!cin) {
+                  throw new Error("CIN not found in token");
+                }
+              } catch (decodeError) {
+                console.error("Error decoding token:", decodeError);
+                handleErrorMessage("Invalid authentication token");
+                return;
+              }
+      
+              const response = await fetch(`http://localhost:8081/User/${cin}`, {
+                headers: {
+                  Authorization: `Bearer ${jwtToken}`,
+                },
+              });
+      
+              if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+              }
+      
+              const data: Customer = await response.json();
+              setCustomer(data);
+            } catch (error) {
+              console.error("Error fetching customer data:", error);
+              handleErrorMessage("Failed to load profile data");
+            }
+          }
+      
+          fetchCustomerData();
+        }, []);
+  
+  
+  
+        const handleEditClick = () => {
     setEditProfile(true);
     setShowProfile(false);
   };
@@ -91,6 +144,16 @@ export default function Sidebar() {
 
   const handleUpdateCustomer = (updatedCustomer: Customer) => {
     setCustomer(updatedCustomer);
+    setEditProfile(false);
+    setShowProfile(true);
+    setIsAlertVisible({
+      visible: true,
+      message: "Profile updated successfully",
+      type_alert: "success",
+    });
+    setTimeout(() => {
+      setIsAlertVisible({ visible: false, message: "", type_alert: "" });
+    }, 2500);
   };
 
   const handleErrorMessage = (message: string) => {
@@ -205,9 +268,9 @@ export default function Sidebar() {
             {menuItems.map((item) => (
               <li key={item.title}>
                 {item.path === "/logout" || item.title === "Profile" ? (
-                  <button
+                  <a
                     onClick={item.onClick}
-                    className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors ${
+                    className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors cursor-pointer ${
                       activeItem === item.title
                         ? "bg-purple-600"
                         : "hover:bg-white/10"
@@ -215,12 +278,16 @@ export default function Sidebar() {
                   >
                     {item.icon}
                     <span>{item.title}</span>
-                  </button>
+                  </a>
                 ) : (
-                  <Link href={item.path} passHref>
-                    <button
+                  <Link
+                    href={item.path}
+                    passHref
+                    legacyBehavior
+                  >
+                    <a
                       onClick={() => setActiveItem(item.title)}
-                      className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors ${
+                      className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors cursor-pointer ${
                         activeItem === item.title
                           ? "bg-purple-600 text-white"
                           : "hover:bg-black/10"
@@ -228,7 +295,7 @@ export default function Sidebar() {
                     >
                       {item.icon}
                       <span>{item.title}</span>
-                    </button>
+                    </a>
                   </Link>
                 )}
               </li>
