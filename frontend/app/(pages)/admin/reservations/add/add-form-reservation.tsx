@@ -13,6 +13,8 @@ import axios from "axios";
 import { DateTime } from "luxon";
 import generatePDF from "./generateDocument/invoice-document";
 import { start } from "repl";
+import ContractGenerator from "./generateDocument/contract-document";
+import generateContract from "./generateDocument/contract-document";
 
 interface Reservation {
   id?: string;
@@ -316,7 +318,9 @@ export default function ReservationForm({
         total: parseFloat(reservation.totalPrice),
       };
 
-      await generatePDF({ invoiceData });
+      // await generatePDF({ invoiceData });
+      await generateContract();
+      console.log("contract successfully.");
     } catch (error) {
       console.log("Error during submission:", error);
       onErrorMessage("Failed to add reservation.");

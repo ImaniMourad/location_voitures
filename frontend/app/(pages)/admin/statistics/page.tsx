@@ -105,6 +105,7 @@ export default function AdminStatisticsPage() {
                 Authorization: `Bearer ${token}`,
             },
             });
+            response.data = response.data.toFixed(2);
             setOccupancyRate(response.data);
         } catch (error) {
             console.error(error);
