@@ -68,7 +68,6 @@ export default function Header() {
                 )}
               </Label>
             </li>
-            <>
               <li>
                 <Link
                   href="/signin"
@@ -85,32 +84,6 @@ export default function Header() {
                   Sign Up
                 </Link>
               </li>
-            </>
-            <li>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <div
-                    className="relative text-slate-50 cursor-pointer"
-                  >
-                    <ShoppingCart />
-                    {reservations > 0 && (
-                      <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-indigo-600 text-xs text-white">
-                        {reservations}
-                      </span>
-                    )}
-                  </div>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
-                  <DropdownMenuItem className="justify-between">
-                    Active Reservations
-                    <span className="font-bold text-indigo-600">{reservations}</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    View All Reservations
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </li>
           </ul>
         </div>
       </div>

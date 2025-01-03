@@ -6,6 +6,7 @@ import Link from "next/link";
 import axios from "axios";
 import Spinner from "@/components/ui/spinner";
 import Alert from "@/components/ui/alert";
+import { jwtDecode } from "jwt-decode";
 
 interface FormData {
   email: string;
@@ -44,9 +45,13 @@ export default function SignIn() {
 
       // Sauvegarder le token
       localStorage.setItem("jwtToken", token);
-
-      // Rediriger vers le tableau de bord
-      router.push("/admin/statistics");
+      const decoded = jwtDecode(token);
+      const userType = (decoded as { user_type: string }).user_type;
+      if (userType === "Client") {
+        router.push("/client");
+      } else if (userType === "Admin") {
+        router.push("/admin/statistics");
+      }
       setIsLoading(false);
     } catch (error: any) {
       setIsLoading(false);

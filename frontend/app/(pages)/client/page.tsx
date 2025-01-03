@@ -1,4 +1,5 @@
 "use client";
+import PageIllustration from "@/components/page-illustration";
 import { useState } from "react";
 
 export default function ReservationForm() {
@@ -35,17 +36,21 @@ export default function ReservationForm() {
 
   return (
     <>
+    <PageIllustration />
+    <br /><br /><br /><br /><br />
       <div className="text-center">
         <div className="inline-flex items-center gap-3 before:h-px before:w-8 before:bg-gradient-to-r before:from-transparent before:to-indigo-200/50 after:h-px after:w-8 after:bg-gradient-to-l after:from-transparent after:to-indigo-200/50">
           <span className="inline-flex bg-gradient-to-r from-indigo-500 to-indigo-200 bg-clip-text text-transparent">
             Our Services
           </span>
         </div>
-        <h1 className="text-center animate-[gradient_6s_linear_infinite] bg-[linear-gradient(to_right,theme(colors.gray.200),theme(colors.indigo.200),theme(colors.gray.50),theme(colors.indigo.300),theme(colors.gray.200))] bg-[length:200%_auto] bg-clip-text pb-5 font-nacelle text-4xl font-semibold text-transparent md:text-2xl">
+        <br />
+        <br />
+        <h1 className="text-center animate-[gradient_6s_linear_infinite] bg-[linear-gradient(to_right,theme(colors.gray.200),theme(colors.indigo.200),theme(colors.gray.50),theme(colors.indigo.300),theme(colors.gray.200))] bg-[length:200%_auto] bg-clip-text pb-5 font-nacelle text-5xl font-semibold text-transparent md:text-2xl">
           Reserve your car right now
         </h1>
       </div>
-      
+      <br />
       <form onSubmit={handleSubmit}>
         <div className="mx-auto max-w-6xl relative">
           <div className="absolute inset-0 bg-gray-900 animate-pulse opacity-5"></div>

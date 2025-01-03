@@ -1,16 +1,16 @@
 "use client";
 import "./css/style.css";
-
 import { Inter } from "next/font/google";
 import localFont from "next/font/local";
 import Head from "next/head";
 import { usePathname } from "next/navigation";
-
 import { ThemeProvider, useTheme } from "../context/context";
 import Header from "@/components/ui/header";
+import HeaderClient from "@/components/ui/headerClient";
 import React from "react";
 import Sidebar from "@/components/ui/sidebar";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import { jwtDecode } from "jwt-decode";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -55,6 +55,34 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const unprotectedRoutes = ["/", "/signup", "/signin", "/reset-password"];
   const isProtectedRoute = !unprotectedRoutes.includes(pathname);
+  const isHomePage = pathname === "/";
+
+  // Récupérer le rôle depuis le JWT token
+  const getUserRole = () => {
+    try {
+      const token = localStorage.getItem('jwtToken'); // Ajustez selon où vous stockez votre token
+      if (!token) return null;
+      const decoded = jwtDecode(token);
+      return (decoded as { user_type: string }).user_type; // Assurez-vous que votre token contient bien un champ 'user_type'
+    } catch (error) {
+      console.error('Erreur lors du décodage du token:', error);
+      return null;
+    }
+  };
+
+  const userRole = getUserRole();
+  const isAdmin = userRole === 'Admin';
+  const isClient = userRole === 'Client';
+
+  const renderHeader = () => {
+    if (isHomePage) {
+      return <Header />;
+    }
+    if (isClient) {
+      return <HeaderClient />;
+    }
+    return null;
+  };
 
   return (
     <body
@@ -65,18 +93,20 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
       {isProtectedRoute ? (
         <ProtectedRoute>
           <div className="flex min-h-screen">
-            <div>
-              <Sidebar />
-            </div>
+            {isAdmin && (
+              <div>
+                <Sidebar />
+              </div>
+            )}
             <div className="flex flex-col w-full">
-              <Header />
+              {renderHeader()}
               <div className="w-[100%] mx-auto">{children}</div>
             </div>
           </div>
         </ProtectedRoute>
       ) : (
         <>
-          <Header />
+          {renderHeader()}
           <div className="w-[100%] mx-auto">{children}</div>
         </>
       )}
