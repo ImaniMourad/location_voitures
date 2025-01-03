@@ -3,6 +3,7 @@
 
 import { useEffect, ReactNode } from 'react';
 import useAuth from '@/hooks/useAuth';
+import Spinner from '@/components/ui/spinner';
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -18,7 +19,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   }, [loading, checkAccess]);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <div>
+      <Spinner />
+    </div>;
   }
 
   if (!isAuthenticated || !isAdmin) {
