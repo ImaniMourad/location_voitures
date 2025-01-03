@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Logo from "@/components/ui/logo";
 import { useTheme } from "@/context/context";
@@ -22,6 +22,12 @@ import {
 import { ShoppingCart } from "@/components/shopping-cart";
 import CustomerProfile from "@/components/profileSelf";
 import EditProfile from "@/components/edit-profile";
+import { jwtDecode } from "jwt-decode";
+
+interface JWTPayload {
+  cin?: string;
+  sub?: string;
+}
 
 interface Customer {
   cin: string;
@@ -94,6 +100,49 @@ export default function HeaderClient() {
       setIsAlertVisible({ visible: false, message: "", type_alert: "" });
     }, 2500);
   };
+
+   useEffect(() => {
+            async function fetchCustomerData() {
+              try {
+                const jwtToken = localStorage.getItem("jwtToken");
+                if (!jwtToken) {
+                  handleErrorMessage("Not authenticated. Please login again.");
+                  return;
+                }
+        
+                let cin: string;
+                try {
+                  const decodedToken = jwtDecode<JWTPayload>(jwtToken);
+                  cin = decodedToken.cin || decodedToken.sub || "";
+                  if (!cin) {
+                    throw new Error("CIN not found in token");
+                  }
+                } catch (decodeError) {
+                  console.error("Error decoding token:", decodeError);
+                  handleErrorMessage("Invalid authentication token");
+                  return;
+                }
+        
+                const response = await fetch(`http://localhost:8081/User/${cin}`, {
+                  headers: {
+                    Authorization: `Bearer ${jwtToken}`,
+                  },
+                });
+        
+                if (!response.ok) {
+                  throw new Error(`HTTP error! status: ${response.status}`);
+                }
+        
+                const data: Customer = await response.json();
+                setCustomer(data);
+              } catch (error) {
+                console.error("Error fetching customer data:", error);
+                handleErrorMessage("Failed to load profile data");
+              }
+            }
+        
+            fetchCustomerData();
+          }, []);
 
   return (
     <header className="z-30 w-[95%] mx-auto mt-2 md:mt-5">

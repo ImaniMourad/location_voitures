@@ -1,17 +1,24 @@
 "use client";
 
-import { useState, FormEvent } from "react";
+import { useState, FormEvent, use, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import axios from "axios";
 import Spinner from "@/components/ui/spinner";
 import Alert from "@/components/ui/alert";
 import { jwtDecode } from "jwt-decode";
+import router from "next/router";
+
 
 interface FormData {
   email: string;
   password: string;
 }
+
+
+
+
+
 
 export default function SignIn() {
   const router = useRouter();
@@ -23,6 +30,19 @@ export default function SignIn() {
     message: "",
     type_alert: "" as "" | "success" | "error",
   });
+
+  useEffect(() => {
+    const jwtToken = localStorage.getItem("jwtToken");
+    if (jwtToken) {
+      const decoded = jwtDecode(jwtToken);
+      const userType = (decoded as { user_type: string }).user_type;
+      if (userType === "Client") {
+        router.push("/client");
+      } else if (userType === "Admin") {
+        router.push("/admin/statistics");
+      }
+    }
+  }, []);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
