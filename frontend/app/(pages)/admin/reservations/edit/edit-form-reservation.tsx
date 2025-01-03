@@ -106,33 +106,94 @@ export default function ReservationForm({
 
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { id, value } = e.target;
-    const today = DateTime.now().toISODate();
-    if (id === "startDate" && value < today) {
-      onErrorMessage(
-        "Start Date must be greater than or equal to today's date."
-      );
-      return;
-    }
-
-    if (id === "endDate" && value < today) {
-      onErrorMessage("End Date must be greater than or equal to today's date.");
-      return;
-    }
-
-    if (id === "endDate" && value < reservation.startDate) {
-      onErrorMessage("End Date must be greater than Start Date.");
-      return;
-    }
-
-    setReservation((prevReservation: any) => {
-      if (id === "startTime" || id === "endTime") {
-        return { ...prevReservation, startTime: value, endTime: value };
+    const today = DateTime.now();
+    const todayDate = today.toISODate();
+    const currentTime = today.toISOTime();
+  
+    // Helper functions
+    const isDateBeforeToday = (date: string) => date < todayDate;
+    const isTimeBeforeNow = (time: string) => time < currentTime;
+  
+    // Validations
+    switch (id) {
+      case "startDate":
+        if (isDateBeforeToday(value)) {
+          onErrorMessage("Start Date must be greater than or equal to today's date.");
+          return;
+        }
+        if (reservation.endDate && reservation.endDate < value) {
+          onErrorMessage("End Date must be greater than Start Date.");
+          return;
+        }
+        break;
+  
+      case "endDate":
+        if (isDateBeforeToday(value)) {
+          onErrorMessage("End Date must be greater than or equal to today's date.");
+          return;
+        }
+        if (value < reservation.startDate) {
+          onErrorMessage("End Date must be greater than Start Date.");
+          return;
+        }
+        break;
+  
+      case "startTime":
+        if (reservation.startDate === todayDate && isTimeBeforeNow(value)) {
+          onErrorMessage("Start Time must be greater than or equal to current time.");
+          return;
+        }
+        if (
+          reservation.endDate === reservation.startDate &&
+          reservation.endTime &&
+          value > reservation.endTime
+        ) {
+          onErrorMessage("Start Time must be less than End Time.");
+          return;
+        }
+        setReservation((prevReservation: any) => ({
+          ...prevReservation,
+          startTime: value,
+          endTime: value,
+        }));
+        return;
+  
+      case "endTime":
+        if (reservation.startDate === todayDate && isTimeBeforeNow(value)) {
+          onErrorMessage("End Time must be greater than or equal to current time.");
+          return;
+        }
+        if (reservation.endDate === todayDate && isTimeBeforeNow(value)) {
+          onErrorMessage("End Time must be greater than or equal to current time.");
+          return;
+        }
+        if (
+          reservation.endDate === reservation.startDate &&
+          value < reservation.startTime
+        ) {
+          onErrorMessage("End Time must be greater than Start Time.");
+          return;
+        }
+        setReservation((prevReservation: any) => ({
+          ...prevReservation,
+          endTime: value,
+          startTime: value,
+        }));
+        return;
+  
+      default:
+        break;
       }
-      return { ...prevReservation, [id]: value };
-    });
+
+  
+    // Update reservation state for other fields
+    setReservation((prevReservation: any) => ({
+      ...prevReservation,
+      [id]: value,
+    }));
   };
 
   useEffect(() => {
