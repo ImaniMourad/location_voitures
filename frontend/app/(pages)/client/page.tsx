@@ -1,5 +1,6 @@
 "use client";
 import PageIllustration from "@/components/page-illustration";
+import { Split } from "lucide-react";
 import { useState } from "react";
 
 export default function ReservationForm() {
@@ -20,13 +21,19 @@ export default function ReservationForm() {
 
   const handleSubmit = (e: { preventDefault: () => void; }) => {
     e.preventDefault();
-    const departureDatetime = new Date(`${formData.departureDate}T${formData.departureTime}:00`);
-    const arrivalDatetime = new Date(`${formData.arrivalDate}T${formData.arrivalTime}:00`);
-
-    const formattedDeparture = departureDatetime.toISOString().slice(0, 19).replace('T', ' ');
-    const formattedArrival = arrivalDatetime.toISOString().slice(0, 19).replace('T', ' ');
+    // formatage de la forme 2024-12-28T17:00:15
+    const departureDatetime = new Date(`${formData.departureDate}T${formData.departureTime}`);
+    const arrivalDatetime = new Date(`${formData.arrivalDate}T${formData.arrivalTime}`);
     
-    window.location.href = `http://localhost:3000/client/vehicles?departureDateTime=${encodeURIComponent(formattedDeparture)}&arrivalDateTime=${encodeURIComponent(formattedArrival)}`;
+    // formatage de la forme 2024-12-28T17:00:15
+    const formattedDeparture = departureDatetime.toISOString().split(".")[0];
+    const formattedArrival = arrivalDatetime.toISOString().split(".")[0];
+
+    console.log(departureDatetime);
+    console.log(arrivalDatetime);
+    
+    
+    window.location.href = `http://localhost:3000/client/vehicles?startDate=${encodeURIComponent(formattedDeparture)}&endDate=${encodeURIComponent(formattedArrival)}`;
 
     console.log({
       departureDateTime: formattedDeparture,
