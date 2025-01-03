@@ -8,6 +8,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badger';
 import { useTheme } from '@/context/context';
+import Spinner from '@/components/ui/spinner';
 
 interface Customer {
   cin: string;
@@ -67,8 +68,8 @@ export default function CustomerProfile({ cin, handleCancel }: CustomerProfilePr
 
   if (loading) {
     return (
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center">
-        <div className="animate-pulse text-white text-lg">Loading...</div>
+      <div>
+        <Spinner />
       </div>
     );
   }

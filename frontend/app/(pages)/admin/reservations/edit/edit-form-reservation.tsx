@@ -12,6 +12,7 @@ import { X } from "lucide-react";
 import axios from "axios";
 import { DateTime } from "luxon";
 import generatePDF from "../add/generateDocument/invoice-document";
+import Spinner from "@/components/ui/spinner";
 
 interface Reservation {
   id?: string;
@@ -479,7 +480,7 @@ export default function ReservationForm({
   ]);
 
   if (!reservation) {
-    return <div>Loading...</div>;
+    return <Spinner />;
   }
 
   return (

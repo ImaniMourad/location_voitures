@@ -3,6 +3,7 @@
 
 import { useEffect, ReactNode } from 'react';
 import useAuth from '@/hooks/useAuth';
+import Spinner from '@/components/ui/spinner';
 
 interface ClientLayoutProps {
   children: ReactNode;
@@ -18,7 +19,11 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
   }, [loading, checkAccess]);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return(
+      <div >
+       <Spinner />
+      </div>
+    )
   }
 
   if (!isAuthenticated || !isClient) {

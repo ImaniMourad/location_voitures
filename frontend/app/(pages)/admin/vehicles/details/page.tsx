@@ -5,10 +5,10 @@ import axios from 'axios';
 import Image from 'next/image';
 import { Car, Fuel, Cog, X, Check, ActivitySquare } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badger';
 import { Separator } from "@/components/ui/separator";
 import { useTheme } from '@/context/context';
+import Spinner from '@/components/ui/spinner';
 
 interface VehicleData {
   licensePlate: string;
@@ -78,9 +78,9 @@ export default function VehicleDetails({ licensePlate, handleCancel }: VehicleDe
 
   if (loading) {
     return (
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center">
-        <div className="animate-pulse text-white text-lg">Loading...</div>
-      </div>
+     <div>
+        <Spinner />
+     </div>
     );
   }
 

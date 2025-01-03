@@ -6,6 +6,7 @@ import { Mail, Phone, MapPin } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badger";
 import { useTheme } from "@/context/context";
+import Spinner from "@/components/ui/spinner";
 
 interface Customer {
   cin: string;
@@ -106,7 +107,11 @@ export default function CustomerProfile({
   }
 
   if (!customer) {
-    return <div className="p-4">Loading...</div>;
+    return (
+      <div>
+        <Spinner />
+      </div>
+    );
   }
 
   return (
