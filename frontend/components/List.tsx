@@ -49,6 +49,8 @@ interface ListProps {
   handleClickedRow: (id: any) => void;
 }
 
+const ITEMS_PER_PAGE = 8;
+
 export default function List({
   name,
   columns,
@@ -64,6 +66,20 @@ export default function List({
   const [row, setRow] = useState<any | null>(null);
   const [filterStatus, setFilterStatus] = useState("actived");
   const { isDarkMode } = useTheme();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
+
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+
+  useEffect(() => {
+    setTotalPages(
+      Math.ceil(
+        rows.filter((row) =>
+          filterStatus === "actived" ? !row.deletedAt : row.deletedAt
+        ).length / ITEMS_PER_PAGE
+      )
+    );
+  }, [rows]);
 
   useEffect(() => {
     const searchTerms = searchQuery
@@ -82,11 +98,15 @@ export default function List({
         )
       );
 
-      return isStatusMatch && isSearchMatch;
+      const paginationMatch =
+        rows.indexOf(row) >= startIndex &&
+        rows.indexOf(row) < startIndex + ITEMS_PER_PAGE;
+
+      return isStatusMatch && isSearchMatch && paginationMatch;
     });
 
     setFilteredRows(filtered);
-  }, [searchQuery, rows, filterStatus]);
+  }, [searchQuery, rows, filterStatus, currentPage]);
 
   const handleConfirmDelete = (row: any) => () => {
     setShowConfirmation(false);
@@ -95,6 +115,14 @@ export default function List({
 
   const handleCancel = () => {
     setShowConfirmation(false);
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) setCurrentPage((prev) => prev + 1);
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) setCurrentPage((prev) => prev - 1);
   };
 
   return (
@@ -106,7 +134,20 @@ export default function List({
       >
         <div className="flex justify-end items-center mb-4 space-x-4">
           <div>
-            <Select onValueChange={setFilterStatus} defaultValue="actived">
+            <Select
+              onValueChange={(value) => {
+                setFilterStatus(value);
+                setCurrentPage(1);
+                setTotalPages(
+                  Math.ceil(
+                    filteredRows.filter((row) =>
+                      value === "actived" ? !row.deletedAt : row.deletedAt
+                    ).length / ITEMS_PER_PAGE
+                  )
+                );
+              }}
+              defaultValue="actived"
+            >
               <SelectTrigger
                 className={`${
                   isDarkMode ? "bg-gray-700 text-white" : "bg-white text-black"
@@ -129,7 +170,9 @@ export default function List({
               type="text"
               placeholder="Search..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => {
+                setSearchQuery(e.target.value), setCurrentPage(1);
+              }}
               className={`pl-10 ${
                 isDarkMode ? "bg-gray-700 text-white" : "bg-white text-black"
               } border-gray-600 focus:border-indigo-500`}
@@ -181,11 +224,19 @@ export default function List({
                 </TableHead>
               ))}
               {filterStatus === "archived" && (
-                <TableHead className={isDarkMode ? "text-gray-300" : "text-black"}>Archived At</TableHead>
+                <TableHead
+                  className={isDarkMode ? "text-gray-300" : "text-black"}
+                >
+                  Archived At
+                </TableHead>
               )}
               {(onEdit !== undefined || onDelete !== undefined) &&
               filterStatus === "actived" ? (
-                <TableHead className={isDarkMode ? "text-gray-300" : "text-black"}>Actions</TableHead>
+                <TableHead
+                  className={isDarkMode ? "text-gray-300" : "text-black"}
+                >
+                  Actions
+                </TableHead>
               ) : null}
             </TableRow>
           </TableHeader>
@@ -212,7 +263,9 @@ export default function List({
                     </TableCell>
                   ))}
                   {filterStatus === "archived" && (
-                    <TableCell className={isDarkMode ? "text-gray-300" : "text-black"}>
+                    <TableCell
+                      className={isDarkMode ? "text-gray-300" : "text-black"}
+                    >
                       {row.deletedAt
                         ? new Date(row.deletedAt).toLocaleString()
                         : "N/A"}
@@ -260,6 +313,37 @@ export default function List({
             )}
           </TableBody>
         </Table>
+        <div className="flex justify-end items-center mt-4 space-x-4">
+          <Button
+            onClick={handlePreviousPage}
+            disabled={currentPage === 1}
+            className={`${
+              isDarkMode
+                ? "bg-gray-700 hover:bg-gray-600"
+                : "bg-blue-600 hover:bg-blue-700"
+            } text-white`}
+          >
+            Précédent
+          </Button>
+          <span
+            className={`${
+              isDarkMode ? "text-gray-300" : "text-black"
+            } font-medium text-sm`}
+          >
+            Page {currentPage} sur {totalPages}
+          </span>
+          <Button
+            onClick={handleNextPage}
+            disabled={currentPage === totalPages}
+            className={`${
+              isDarkMode
+                ? "bg-gray-700 hover:bg-gray-600"
+                : "bg-blue-600 hover:bg-blue-700"
+            } text-white`}
+          >
+            Suivant
+          </Button>
+        </div>
       </div>
 
       <Dialog open={showConfirmation} onOpenChange={setShowConfirmation}>
