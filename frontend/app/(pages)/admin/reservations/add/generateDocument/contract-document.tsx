@@ -19,7 +19,6 @@ interface ContractData {
     plateNumber: string;
     brand: string;
     model: string;
-    color: string;
     year: string;
   };
   financialDetails: {
@@ -29,35 +28,6 @@ interface ContractData {
     deposit: number;
   };
 }
-
-const contractData: ContractData = {
-  companyName: "LocationAuto",
-  contractNumber: "12345",
-  creationDate: new Date().toLocaleDateString(),
-  rentalPeriod: {
-    start: "01/01/2024",
-    end: "10/01/2024",
-  },
-  client: {
-    name: "Anas Ichmawin",
-    address: "123 Rue de l'ENSAM, Khouribga, Maroc",
-    phone: "+212600000000",
-    email: "anas@example.com",
-  },
-  vehicle: {
-    plateNumber: "ABC-123",
-    brand: "Toyota",
-    model: "Corolla",
-    color: "Gris",
-    year: "2023",
-  },
-  financialDetails: {
-    pricePerDay: 200,
-    totalDays: 10,
-    totalAmount: 2000,
-    deposit: 500,
-  },
-};
 
 const rulesText = `
 1. Le locataire est responsable de tout dommage causé au véhicule pendant la période de location.
@@ -69,7 +39,7 @@ const rulesText = `
 7. En cas de panne ou d'accident, le locataire doit immédiatement informer la société et suivre les procédures indiquées.
 `;
 
-const generateContract = async () => {
+const generateContract = async ({ contractData }: { contractData: ContractData }) => {
   const pdfDoc = await PDFDocument.create();
   const page = pdfDoc.addPage([600, 900]);
 
@@ -121,7 +91,7 @@ const generateContract = async () => {
     Ce contrat de location de voiture est établi entre la société ${contractData.companyName}, ci-après dénommée "le Loueur", et ${contractData.client.name}, ci-après dénommé "le Locataire".
     Le contrat porte le numéro ${contractData.contractNumber} et a été créé le ${contractData.creationDate}.
     La période de location commence le ${contractData.rentalPeriod.start} et se termine le ${contractData.rentalPeriod.end}.
-    Le véhicule loué est une ${contractData.vehicle.brand} ${contractData.vehicle.model} de couleur ${contractData.vehicle.color}, immatriculée ${contractData.vehicle.plateNumber} et de l'année ${contractData.vehicle.year}.
+    Le véhicule loué est une ${contractData.vehicle.brand} ${contractData.vehicle.model}, immatriculée ${contractData.vehicle.plateNumber} et de l'année ${contractData.vehicle.year}.
     Le Locataire, dont l'adresse est ${contractData.client.address}, peut être contacté par téléphone au ${contractData.client.phone} ou par email à ${contractData.client.email}.
     En ce qui concerne les détails financiers :
     - Le prix de location est de ${contractData.financialDetails.pricePerDay} MAD par jour.
