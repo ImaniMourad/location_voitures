@@ -44,6 +44,21 @@ const vehicleRotation = [
   { month: "Dec", days: 1.5 },
 ];
 
+const monthNames = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
+
 export default function AdminStatisticsPage() {
   const { isDarkMode } = useTheme();
   const [totaleIcome, setTotalIncome] = useState(0);
@@ -73,69 +88,78 @@ export default function AdminStatisticsPage() {
     };
 
     const fetchReservations = async () => {
-        try {
-            const response = await axios.get(`${apiUrl}/statistics/reservations`, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-            });
-            setReservations(response.data);
-        } catch (error) {
-            console.error(error);
-        }
+      try {
+        const response = await axios.get(`${apiUrl}/statistics/reservations`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setReservations(response.data);
+      } catch (error) {
+        console.error(error);
+      }
     };
 
     const fetchActiveVehicles = async () => {
-        try {
-            const response = await axios.get(`${apiUrl}/statistics/availableVehicles`, {
+      try {
+        const response = await axios.get(
+          `${apiUrl}/statistics/availableVehicles`,
+          {
             headers: {
-                Authorization: `Bearer ${token}`,
+              Authorization: `Bearer ${token}`,
             },
-            });
-            setAvailableVehicles(response.data);
-        } catch (error) {
-            console.error(error);
-        }
+          }
+        );
+        setAvailableVehicles(response.data);
+      } catch (error) {
+        console.error(error);
+      }
     };
 
     const fetchOccupancyRate = async () => {
-        try {
-            const response = await axios.get(`${apiUrl}/statistics/occupancyRate`, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-            });
-            response.data = response.data.toFixed(2);
-            setOccupancyRate(response.data);
-        } catch (error) {
-            console.error(error);
-        }
+      try {
+        const response = await axios.get(`${apiUrl}/statistics/occupancyRate`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        response.data = response.data.toFixed(2);
+        setOccupancyRate(response.data);
+      } catch (error) {
+        console.error(error);
+      }
     };
 
     const fetchMonthlyIncome = async () => {
-        try {
-            const response = await axios.get(`${apiUrl}/statistics/monthlyIncome`, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-            });
-            setMonthlyIncome(response.data);
-        } catch (error) {
-            console.error(error);
-        }
+      try {
+        const response = await axios.get(`${apiUrl}/statistics/monthlyIncome`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        response.data = convertData(response.data, "income");
+        setMonthlyIncome(response.data);
+      } catch (error) {
+        console.error(error);
+      }
     };
 
     const fetchVehicleRotation = async () => {
-        try {
-            const response = await axios.get(`${apiUrl}/statistics/vehicleRotation`, {
+      try {
+        const response = await axios.get(
+          `${apiUrl}/statistics/vehicleRotation`,
+          {
             headers: {
-                Authorization: `Bearer ${token}`,
+              Authorization: `Bearer ${token}`,
             },
-            });
-            setVehicleRotation(response.data);
-        } catch (error) {
-            console.error(error);
-        }
+          }
+        );
+        response.data = convertData(response.data, "days");
+        console.log("response.data", response.data);
+        setVehicleRotation(response.data);
+      } catch (error) {
+        console.error(error);
+      }
     };
 
     fetchTotaleIcome();
@@ -144,8 +168,28 @@ export default function AdminStatisticsPage() {
     fetchOccupancyRate();
     fetchMonthlyIncome();
     fetchVehicleRotation();
-
   }, []);
+
+  const convertData = (data: any, valueKey: string) => {
+    data = data.map((item: { month: number; [key: string]: any }) => {
+      return {
+        month: monthNames[item.month - 1],
+        [valueKey]: item[valueKey],
+      };
+    });
+    const months = data.map((item: { month: string }) => item.month);
+    for (let i = 0; i < 12; i++) {
+      if (!months.includes(monthNames[i])) {
+        data.push({ month: monthNames[i], [valueKey]: 0 });
+      }
+    }
+
+    data.sort((a: { month: string }, b: { month: string }) => {
+      return monthNames.indexOf(a.month) - monthNames.indexOf(b.month);
+    });
+
+    return data;
+  };
 
   return (
     <div
@@ -197,7 +241,7 @@ export default function AdminStatisticsPage() {
           >
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
-              Available Vehicles
+                Available Vehicles
               </CardTitle>
             </CardHeader>
             <CardContent>

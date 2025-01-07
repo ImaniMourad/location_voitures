@@ -35,12 +35,12 @@ public class StatisticsServiceImpl implements StatisticsService {
     }
 
     @Override
-    public List<Map<String, Object>> getMonthlyIncome() {
-        return null;
+    public List<Map<String, Object>> getIncomeByMonth() {
+        return statisticsRepository.getIncomeByMonth();
     }
 
     @Override
     public List<Map<String, Object>> getVehicleRotation() {
-        return null;
+        return statisticsRepository.getVehicleRotation();
     }
 }

@@ -67,7 +67,7 @@ export default function List({
   const [filterStatus, setFilterStatus] = useState("actived");
   const { isDarkMode } = useTheme();
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
 
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
 
@@ -143,7 +143,7 @@ export default function List({
                     filteredRows.filter((row) =>
                       value === "actived" ? !row.deletedAt : row.deletedAt
                     ).length / ITEMS_PER_PAGE
-                  )
+                  ) + 1
                 );
               }}
               defaultValue="actived"

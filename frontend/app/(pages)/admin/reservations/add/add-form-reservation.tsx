@@ -608,6 +608,7 @@ export default function ReservationForm({
                   }
                 }}
               />
+              {filteredVehicles && filteredVehicles.length > 0 && (
               <datalist id="vehicles">
                 {filteredVehicles.map((vehicle) => (
                   <option
@@ -624,6 +625,7 @@ export default function ReservationForm({
                   </option>
                 ))}
               </datalist>
+              )}
             </div>
             <div className="space-y-2">
               <label

@@ -600,22 +600,24 @@ export default function ReservationForm({
                 disabled={inputsDisabled}
                 autoComplete="off"
               />
-              <datalist id="vehicles">
-                {filteredVehicles.map((vehicle) => (
+                {filteredVehicles && filteredVehicles.length > 0 && (
+                <datalist id="vehicles">
+                  {filteredVehicles.map((vehicle) => (
                   <option
                     key={vehicle.licensePlate}
                     value={vehicle.licensePlate}
                   >
                     {vehicle.licensePlate +
-                      "/" +
-                      vehicle.brand +
-                      "-" +
-                      vehicle.model +
-                      "-" +
-                      vehicle.year}
+                    "/" +
+                    vehicle.brand +
+                    "-" +
+                    vehicle.model +
+                    "-" +
+                    vehicle.year}
                   </option>
-                ))}
-              </datalist>
+                  ))}
+                </datalist>
+                )}
             </div>
             <div className="space-y-2">
               <label
