@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function ReservationForm() {
   const [formData, setFormData] = useState({
@@ -9,23 +9,52 @@ export default function ReservationForm() {
     arrivalTime: "",
   });
 
-  const handleChange = (e: { target: { id: any; value: any; }; }) => {
+  useEffect(() => {
+    // Ensure arrival date is always after departure date
+    if (formData.departureDate && formData.arrivalDate) {
+      if (new Date(formData.arrivalDate) <= new Date(formData.departureDate)) {
+        const nextDay = new Date(formData.departureDate);
+        nextDay.setDate(nextDay.getDate() + 1);
+        setFormData(prev => ({
+          ...prev,
+          arrivalDate: nextDay.toISOString().split('T')[0]
+        }));
+      }
+    }
+  }, [formData.departureDate, formData.arrivalDate]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
-    setFormData({
-      ...formData,
-      [id]: value,
+    setFormData(prev => {
+      const newData = { ...prev, [id]: value };
+
+      // Synchronize times
+      if (id === 'departureTime' || id === 'arrivalTime') {
+        newData.departureTime = value;
+        newData.arrivalTime = value;
+      }
+
+      // Ensure arrival date is not before departure date
+      if (id === 'departureDate' && newData.arrivalDate < value) {
+        newData.arrivalDate = value;
+      }
+
+      return newData;
     });
   };
 
-  const handleSubmit = (e: { preventDefault: () => void; }) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const departureDatetime = new Date(`${formData.departureDate}T${formData.departureTime}:00`);
-    const arrivalDatetime = new Date(`${formData.arrivalDate}T${formData.arrivalTime}:00`);
-
-    const formattedDeparture = departureDatetime.toISOString().slice(0, 19).replace('T', ' ');
-    const formattedArrival = arrivalDatetime.toISOString().slice(0, 19).replace('T', ' ');
+    // formatage de la forme 2024-12-28T17:00:15
+    const departureDatetime = new Date(`${formData.departureDate}T${formData.departureTime}`);
+    const arrivalDatetime = new Date(`${formData.arrivalDate}T${formData.arrivalTime}`);
     
-    window.location.href = `http://localhost:3000/client/vehicles?departureDateTime=${encodeURIComponent(formattedDeparture)}&arrivalDateTime=${encodeURIComponent(formattedArrival)}`;
+    // formatage de la forme 2024-12-28T17:00:15
+    const formattedDeparture = departureDatetime.toISOString().split(".")[0];
+    const formattedArrival = arrivalDatetime.toISOString().split(".")[0];
+
+    
+    window.location.href = `http://localhost:3000/client/vehicles?startDate=${encodeURIComponent(formattedDeparture)}&endDate=${encodeURIComponent(formattedArrival)}`;
 
     console.log({
       departureDateTime: formattedDeparture,
@@ -87,6 +116,7 @@ export default function ReservationForm() {
                   id="arrivalDate"
                   value={formData.arrivalDate}
                   onChange={handleChange}
+                  min={formData.departureDate}
                   className="bg-gray-700 border border-gray-600 text-gray-100 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 hover:bg-gray-600 transition-colors duration-200"
                   required
                 />
@@ -118,3 +148,4 @@ export default function ReservationForm() {
     </>
   );
 }
+
