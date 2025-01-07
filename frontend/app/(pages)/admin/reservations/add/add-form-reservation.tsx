@@ -13,6 +13,8 @@ import axios from "axios";
 import { DateTime } from "luxon";
 import generatePDF from "./generateDocument/invoice-document";
 import { start } from "repl";
+import ContractGenerator from "./generateDocument/contract-document";
+import generateContract from "./generateDocument/contract-document";
 
 interface Reservation {
   id?: string;
@@ -316,7 +318,37 @@ export default function ReservationForm({
         total: parseFloat(reservation.totalPrice),
       };
 
+      const contractData = {
+        companyName: "LocApp Pro",
+        contractNumber: response.data.invoice.id,
+        creationDate: formatDate(response.data.reservation.paidAt),
+        rentalPeriod: {
+          start: formatDate(response.data.reservation.startDate),
+          end: formatDate(response.data.reservation.endDate),
+        },
+        client: {
+          name: `${response.data.client.firstName} ${response.data.client.lastName}`,
+          address: response.data.client.address,
+          phone: response.data.client.phoneNumber,
+          email: response.data.client.email,
+        },
+        vehicle: {
+          plateNumber: vehicle ? vehicle.licensePlate : "Unknown",
+          brand: vehicle ? vehicle.brand : "Unknown",
+          model: vehicle ? vehicle.model : "Unknown",
+          year: vehicle ? vehicle.year : "Unknown",
+        },
+        financialDetails: {
+          pricePerDay: vehicle ? vehicle.price : 0,
+          totalDays: reservation.diffDays,
+          totalAmount: parseFloat(reservation.totalPrice),
+          deposit: parseFloat(reservation.totalPrice) * 0.2,
+        },
+      };
+
       await generatePDF({ invoiceData });
+      await generateContract({ contractData });
+      console.log("contract successfully.");
     } catch (error) {
       console.log("Error during submission:", error);
       onErrorMessage("Failed to add reservation.");
