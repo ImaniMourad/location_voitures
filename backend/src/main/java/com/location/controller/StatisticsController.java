@@ -34,8 +34,8 @@ public class StatisticsController {
     }
 
     @GetMapping("/monthlyIncome")
-    public ResponseEntity<?> getMonthlyIncome() {
-        return ResponseEntity.ok(statisticsService.getMonthlyIncome());
+    public ResponseEntity<?> getIncomeByMonth() {
+        return ResponseEntity.ok(statisticsService.getIncomeByMonth());
     }
 
     @GetMapping("/vehicleRotation")

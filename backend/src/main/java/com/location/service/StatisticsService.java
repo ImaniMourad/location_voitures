@@ -7,6 +7,6 @@ public interface StatisticsService {
     int getReservations();
     int getAvailableVehicles();
     double getOccupancyRate();
-    List<Map<String, Object>> getMonthlyIncome();
+    public List<Map<String, Object>> getIncomeByMonth();
     List<Map<String, Object>> getVehicleRotation();
 }
