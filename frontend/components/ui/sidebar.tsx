@@ -258,6 +258,12 @@ export default function Sidebar() {
 
   return (
     <>
+      {isAlertVisible.visible && (
+        <Alert
+          type_alert={isAlertVisible.type_alert}
+          message={isAlertVisible.message}
+        />
+      )}
       <div
         className={`h-screen w-64 ${
           isDarkMode ? "bg-[#0f1725] text-white" : "bg-[#f5f5f5] text-black"
