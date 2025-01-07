@@ -34,6 +34,25 @@ public class ReservationController {
         return reservationService.getReservationsByClientCin(cin);
     }
 
+    @PostMapping("/client/reservation")
+    public ResponseEntity<Map<String, Object> > addReservationforclient(@RequestBody Map<String, Object> reservationData) {
+        try {
+            ReservationDTO reservationDTO = new ReservationDTO(reservationData);
+            Map<String, Object>  savedReservation = reservationService.addReservationclient(reservationDTO);
+            return ResponseEntity.status(HttpStatus.CREATED).body(savedReservation);
+        } catch (DateTimeParseException e) {
+            logger.error("Date parsing error for startDate: {}, endDate: {}",
+                    reservationData.get("startDate"),
+                    reservationData.get("endDate"), e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        } catch (Exception e) {
+            logger.error("Error while adding reservation: {}", reservationData, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+
+    }
+
+
     @PostMapping("/reservation")
     public ResponseEntity<Map<String, Object> > addReservation(@RequestBody Map<String, Object> reservationData) {
         try {

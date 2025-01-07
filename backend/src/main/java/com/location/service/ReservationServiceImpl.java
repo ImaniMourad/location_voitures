@@ -183,4 +183,22 @@ public class ReservationServiceImpl implements ReservationService {
         }
         reservationRepository.save(reservation);
     }
+
+    @Override
+    public Map<String, Object> addReservationclient(ReservationDTO reservationDTO) {
+        Reservation reservation = reservationMapper.fromReservationDTO(reservationDTO);
+
+        // Save reservation
+        reservation = reservationRepository.save(reservation);
+
+        // Prepare response
+        Map<String, Object> response = new HashMap<>();
+
+
+        response.put("reservation", reservation);
+
+        // Log and return
+        logger.info("Reservation created with client info: {}", response);
+        return response;
+    }
 }

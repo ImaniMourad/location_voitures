@@ -19,4 +19,6 @@ public interface ReservationService {
     Map<String, Object> updateReservation(Long reservationId, ReservationDTO reservationDTO);
 
     void archiveReservation(Long reservationId);
+
+    Map<String, Object> addReservationclient(ReservationDTO reservationDTO);
 }

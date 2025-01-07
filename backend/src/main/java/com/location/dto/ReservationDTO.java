@@ -26,13 +26,35 @@ public class ReservationDTO {
     }
 
     public ReservationDTO(Map<String, Object> reservationData) {
-        this.clientCIN = reservationData.get("clientCIN").toString();
-        this.vehicleId = reservationData.get("vehicleId").toString();
-        this.startDate = LocalDateTime.parse(reservationData.get("startDate").toString());
-        this.endDate = LocalDateTime.parse(reservationData.get("endDate").toString());
-        this.paidAt = LocalDateTime.parse(reservationData.get("paidAt").toString());
-        this.total = new BigDecimal(reservationData.get("total").toString());
-        this.paymentMethod = reservationData.get("paymentMethod").toString();
-        this.paymentStatus = reservationData.get("paymentStatus").toString();
+        DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE_TIME;
+
+        this.clientCIN = reservationData.getOrDefault("clientCIN", "").toString();
+        this.vehicleId = reservationData.getOrDefault("vehicleId", "").toString();
+        this.startDate = parseDate(reservationData.get("startDate"), formatter);
+        this.endDate = parseDate(reservationData.get("endDate"), formatter);
+        this.paidAt = parseDate(reservationData.get("paidAt"), formatter);
+        this.total = parseBigDecimal(reservationData.get("total"));
+        this.paymentMethod = reservationData.getOrDefault("paymentMethod", "").toString();
+        this.paymentStatus = reservationData.getOrDefault("paymentStatus", "").toString();
+    }
+
+    // Méthode utilitaire pour analyser les dates en toute sécurité
+    private LocalDateTime parseDate(Object dateObj, DateTimeFormatter formatter) {
+        if (dateObj == null) return null;
+        try {
+            return LocalDateTime.parse(dateObj.toString(), formatter);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Invalid date format: " + dateObj);
+        }
+    }
+
+    // Méthode utilitaire pour analyser les BigDecimal en toute sécurité
+    private BigDecimal parseBigDecimal(Object value) {
+        if (value == null) return BigDecimal.ZERO;
+        try {
+            return new BigDecimal(value.toString());
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Invalid BigDecimal format: " + value);
+        }
     }
 }
