@@ -15,11 +15,9 @@ import {
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ShoppingCart } from "@/components/shopping-cart";
+import { ReservationDropdown } from "@/components/shopping-cart";
 import CustomerProfile from "@/components/profileSelf";
 import EditProfile from "@/components/edit-profile";
 import { jwtDecode } from "jwt-decode";
@@ -227,7 +225,7 @@ export default function HeaderClient() {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <div className="relative text-slate-50 cursor-pointer">
-                    <ShoppingCart />
+                    <ReservationDropdown />
                     {reservations > 0 && (
                       <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-purple-600 text-xs text-white">
                         {reservations}
@@ -235,15 +233,6 @@ export default function HeaderClient() {
                     )}
                   </div>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
-                  <DropdownMenuItem className="justify-between">
-                    Active Reservations
-                    <span className="font-bold text-purple-600">
-                      {reservations}
-                    </span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>View All Reservations</DropdownMenuItem>
-                </DropdownMenuContent>
               </DropdownMenu>
 
               {/* Logout */}

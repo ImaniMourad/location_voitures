@@ -129,6 +129,7 @@ export default function VehicleDetailsCard({ licensePlate }: VehicleDetailsCardP
                     fill
                     alt={`${vehicleData.brand} ${vehicleData.model}`}
                     className="object-cover rounded-t-lg"
+                    style={{ borderRadius: '11px' }}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                 <Badge 
