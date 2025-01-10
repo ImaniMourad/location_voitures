@@ -1,6 +1,7 @@
 package com.location.controller;
 
 import com.location.service.PayPalService;
+import com.location.service.ReservationService;
 import com.paypal.api.payments.Payment;
 import com.paypal.base.rest.PayPalRESTException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,9 @@ public class PayPalController {
     @Autowired
     private PayPalService payPalService;
 
+    @Autowired
+    private ReservationService reservationService;
+
     @PostMapping("/success")
     public ResponseEntity<?> successPayment(@RequestParam String paymentId, @RequestParam String PayerID, @RequestParam Long idreservation) {
         try {
@@ -25,6 +29,8 @@ public class PayPalController {
             Payment payment = payPalService.executePayment(paymentId, PayerID);
             if ("approved".equals(payment.getState())) {
                 System.out.println("Paiement approuvé !");
+                // announce that the reservation is canceled for other users
+                reservationService.cancelReservationForOthers(idreservation);
                 return ResponseEntity.ok(Map.of("status", "success", "message", "Paiement approuvé !"));
             }
             System.out.println("Paiement non approuvé.");
@@ -33,7 +39,8 @@ public class PayPalController {
             System.err.println("Erreur lors de l'exécution du paiement : " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("status", "error", "message", "Erreur lors de l'exécution du paiement : " + e.getMessage()));
         }
-    }
+
+}
 
     @GetMapping("/cancel")
     public ResponseEntity<?> cancelPayment() {

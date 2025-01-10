@@ -56,6 +56,7 @@ const useAuth = (): AuthHook => {
         }
       } catch (error) {
         console.error('User is not authenticated');
+        localStorage.removeItem('jwtToken');
         setIsAuthenticated(false);
         setIsAdmin(false);
         setIsClient(false);

@@ -23,9 +23,9 @@ public interface  VehicleRepository extends JpaRepository<Vehicle, String> {
                 (r.end_date BETWEEN :start AND :end) OR
                 (:start BETWEEN r.start_date AND r.end_date) OR
                 (:end BETWEEN r.start_date AND r.end_date)
+                AND r.paid_at IS NOT NULL
+                AND r.deleted_at IS  NOT NULL
             )
-            AND r.paid_at IS NULL
-            AND r.deleted_at IS NULL
         )
         """, nativeQuery = true)
     List<Object[]> getAvailableVehicles(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);

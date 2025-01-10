@@ -1,7 +1,6 @@
 package com.location.repository;
 
-import com.location.model.Invoice;
-import com.location.model.Reservation;
+import com.location.model.*;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -24,4 +23,30 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
             "WHERE c.cin = :cin")
     List<Object[]> getReservationsByClientCin(@Param("cin") String cin);
 
+
+    // get client who reserved the same vehicle in the same period a partir de l'id de la reservation et startDate et endDate utliser native query
+    @Query(value = "SELECT c.first_name , c.last_name, c.email, r.start_date, r.end_date " +
+            "FROM reservation r " +
+            "JOIN users c ON r.client_cin = c.cin " +
+            "WHERE r.vehicle_id = (SELECT vehicle_id FROM reservation WHERE id = :idreservation) " +
+            "AND r.start_date <= (SELECT end_date FROM reservation WHERE id = :idreservation) " +
+            "AND r.end_date >= (SELECT start_date FROM reservation WHERE id = :idreservation) " +
+            "AND r.id != :idreservation", nativeQuery = true)
+    List<Object> getClientReservedSameVehicleInSamePeriod(Long idreservation);
+
+
+    // get vehicle by reservation id
+    @Query("SELECT r.vehicle FROM Reservation r WHERE r.id = :idreservation")
+    Vehicle getVehicleByReservationId(Long idreservation);
+
+    // get start date by reservation id
+    @Query("SELECT r.startDate FROM Reservation r WHERE r.id = :idreservation")
+    LocalDateTime getStartDateByReservationId(Long idreservation);
+
+    // get end date by reservation id
+    @Query("SELECT r.endDate FROM Reservation r WHERE r.id = :idreservation")
+    LocalDateTime getEndDateByReservationId(Long idreservation);
+
+    @Query("SELECT r FROM Reservation r WHERE r.vehicle.licensePlate = :licensePlate AND r.startDate <= :endDateTime AND r.endDate >= :startDateTime")
+    List<Reservation> getReservationByVehicleIdAndDate(String licensePlate, LocalDateTime startDateTime, LocalDateTime endDateTime);
 }
