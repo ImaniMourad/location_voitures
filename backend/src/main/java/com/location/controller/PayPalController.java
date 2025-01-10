@@ -18,7 +18,7 @@ public class PayPalController {
     private PayPalService payPalService;
 
     @PostMapping("/success")
-    public ResponseEntity<?> successPayment(@RequestParam String paymentId, @RequestParam String PayerID) {
+    public ResponseEntity<?> successPayment(@RequestParam String paymentId, @RequestParam String PayerID, @RequestParam Long idreservation) {
         try {
             System.out.println("Succès du paiement - PaymentID : " + paymentId + ", PayerID : " + PayerID);
 
@@ -41,17 +41,17 @@ public class PayPalController {
         return ResponseEntity.ok(Map.of("status", "cancelled", "message", "Paiement annulé"));
     }
 
-    @PostMapping("/create-payment")
-    public ResponseEntity<?> createPayment() {
+    @PostMapping("/create-payment/{idreservation}")
+    public ResponseEntity<?> createPayment(@PathVariable Long idreservation) {
         try {
             Payment payment = payPalService.createPayment(
-                    20.43,
+                    1.0,
                     "USD",
                     "paypal",
                     "sale",
                     "Description du paiement",
                     "http://localhost:3000/client/vehicles/paiment/cancel",
-                    "http://localhost:3000/client/vehicles/paiment/success"
+                    "http://localhost:3000/client/vehicles/paiment/success?idreservation=" + idreservation
             );
 
             String approvalUrl = payment.getLinks().stream()
