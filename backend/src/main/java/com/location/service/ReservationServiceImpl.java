@@ -231,7 +231,7 @@ public class ReservationServiceImpl implements ReservationService {
             // delete reservation for the user with this vehicle
             LocalDateTime startDateTime = reservationRepository.getStartDateByReservationId(idreservation);
             LocalDateTime endDateTime = reservationRepository.getEndDateByReservationId(idreservation);
-            List<Reservation> reservations = reservationRepository.getReservationByVehicleIdAndDate(vehicle.getLicensePlate(), startDateTime, endDateTime);
+            List<Reservation> reservations = reservationRepository.getReservationByVehicleIdAndDate(vehicle.getLicensePlate(),idreservation ,startDateTime, endDateTime);
             for (Reservation reservation : reservations) {
                 reservation.setDeletedAt(LocalDateTime.now());
                 reservationRepository.save(reservation);
