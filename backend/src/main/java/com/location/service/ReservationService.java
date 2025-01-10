@@ -1,6 +1,7 @@
 package com.location.service;
 
 import com.location.dto.ReservationDTO;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.HashMap;
 import java.util.List;
@@ -21,4 +22,6 @@ public interface ReservationService {
     void archiveReservation(Long reservationId);
 
     Map<String, Object> addReservationclient(ReservationDTO reservationDTO);
+
+    void cancelReservationForOthers(Long idreservation);
 }

@@ -3,9 +3,7 @@ package com.location.service;
 
 import com.location.dto.ReservationDTO;
 import com.location.mappers.ReservationMapperImpl;
-import com.location.model.Invoice;
-import com.location.model.Reservation;
-import com.location.model.User;
+import com.location.model.*;
 import com.location.repository.InvoiceRepository;
 import com.location.repository.ReservationRepository;
 import com.location.repository.UserRepository;
@@ -16,11 +14,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
 
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @Transactional
@@ -40,6 +37,9 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Autowired
     private static final Logger logger = LoggerFactory.getLogger(ReservationServiceImpl.class);
+
+    @Autowired
+    private EmailService emailService;
 
 
     @Override
@@ -106,7 +106,7 @@ public class ReservationServiceImpl implements ReservationService {
         Reservation reservation = reservationRepository.findById(reservationId).orElse(null);
         if (reservation == null) {
             throw new IllegalArgumentException("Reservation with id " + reservationId + " not found.");
-    }
+        }
 
         Invoice invoice = invoiceRepository.findByReservationId(reservationId);
         if (invoice == null) {
@@ -201,4 +201,43 @@ public class ReservationServiceImpl implements ReservationService {
         logger.info("Reservation created with client info: {}", response);
         return response;
     }
+
+    @Override
+    public void cancelReservationForOthers(Long idreservation) {
+        List<Object> clients = reservationRepository.getClientReservedSameVehicleInSamePeriod(idreservation);
+        Vehicle vehicle = reservationRepository.getVehicleByReservationId(idreservation);
+
+        for (Object client : clients) {
+            Object[] clientData = (Object[]) client;
+
+            String firstName = (String) clientData[0];
+            String lastName = (String) clientData[1];
+            String email = (String) clientData[2];
+            Timestamp startDate = (Timestamp) clientData[3];
+            Timestamp endDate = (Timestamp) clientData[4];
+
+            // Convert Timestamp to String
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            String startDateAsString = sdf.format(startDate);
+            String endDateAsString = sdf.format(endDate);
+
+            // send email to the client
+            String subject = "Reservation Cancellation Notice";
+            String text = "Your reservation for the vehicle with license plate " + vehicle.getLicensePlate() +
+                    ", Model: " + vehicle.getModel() + ", Brand: " + vehicle.getBrand() +
+                    " between " + startDateAsString + " and " + endDateAsString + " is canceled Because another user has paid for it.";
+            emailService.sendEmail(email, subject, text);
+
+            // delete reservation for the user with this vehicle
+            LocalDateTime startDateTime = reservationRepository.getStartDateByReservationId(idreservation);
+            LocalDateTime endDateTime = reservationRepository.getEndDateByReservationId(idreservation);
+            List<Reservation> reservations = reservationRepository.getReservationByVehicleIdAndDate(vehicle.getLicensePlate(),idreservation ,startDateTime, endDateTime);
+            for (Reservation reservation : reservations) {
+                reservation.setDeletedAt(LocalDateTime.now());
+                reservationRepository.save(reservation);
+            }
+        }
+    }
 }
+
+
