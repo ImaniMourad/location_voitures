@@ -16,7 +16,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
             "JOIN r.client c")
     List<Object[]> getReservations();
 
-    @Query("SELECT v.brand, v.model, c.firstName, c.lastName, r.startDate, r.endDate , r.paidAt " +
+    @Query("SELECT v.brand, v.model, c.firstName, c.lastName, r.startDate, r.endDate , r.paidAt, r.id " +
             "FROM Reservation r " +
             "JOIN r.vehicle v " +
             "JOIN r.client c " +
