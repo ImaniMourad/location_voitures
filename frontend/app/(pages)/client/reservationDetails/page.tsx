@@ -134,7 +134,7 @@ export default function ReservationDetails({
               <span className="font-bold text-lg">{data?.totalPrice} MAD</span>
             </div>
           </div>
-          {data?.paidAt === null && (
+          {data?.paidAt === "null" && (
           <div className="mt-4 cursor-pointer">
             <PayPalButton idReservation={reservationId} price={data?.totalPrice || 0} />
           </div>
