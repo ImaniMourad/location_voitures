@@ -1,5 +1,6 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import Alert from "./ui/alert";
 
 export default function ContactForm() {
   const [formData, setFormData] = useState({
@@ -7,6 +8,7 @@ export default function ContactForm() {
     email: "",
     message: "",
   });
+  const [status, setStatus] = useState("");
 
   const handleChange = (e: { target: { name: any; value: any } }) => {
     const { name, value } = e.target;
@@ -16,11 +18,46 @@ export default function ContactForm() {
     });
   };
 
-  const handleSubmit = (e: { preventDefault: () => void }) => {
-    e.preventDefault();
-    console.log("Contact Form Data:", formData);
-    // Add logic here to send data to your backend or email service
+  type AlertType = {
+    visible: boolean;
+    message: string;
+    type_alert: "" | "success" | "error";
   };
+
+  const handleSubmit = async (e: { preventDefault: () => void }) => {
+    e.preventDefault();
+    setStatus("sending");
+
+    try {
+      const response = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          to: 'oama@gmail.com',
+          subject: `New Contact Form Message from ${formData.name}`,
+          ...formData
+        }),
+      });
+
+      if (response.ok) {
+        setStatus("success");
+        setFormData({ name: "", email: "", message: "" });
+      } else {
+        setStatus("error");
+      }
+    } catch (error) {
+      setStatus("error");
+    }
+  };
+
+  useEffect(() => {
+    if (status === "success" || status === "error") {
+      const timer = setTimeout(() => setStatus(""), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [status]);
 
   return (
     <form onSubmit={handleSubmit}>
@@ -31,6 +68,18 @@ export default function ContactForm() {
           </span>
         </div>
       </div>
+      {status === "success" && (
+          <Alert
+            message={"Message sent successfully!"}
+            type_alert={"success"}
+          />
+        )}
+        {status === "error" && (
+          <Alert
+            message={"An error occurred while sending the message."}
+            type_alert={"error"}
+          />
+        )}
       <div
         className="mx-auto max-w-6xl px-4 sm:px-6 bg-gray-900"
         style={{
@@ -94,9 +143,10 @@ export default function ContactForm() {
         </div>
         <button
           type="submit"
-          className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+          disabled={status === "sending"}
+          className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 disabled:opacity-50"
         >
-          Send Message
+          {status === "sending" ? "Sending..." : "Send Message"}
         </button>
       </div>
     </form>

@@ -112,10 +112,10 @@ public class ReservationServiceImpl implements ReservationService {
             throw new IllegalArgumentException("Reservation with id " + reservationId + " not found.");
         }
 
-        Invoice invoice = invoiceRepository.findByReservationId(reservationId);
-        if (invoice == null) {
-            throw new IllegalArgumentException("Invoice for reservation with id " + reservationId + " not found.");
-        }
+//        Invoice invoice = invoiceRepository.findByReservationId(reservationId);
+//        if (invoice == null) {
+//            throw new IllegalArgumentException("Invoice for reservation with id " + reservationId + " not found.");
+//        }
 
         Map<String, String> response = new HashMap<>();
         response.put("id", String.valueOf(reservation.getId()));
@@ -129,9 +129,9 @@ public class ReservationServiceImpl implements ReservationService {
         response.put("startDate", String.valueOf(reservation.getStartDate().toLocalDate()));
         response.put("endDate", String.valueOf(reservation.getEndDate().toLocalDate()));
         response.put("deletedAt", String.valueOf(reservation.getDeletedAt()));
-        response.put("paidAt", String.valueOf(invoice.getPaymentDate()));
-        response.put("totalPrice", String.valueOf(invoice.getAmount()));
-
+        response.put("paidAt", String.valueOf(reservation.getPaidAt()));
+        BigDecimal totalPrice = reservation.getVehicle().getPrice().multiply(BigDecimal.valueOf(reservation.getEndDate().getDayOfYear() - reservation.getStartDate().getDayOfYear()));
+        response.put("totalPrice", String.valueOf(totalPrice));
         return response;
     }
 
