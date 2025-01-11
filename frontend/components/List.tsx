@@ -263,14 +263,12 @@ export default function List({
                       <Link onClick={() => handleClickedRow(row.id)} href={""}>
                         {col.accessor === "payment_status" ? (
                             <div
-                            className={`flex items-center px-3 py-1.5 rounded-full text-xs font-medium ${
-                              row.is_paid
-                              ? 'bg-green-500/20 text-green-300'
-                              : 'bg-yellow-500/20 text-yellow-300'
-                            } mr-4`}
+                              className={`flex items-center px-3 py-1.5 rounded-full text-xs font-medium w-24 ${
+                                row.is_paid ? 'bg-green-500/20 text-green-300' : 'bg-yellow-500/20 text-yellow-300'
+                              }`}
                             >
-                            <CreditCard className="h-3.5 w-3.5 mr-1.5" />
-                            {row.is_paid ? 'Paid' : 'Pending'}
+                              <CreditCard className="h-3.5 w-3.5 mr-2" />
+                              {row.is_paid ? 'Paid' : 'Pending'}
                             </div>
                         ) : (
                           row[col.accessor]
