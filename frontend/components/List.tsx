@@ -259,7 +259,7 @@ export default function List({
                       className={isDarkMode ? "text-gray-300" : "text-black"}
                     >
                       <Link onClick={() => handleClickedRow(row.id)} href={""}>
-                        {row[col.accessor]}
+                      {col.accessor === "status" ? (row.is_paid ? "Paid" : "Not paid") : row[col.accessor]}
                       </Link>
                     </TableCell>
                   ))}
