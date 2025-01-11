@@ -1,6 +1,7 @@
 package com.location.controller;
 
 import com.location.dto.ReservationDTO;
+import com.location.model.Reservation;
 import com.location.service.ReservationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,10 +55,19 @@ public class ReservationController {
 
 
     @PostMapping("/reservation")
-    public ResponseEntity<Map<String, Object> > addReservation(@RequestBody Map<String, Object> reservationData) {
+    public ResponseEntity<Map<String, Object>> addReservation(@RequestBody Map<String, Object> reservationData) {
         try {
+            // Convert reservationData to a DTO
             ReservationDTO reservationDTO = new ReservationDTO(reservationData);
-            Map<String, Object>  savedReservation = reservationService.addReservation(reservationDTO);
+
+            // Add the reservation using the service
+            Map<String, Object> savedReservation = reservationService.addReservation(reservationDTO);
+            Reservation reservation = (Reservation) savedReservation.get("reservation");
+
+            // annuler la réservation pour les autres utilisateurs
+            reservationService.cancelReservationForOthers(reservation.getId());
+
+            // Return the saved reservation as a response
             return ResponseEntity.status(HttpStatus.CREATED).body(savedReservation);
         } catch (DateTimeParseException e) {
             logger.error("Date parsing error for startDate: {}, endDate: {}, paidAt: {}",
@@ -69,8 +79,8 @@ public class ReservationController {
             logger.error("Error while adding reservation: {}", reservationData, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
-
     }
+
     @PutMapping("/reservation/{reservationId}")
     public ResponseEntity<Map<String, Object>> updateReservation(@PathVariable Long reservationId, @RequestBody Map<String, Object> reservationData) {
         try {

@@ -2,7 +2,13 @@
 import { useRouter } from 'next/navigation';
 import { createPayment } from '../api/PayPal/createPayment';
 
-const PayPalButton = (idReservation: string, price: number) => {
+
+interface PayPalButtonProps {
+  idReservation: number;
+  price: number;
+}
+
+const PayPalButton = ({ idReservation, price }: PayPalButtonProps) => {
   const router = useRouter();
 
   const handlePayment = async () => {
@@ -26,7 +32,7 @@ const PayPalButton = (idReservation: string, price: number) => {
   return (
     <button
       onClick={handlePayment}
-      className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+      className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 cursor-pointer"
     >
       Payer avec PayPal
     </button>

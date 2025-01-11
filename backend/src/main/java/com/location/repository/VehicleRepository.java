@@ -12,20 +12,20 @@ public interface  VehicleRepository extends JpaRepository<Vehicle, String> {
     Vehicle findByLicensePlate(String licensePlate);
 
     @Query(value = """
-
-            SELECT v.license_plate, v.model, v.brand, v.year, v.price, v.path_img
+        SELECT v.license_plate, v.model, v.brand, v.year, v.price, v.path_img
         FROM Vehicle v
         WHERE v.license_plate NOT IN (
             SELECT r.vehicle_id
             FROM Reservation r
-            WHERE (
-                (r.start_date BETWEEN :start AND :end) OR
-                (r.end_date BETWEEN :start AND :end) OR
-                (:start BETWEEN r.start_date AND r.end_date) OR
-                (:end BETWEEN r.start_date AND r.end_date)
+            WHERE 
+                (
+                    (r.start_date BETWEEN :start AND :end) OR
+                    (r.end_date BETWEEN :start AND :end) OR
+                    (:start BETWEEN r.start_date AND r.end_date) OR
+                    (:end BETWEEN r.start_date AND r.end_date)
+                )
                 AND r.paid_at IS NOT NULL
-                AND r.deleted_at IS  NOT NULL
-            )
+                AND r.deleted_at IS NOT NULL
         )
         """, nativeQuery = true)
     List<Object[]> getAvailableVehicles(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);

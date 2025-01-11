@@ -1,4 +1,4 @@
-export const createPayment = async (idReservation: string, price: number) => {
+export const createPayment = async (idReservation: number, price: number) => {
   try {
     const response = await fetch(`http://localhost:8081/paypal/create-payment/${idReservation}/${price}`, {
       method: 'POST',
