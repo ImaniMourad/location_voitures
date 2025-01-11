@@ -7,6 +7,7 @@ import com.location.model.*;
 import com.location.repository.InvoiceRepository;
 import com.location.repository.ReservationRepository;
 import com.location.repository.UserRepository;
+import com.location.repository.VehicleRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
@@ -40,6 +42,8 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Autowired
     private EmailService emailService;
+    @Autowired
+    private VehicleRepository vehicleRepository;
 
 
     @Override
@@ -237,6 +241,38 @@ public class ReservationServiceImpl implements ReservationService {
                 reservationRepository.save(reservation);
             }
         }
+    }
+
+    @Override
+    public void confirmReservation(Long idreservation) {
+        Reservation reservation = reservationRepository.findById(idreservation).orElse(null);
+        if (reservation == null) {
+            throw new IllegalArgumentException("Reservation with id " + idreservation + " not found.");
+        }
+        // Update reservation
+        reservation.setPaidAt(LocalDateTime.now());
+        // Save reservation
+        reservationRepository.save(reservation);
+
+        //get vehicle
+        Vehicle vehicle = reservation.getVehicle();
+
+        // get price of vehicle
+        BigDecimal price = vehicle.getPrice();
+        //get start date and end date
+        LocalDateTime startDateTime = reservationRepository.getStartDateByReservationId(idreservation);
+        LocalDateTime endDateTime = reservationRepository.getEndDateByReservationId(idreservation);
+        //difference days entre les deux dates
+        long diff = java.time.Duration.between(startDateTime, endDateTime).toDays();
+        //calculate total price
+        BigDecimal total = price.multiply(BigDecimal.valueOf(diff));
+        // invoice for the client
+        Invoice invoice = new Invoice();
+        invoice.setAmount(total);
+        invoice.setPaymentMethod("paypal");
+        invoice.setReservation(reservation);
+        // Save invoice
+        invoiceRepository.save(invoice);
     }
 }
 

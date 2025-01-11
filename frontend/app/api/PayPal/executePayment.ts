@@ -4,9 +4,14 @@ export const executePayment = async (paymentId: string, payerId: string, idreser
       throw new Error("Les paramètres 'paymentId' ou 'payerId' sont manquants.");
     }    
     const response = await fetch(
-      `http://localhost:8081/paypal/success?paymentId=${paymentId}&PayerID=${payerId}&idreservation=${idreservation}`,
+      `http://localhost:8081/paypal/success`,
       {
         method: 'POST',
+        body: JSON.stringify({
+          paymentId,
+          payerId,
+          idreservation,
+        }),
         headers: {
           'Content-Type': 'application/json',
         }

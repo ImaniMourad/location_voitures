@@ -2,6 +2,7 @@ package com.location.controller;
 
 import com.location.service.PayPalService;
 import com.location.service.ReservationService;
+import com.paypal.api.payments.Links;
 import com.paypal.api.payments.Payment;
 import com.paypal.base.rest.PayPalRESTException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,25 +23,37 @@ public class PayPalController {
     private ReservationService reservationService;
 
     @PostMapping("/success")
-    public ResponseEntity<?> successPayment(@RequestParam String paymentId, @RequestParam String PayerID, @RequestParam Long idreservation) {
+    public ResponseEntity<?> successPayment(@RequestBody Map<String, Object> requestBody) {
         try {
-            System.out.println("Succès du paiement - PaymentID : " + paymentId + ", PayerID : " + PayerID);
+            // Extraire les paramètres depuis le corps JSON
+            String paymentId = (String) requestBody.get("paymentId");
+            String payerId = (String) requestBody.get("payerId");
+            Long idreservation = Long.valueOf(requestBody.get("idreservation").toString());
 
-            Payment payment = payPalService.executePayment(paymentId, PayerID);
+            System.out.println("Succès du paiement - PaymentID : " + paymentId + ", PayerID : " + payerId);
+
+            Payment payment = payPalService.executePayment(paymentId, payerId);
             if ("approved".equals(payment.getState())) {
                 System.out.println("Paiement approuvé !");
-                // announce that the reservation is canceled for other users
+                // Annuler la réservation pour les autres utilisateurs
                 reservationService.cancelReservationForOthers(idreservation);
+                // Confirmer la réservation
+                reservationService.confirmReservation(idreservation);
                 return ResponseEntity.ok(Map.of("status", "success", "message", "Paiement approuvé !"));
             }
+
             System.out.println("Paiement non approuvé.");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("status", "error", "message", "Paiement non approuvé"));
         } catch (PayPalRESTException e) {
             System.err.println("Erreur lors de l'exécution du paiement : " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("status", "error", "message", "Erreur lors de l'exécution du paiement : " + e.getMessage()));
+        } catch (Exception e) {
+            System.err.println("Erreur inattendue : " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("status", "error", "message", "Erreur inattendue : " + e.getMessage()));
         }
+    }
 
-}
+
 
     @GetMapping("/cancel")
     public ResponseEntity<?> cancelPayment() {
@@ -48,11 +61,11 @@ public class PayPalController {
         return ResponseEntity.ok(Map.of("status", "cancelled", "message", "Paiement annulé"));
     }
 
-    @PostMapping("/create-payment/{idreservation}")
-    public ResponseEntity<?> createPayment(@PathVariable Long idreservation) {
+    @PostMapping("/create-payment/{idreservation}/{price}")
+    public ResponseEntity<?> createPayment(@PathVariable Long idreservation , @PathVariable Double price) {
         try {
             Payment payment = payPalService.createPayment(
-                    1.0,
+                    price,
                     "USD",
                     "paypal",
                     "sale",
@@ -64,7 +77,7 @@ public class PayPalController {
             String approvalUrl = payment.getLinks().stream()
                     .filter(link -> "approval_url".equals(link.getRel()))
                     .findFirst()
-                    .map(link -> link.getHref())
+                    .map(Links::getHref)
                     .orElse(null);
 
             if (approvalUrl != null) {

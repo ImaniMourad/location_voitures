@@ -2,13 +2,13 @@
 import { useRouter } from 'next/navigation';
 import { createPayment } from '../api/PayPal/createPayment';
 
-const PayPalButton = () => {
+const PayPalButton = (idReservation: string, price: number) => {
   const router = useRouter();
 
   const handlePayment = async () => {
     try {
       // Appelle l'API pour initier le paiement
-      const response = await createPayment();
+      const response = await createPayment(idReservation, price);
 
       if (response && response.approvalUrl) {
         // Redirige l'utilisateur vers l'URL d'approbation de PayPal

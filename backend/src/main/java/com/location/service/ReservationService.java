@@ -24,4 +24,6 @@ public interface ReservationService {
     Map<String, Object> addReservationclient(ReservationDTO reservationDTO);
 
     void cancelReservationForOthers(Long idreservation);
+
+    void confirmReservation(Long idreservation);
 }
