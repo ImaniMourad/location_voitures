@@ -38,6 +38,7 @@ import {
 import { InfoCircledIcon } from "@radix-ui/react-icons";
 import Link from "next/link";
 import { useTheme } from "../context/context";
+import { CreditCard } from 'lucide-react';
 
 interface ListProps {
   name: string;
@@ -80,7 +81,7 @@ export default function List({
         ).length / ITEMS_PER_PAGE
       )
     );
-  }, [rows]);
+  }, [rows, filterStatus]);
 
   useEffect(() => {
     const searchTerms = searchQuery
@@ -107,7 +108,7 @@ export default function List({
     });
 
     setFilteredRows(filtered);
-  }, [searchQuery, rows, filterStatus, currentPage]);
+  }, [searchQuery, rows, filterStatus, currentPage, startIndex]);
 
   const handleConfirmDelete = (row: any) => () => {
     setShowConfirmation(false);
@@ -172,7 +173,8 @@ export default function List({
               placeholder="Search..."
               value={searchQuery}
               onChange={(e) => {
-                setSearchQuery(e.target.value), setCurrentPage(1);
+                setSearchQuery(e.target.value);
+                setCurrentPage(1);
               }}
               className={`pl-10 ${
                 isDarkMode ? "bg-gray-700 text-white" : "bg-white text-black"
@@ -259,7 +261,18 @@ export default function List({
                       className={isDarkMode ? "text-gray-300" : "text-black"}
                     >
                       <Link onClick={() => handleClickedRow(row.id)} href={""}>
-                      {col.accessor === "status" ? (row.is_paid ? "Paid" : "Not paid") : row[col.accessor]}
+                        {col.accessor === "payment_status" ? (
+                            <div
+                              className={`flex items-center px-3 py-1.5 rounded-full text-xs font-medium w-24 ${
+                                row.is_paid ? 'bg-green-500/20 text-green-300' : 'bg-yellow-500/20 text-yellow-300'
+                              }`}
+                            >
+                              <CreditCard className="h-3.5 w-3.5 mr-2" />
+                              {row.is_paid ? 'Paid' : 'Pending'}
+                            </div>
+                        ) : (
+                          row[col.accessor]
+                        )}
                       </Link>
                     </TableCell>
                   ))}
@@ -358,13 +371,13 @@ export default function List({
             <DialogTitle>Confirm Delete</DialogTitle>
           </DialogHeader>
           {is_paid && (
-            <p >
-                <span className="text-red-600 font-bold text-lg">
+            <p>
+              <span className="text-red-600 font-bold text-lg">
                 Warning : the reservation is paid by the client !
-                </span>
-              </p>
-              )}
-              <p className="py-2 text-lg">Are you sure you want to delete this item?</p>
+              </span>
+            </p>
+          )}
+          <p className="py-2 text-lg">Are you sure you want to delete this item?</p>
           <DialogFooter>
             <Button
               variant="outline"
