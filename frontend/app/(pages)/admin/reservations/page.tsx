@@ -72,7 +72,7 @@ export default function ReservationList() {
     { header: "Vehicle", accessor: "vehicle" },
     { header: "Start Date", accessor: "startDate" },
     { header: "End Date", accessor: "endDate" },
-    { header: "Status", accessor: "status" },
+    { header: "Status", accessor: "payment_status" },
   ];
 
   const handleAddReservation = (newReservation: any) => {
