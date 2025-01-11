@@ -10,6 +10,8 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import { jwtDecode } from "jwt-decode"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { RESERVATION_UPDATED_EVENT } from './event' 
+
 
 interface Reservation {
   id: number
@@ -75,9 +77,13 @@ export function ReservationDropdown({handleClickedReservation }: ReservationDrop
         setLoading(false)
       }
     }
+    window.addEventListener(RESERVATION_UPDATED_EVENT, fetchReservations);
 
-    fetchReservations()
-  }, [])
+    return () => {
+      window.removeEventListener(RESERVATION_UPDATED_EVENT, fetchReservations);
+      fetchReservations(); 
+    };
+  }, []);
 
   const filteredReservations = reservations.filter(reservation => {
     if (filter === 'paid') return reservation.paidAt
