@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { useTheme } from '@/context/context';
 import Spinner from '@/components/ui/spinner';
 import { emitReservationUpdate } from '../event';
+import PayPalButton from '@/app/componentsPayPal/PayPalButton';
 
 interface VehicleData {
     licensePlate: string;
@@ -84,6 +85,28 @@ export default function VehicleDetailsCard({ licensePlate }: VehicleDetailsCardP
                 </CardContent>
             </Card>
         );
+    }
+
+    const handleCancelReservation = (id : number) => {
+        const token = localStorage.getItem("jwtToken");
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+        if (!token) {
+            return;
+        }
+        axios
+            .put(`${apiUrl}/reservation/${id}/cancel`, {}, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                }
+            })
+            .then((response) => {
+                setReservationSuccess(false);
+                // Emit the event after successful cancellation
+                emitReservationUpdate();
+            })
+            .catch((error) => {
+                console.error('Error canceling reservation:', error);
+            });
     }
 
     const handleOnClickReserve = (id: string) => {
@@ -180,13 +203,29 @@ export default function VehicleDetailsCard({ licensePlate }: VehicleDetailsCardP
                         Total Price: {totalPrice.toFixed(2)} MAD
                     </div>
                 )}
-                <Button 
-                    className={`w-full text-sm ${reservationSuccess ? 'bg-green-500 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'}`} 
-                    onClick={() => handleOnClickReserve(vehicleData.licensePlate)}
-                    disabled={reservationSuccess}
-                >
-                    {reservationSuccess ? 'Passer au paiement' : 'Réserver'}
-                </Button>
+                {reservationSuccess ? 
+                //     <div className="mt-4 cursor-pointer">
+                //     <PayPalButton idReservation={vehicleData.} price={data?.totalPrice || 0} />
+                //   </div>
+                //   <div className="mt-4 cursor-pointer">
+                //     <button
+                //       onClick={() => handleCancelReservation(reservationId)}
+                //       className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 cursor-pointer"
+                //     >
+                //       Cancel Reservation
+                //     </button>
+                //   </div>
+
+                    <></>
+                    :
+                    <Button 
+                        className={`w-full text-sm ${reservationSuccess ? 'bg-green-500 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'}`} 
+                        onClick={() => handleOnClickReserve(vehicleData.licensePlate)}
+                        disabled={reservationSuccess}
+                    >
+                        Réserver
+                    </Button>
+                }
                 {expanded && vehicleData.features && vehicleData.features.length > 0 && (
                     <>
                         <Separator className={isDarkMode ? 'bg-gray-700' : ''} />
