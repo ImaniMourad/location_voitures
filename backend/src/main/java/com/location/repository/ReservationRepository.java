@@ -20,7 +20,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
             "FROM Reservation r " +
             "JOIN r.vehicle v " +
             "JOIN r.client c " +
-            "WHERE c.cin = :cin")
+            "WHERE c.cin = :cin AND r.deletedAt IS NULL")
     List<Object[]> getReservationsByClientCin(@Param("cin") String cin);
 
 
