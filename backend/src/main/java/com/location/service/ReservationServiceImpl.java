@@ -58,6 +58,7 @@ public class ReservationServiceImpl implements ReservationService {
             map.put("endDate", reservation[4]);
             map.put("vehicle", reservation[5] + " " + reservation[6]);
             map.put("deletedAt", reservation[7]);
+            map.put("is_paid", reservation[8]);
             response.add(map);
         }
         return response;

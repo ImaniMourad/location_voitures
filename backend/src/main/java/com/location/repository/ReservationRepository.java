@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
     // method to get all reservations
-    @Query("SELECT r.id, c.firstName, c.lastName, r.startDate, r.endDate, v.model, v.brand , r.deletedAt " +
+    @Query("SELECT r.id, c.firstName, c.lastName, r.startDate, r.endDate, v.model, v.brand , r.deletedAt , r.paidAt " +
             "FROM Reservation r " +
             "JOIN r.vehicle v " +
             "JOIN r.client c")
