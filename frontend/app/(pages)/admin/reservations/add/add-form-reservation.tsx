@@ -81,11 +81,11 @@ export default function ReservationForm({
     const today = DateTime.now();
     const todayDate = today.toISODate();
     const currentTime = today.toISOTime();
-  
+
     // Helper functions
     const isDateBeforeToday = (date: string) => date < todayDate;
     const isTimeBeforeNow = (time: string) => time < currentTime;
-  
+
     // Validations
     switch (id) {
       case "startDate":
@@ -97,8 +97,15 @@ export default function ReservationForm({
           onErrorMessage("End Date must be greater than Start Date.");
           return;
         }
-        break;
-  
+        // Automatically set endDate to the next day
+        const nextDay = DateTime.fromISO(value).plus({ days: 1 }).toISODate();
+        setReservation((prevReservation: any) => ({
+          ...prevReservation,
+          startDate: value,
+          endDate: nextDay,
+        }));
+        return;
+
       case "endDate":
         if (isDateBeforeToday(value)) {
           onErrorMessage("End Date must be greater than or equal to today's date.");
@@ -109,7 +116,7 @@ export default function ReservationForm({
           return;
         }
         break;
-  
+
       case "startTime":
         if (reservation.startDate === todayDate && isTimeBeforeNow(value)) {
           onErrorMessage("Start Time must be greater than or equal to current time.");
@@ -129,7 +136,7 @@ export default function ReservationForm({
           endTime: value,
         }));
         return;
-  
+
       case "endTime":
         if (reservation.startDate === todayDate && isTimeBeforeNow(value)) {
           onErrorMessage("End Time must be greater than or equal to current time.");
@@ -152,12 +159,11 @@ export default function ReservationForm({
           startTime: value,
         }));
         return;
-  
+
       default:
         break;
-      }
+    }
 
-  
     // Update reservation state for other fields
     setReservation((prevReservation: any) => ({
       ...prevReservation,

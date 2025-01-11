@@ -155,6 +155,16 @@ public class VehicleServiceImpl implements VehicleService {
 
     @Override
     public List<Map<String, Object>> getAvailableVehicles(LocalDateTime start, LocalDateTime end) {
+        // system vehicleRepository.getAvailableVehicles(start, end)
+        List<Object[]> vehicles = vehicleRepository.getAvailableVehicles(start, end);
+        for (Object[] vehicle : vehicles) {
+            System.out.println("License Plate: " + vehicle[0]);
+            System.out.println("Model: " + vehicle[1]);
+            System.out.println("Brand: " + vehicle[2]);
+            System.out.println("Year: " + vehicle[3]);
+            System.out.println("Price: " + vehicle[4]);
+            System.out.println("Path Img: " + vehicle[5]);
+        }
         return vehicleMapper.fromObjetList(vehicleRepository.getAvailableVehicles(start, end));
     }
 
