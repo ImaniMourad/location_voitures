@@ -68,6 +68,7 @@ export default function List({
   const { isDarkMode } = useTheme();
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [is_paid, setIsPaid] = useState(false);
 
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
 
@@ -288,6 +289,7 @@ export default function List({
                         variant="destructive"
                         size="icon"
                         onClick={() => {
+                          setIsPaid(row.is_paid !== null ? true : false);
                           setRow(row.id);
                           setShowConfirmation(true);
                         }}
@@ -355,7 +357,14 @@ export default function List({
           <DialogHeader>
             <DialogTitle>Confirm Delete</DialogTitle>
           </DialogHeader>
-          <p className="py-4">Are you sure you want to delete this item?</p>
+          {is_paid && (
+            <p >
+                <span className="text-red-600 font-bold text-lg">
+                Warning : the reservation is paid by the client !
+                </span>
+              </p>
+              )}
+              <p className="py-2 text-lg">Are you sure you want to delete this item?</p>
           <DialogFooter>
             <Button
               variant="outline"

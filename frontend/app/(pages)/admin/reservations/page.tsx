@@ -37,9 +37,6 @@ export default function ReservationList() {
   });
   const [reservationOpened, setReservationOpened] = useState<number | null>(null);
 
-
-
-  console.log(reservations);
   useEffect(() => {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
     const fetchReservations = async () => {
@@ -212,7 +209,6 @@ export default function ReservationList() {
         />
       )}
       {isFormEditOpen && editingReservation && (
-        console.log(editingReservation),
        <FormEdit reservationId={editingReservation.id} handleUpdateReservation={handleEditReservation} handleCancel={handleCancel} onErrorMessage={handleErrorMessage} />
             )}
       {reservationOpened !== null && (
