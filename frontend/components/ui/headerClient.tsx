@@ -52,8 +52,7 @@ export default function HeaderClient() {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [editProfile, setEditProfile] = useState(false);
-  const [isOpenReservation, setIsOpenReservation] = useState(false);
-  const [reservationOpened, setReservationOpened] = useState<number>(0);
+  const [reservationOpened, setReservationOpened] = useState<number | null>(null);
   // Initialize customer with default empty values instead of null
   const [customer, setCustomer] = useState<Customer>({
     cin: "",
@@ -157,7 +156,6 @@ export default function HeaderClient() {
   }, []);
 
   const handleClickedReservation = (id: number) => {
-    setIsOpenReservation(true);
     setReservationOpened(id);
   };
 
@@ -228,8 +226,6 @@ export default function HeaderClient() {
                 Profile
               </button>
 
-              {/* Shopping Cart */}
-              {/* { isOpenReservationDropdown && */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <div className="relative text-slate-50 cursor-pointer">
@@ -237,8 +233,7 @@ export default function HeaderClient() {
                   </div>
                 </DropdownMenuTrigger>
               </DropdownMenu>
-              {/* } */}
-              {/* Logout */}
+
               <button
                 onClick={handleLogout}
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors hover:bg-purple-600 ${
@@ -305,8 +300,8 @@ export default function HeaderClient() {
             onErrorMessage={handleErrorMessage}
           />
         )}
-         {isOpenReservation && (
-          <ReservationDetails reservationId={reservationOpened} handleCancel={() => setIsOpenReservation(false)} />
+         {reservationOpened !== null && (
+          <ReservationDetails reservationId={reservationOpened} handleCancel={() => setReservationOpened(null)} />
         )}
       </header>
     </>
