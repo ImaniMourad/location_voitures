@@ -118,7 +118,10 @@ public class ReservationServiceImpl implements ReservationService {
         response.put("startTime", String.valueOf(reservation.getStartDate().toLocalTime()));
         response.put("endTime", String.valueOf(reservation.getEndDate().toLocalTime()));
         response.put("clientCIN", reservation.getClient().getCin());
+        response.put("clientName", reservation.getClient().getFirstName() + " " + reservation.getClient().getLastName());
         response.put("vehicleId", reservation.getVehicle().getLicensePlate());
+        response.put("vehicleModel", reservation.getVehicle().getModel());
+        response.put("vehicleBrand", reservation.getVehicle().getBrand());
         response.put("startDate", String.valueOf(reservation.getStartDate().toLocalDate()));
         response.put("endDate", String.valueOf(reservation.getEndDate().toLocalDate()));
         response.put("deletedAt", String.valueOf(reservation.getDeletedAt()));
