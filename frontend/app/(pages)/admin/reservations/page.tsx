@@ -6,6 +6,7 @@ import FormAdd from "./add/add-form-reservation";
 import FormEdit from "./edit/edit-form-reservation";
 import axios from "axios";
 import Alert from "@/components/ui/alert";
+import ReservationDetails from "./details/page";
 
 type Reservation = {
   id: number;
@@ -34,6 +35,8 @@ export default function ReservationList() {
     message: "",
     type_alert: "",
   });
+  const [reservationOpened, setReservationOpened] = useState<number | null>(null);
+
 
 
   console.log(reservations);
@@ -165,6 +168,10 @@ export default function ReservationList() {
     }, 2500);
   };
 
+  const handleClickedRow = (id: number) => {
+    setReservationOpened(id);
+  };
+
   return (
     <>
 
@@ -194,9 +201,9 @@ export default function ReservationList() {
             }
           } }
           onDelete={handleDeleteReservation}
-          onAdd={() => setIsFormAddOpen(true)} handleClickedRow={function (id: any): void {
-            throw new Error("Function not implemented.");
-          } }      />
+          onAdd={() => setIsFormAddOpen(true)} 
+          handleClickedRow={(id: number) => handleClickedRow(id)}
+          />
       {isFormAddOpen && (
         <FormAdd
           handleAddReservation={handleAddReservation}
@@ -208,6 +215,12 @@ export default function ReservationList() {
         console.log(editingReservation),
        <FormEdit reservationId={editingReservation.id} handleUpdateReservation={handleEditReservation} handleCancel={handleCancel} onErrorMessage={handleErrorMessage} />
             )}
+      {reservationOpened !== null && (
+        <ReservationDetails
+          reservationId={reservationOpened}
+          handleCancel={() => setReservationOpened(null)}
+        />
+      )}
     </div>
     </>
   );

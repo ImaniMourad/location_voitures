@@ -13,36 +13,6 @@ import {
 import { useTheme } from "@/context/context";
 import axios from "axios";
 
-// Sample data - in a real application, this would come from your backend
-const monthlyIncome = [
-  { month: "Jan", income: 4000 },
-  { month: "Feb", income: 3000 },
-  { month: "Mar", income: 5000 },
-  { month: "Apr", income: 4500 },
-  { month: "May", income: 6000 },
-  { month: "Jun", income: 7000 },
-  { month: "Jul", income: 8000 },
-  { month: "Aug", income: 9000 },
-  { month: "Sep", income: 10000 },
-  { month: "Oct", income: 11000 },
-  { month: "Nov", income: 12000 },
-  { month: "Dec", income: 13000 },
-];
-
-const vehicleRotation = [
-  { month: "Jan", days: 2.5 },
-  { month: "Feb", days: 2.8 },
-  { month: "Mar", days: 2.3 },
-  { month: "Apr", days: 2.0 },
-  { month: "May", days: 1.8 },
-  { month: "Jun", days: 1.5 },
-  { month: "Jul", days: 1.7 },
-  { month: "Aug", days: 1.6 },
-  { month: "Sep", days: 1.9 },
-  { month: "Oct", days: 2.0 },
-  { month: "Nov", days: 1.8 },
-  { month: "Dec", days: 1.5 },
-];
 
 const monthNames = [
   "Jan",

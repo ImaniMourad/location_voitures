@@ -22,6 +22,7 @@ import CustomerProfile from "@/components/profileSelf";
 import EditProfile from "@/components/edit-profile";
 import { jwtDecode } from "jwt-decode";
 import Alert from "@/components/ui/alert";
+import ReservationDetails from "@/app/(pages)/client/reservationDetails/page";
 
 
 interface JWTPayload {
@@ -49,9 +50,10 @@ export default function HeaderClient() {
   const { isDarkMode } = useTheme();
   const router = useRouter();
   const [showConfirmation, setShowConfirmation] = useState(false);
-  const [reservations, setReservations] = useState(2);
   const [showProfile, setShowProfile] = useState(false);
   const [editProfile, setEditProfile] = useState(false);
+  const [isOpenReservation, setIsOpenReservation] = useState(false);
+  const [reservationOpened, setReservationOpened] = useState<number>(0);
   // Initialize customer with default empty values instead of null
   const [customer, setCustomer] = useState<Customer>({
     cin: "",
@@ -154,6 +156,11 @@ export default function HeaderClient() {
     fetchCustomerData();
   }, []);
 
+  const handleClickedReservation = (id: number) => {
+    setIsOpenReservation(true);
+    setReservationOpened(id);
+  };
+
   return (
     <>
       {isAlertVisible.visible && (
@@ -222,19 +229,15 @@ export default function HeaderClient() {
               </button>
 
               {/* Shopping Cart */}
+              {/* { isOpenReservationDropdown && */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <div className="relative text-slate-50 cursor-pointer">
-                    <ReservationDropdown />
-                    {reservations > 0 && (
-                      <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-purple-600 text-xs text-white">
-                        {reservations}
-                      </span>
-                    )}
+                    <ReservationDropdown handleClickedReservation={handleClickedReservation} />
                   </div>
                 </DropdownMenuTrigger>
               </DropdownMenu>
-
+              {/* } */}
               {/* Logout */}
               <button
                 onClick={handleLogout}
@@ -301,6 +304,9 @@ export default function HeaderClient() {
             handleCancel={() => setEditProfile(false)}
             onErrorMessage={handleErrorMessage}
           />
+        )}
+         {isOpenReservation && (
+          <ReservationDetails reservationId={reservationOpened} handleCancel={() => setIsOpenReservation(false)} />
         )}
       </header>
     </>

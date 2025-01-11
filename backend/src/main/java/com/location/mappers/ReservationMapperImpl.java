@@ -52,12 +52,13 @@ public class ReservationMapperImpl {
 
     public Map<String, Object> fromObject(Object[] obj){
         Map<String, Object> map = new HashMap<>();
-        map.put("id", obj[0] + " " + obj[1]);
+        map.put("name", obj[0] + " " + obj[1]);
         map.put("vehicle", obj[1]);
         map.put("client", obj[2] + " " + obj[3]);
         map.put("startDate", obj[4]);
         map.put("endDate", obj[5]);
         map.put("paidAt", obj[6]);
+        map.put("id", obj[7]);
         return map;
     }
 

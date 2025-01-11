@@ -12,11 +12,12 @@ import { jwtDecode } from "jwt-decode"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 interface Reservation {
-  id: string
+  id: number
   vehicleName: string
   startDate: string
   endDate: string
   paidAt: string | null
+  name: string
 }
 
 interface JWTPayload {
@@ -24,11 +25,16 @@ interface JWTPayload {
   sub: string
 }
 
-export function ReservationDropdown() {
+interface ReservationDropdownProps {
+  handleClickedReservation: (id: number) => void
+}
+
+export function ReservationDropdown({handleClickedReservation }: ReservationDropdownProps) {
   const [reservations, setReservations] = useState<Reservation[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [filter, setFilter] = useState<'all' | 'paid' | 'pending'>('all')
+  const [showContent, setShowContent] = useState(true)
 
   const handleErrorMessage = (message: string) => {
     setError(message)
@@ -58,6 +64,10 @@ export function ReservationDropdown() {
         if (!response.ok) throw new Error('Failed to fetch reservations')
 
         const data = await response.json()
+        data.forEach((reservation: any) => {
+          reservation.id = Number(reservation.id) // Convert id to number
+        })
+
         setReservations(data)
       } catch (err) {
         handleErrorMessage(err instanceof Error ? err.message : 'An error occurred')
@@ -91,6 +101,7 @@ export function ReservationDropdown() {
     return `${days} day${days > 1 ? 's' : ''}`
   }
 
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -107,8 +118,9 @@ export function ReservationDropdown() {
           )}
         </Button>
       </DropdownMenuTrigger>
+      {showContent && (
       <DropdownMenuContent 
-        className="w-[330px] p-0 bg-slate-900/95 border-slate-800 text-slate-50 shadow-xl"
+        className="w-[330px] p-0 bg-slate-900/95 border-slate-800 text-slate-50 shadow-xl z-10"
         align="end"
       >
         <div className="p-4 border-b border-slate-800">
@@ -149,7 +161,10 @@ export function ReservationDropdown() {
           {!loading && !error && filteredReservations.map((reservation) => (
             <div 
               key={reservation.id} 
-              className="p-4 hover:bg-slate-800/50 transition-colors duration-200"
+              className="p-4 hover:bg-slate-800/50 transition-colors duration-200 cursor-pointer"
+              onClick={() => handleClickedReservation(reservation.id)
+                
+              }
             >
               <div className="flex justify-between items-start gap-4">
                 <div className="flex-1">
@@ -160,9 +175,8 @@ export function ReservationDropdown() {
                       </div>
                       <div>
                         <h4 className="font-medium text-lg text-slate-50">
-                          {reservation.vehicleName}
+                          {reservation.name}
                         </h4>
-                        <p className="text-xs text-slate-400">ID: {reservation.id}</p>
                       </div>
                     </div>
                     <div 
@@ -195,6 +209,7 @@ export function ReservationDropdown() {
           ))}
         </ScrollArea>
       </DropdownMenuContent>
+      )}
     </DropdownMenu>
   )
 }
