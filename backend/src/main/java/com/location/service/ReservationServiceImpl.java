@@ -87,8 +87,6 @@ public class ReservationServiceImpl implements ReservationService {
         Invoice invoice = new Invoice();
         invoice.setAmount(reservationDTO.getTotal());
         invoice.setPaymentMethod(reservationDTO.getPaymentMethod());
-        invoice.setPaymentStatus(reservationDTO.getPaymentStatus());
-        invoice.setPaymentDate(reservationDTO.getPaidAt());
         invoice.setReservation(reservation);
 
         // Save invoice
@@ -166,8 +164,7 @@ public class ReservationServiceImpl implements ReservationService {
         // Update invoice
         invoice.setAmount(reservationDTO.getTotal());
         invoice.setPaymentMethod(reservationDTO.getPaymentMethod());
-        invoice.setPaymentStatus(reservationDTO.getPaymentStatus());
-        invoice.setPaymentDate(reservationDTO.getPaidAt());
+
 
         // Save invoice
         Invoice newInvoice = invoiceRepository.save(invoice);

@@ -15,7 +15,6 @@ public class ReservationDTO {
     private String vehicleId;
     private BigDecimal total;
     private String paymentMethod;
-    private String paymentStatus;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
     private LocalDateTime deletedAt;
@@ -35,7 +34,6 @@ public class ReservationDTO {
         this.paidAt = parseDate(reservationData.get("paidAt"), formatter);
         this.total = parseBigDecimal(reservationData.get("total"));
         this.paymentMethod = reservationData.getOrDefault("paymentMethod", "").toString();
-        this.paymentStatus = reservationData.getOrDefault("paymentStatus", "").toString();
     }
 
     // Méthode utilitaire pour analyser les dates en toute sécurité

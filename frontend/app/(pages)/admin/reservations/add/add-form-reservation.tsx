@@ -75,103 +75,15 @@ export default function ReservationForm({
   const [inputsDisabled, setInputsDisabled] = useState(true);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { id, value } = e.target;
-    const today = DateTime.now();
-    const todayDate = today.toISODate();
-    const currentTime = today.toISOTime();
-
-    // Helper functions
-    const isDateBeforeToday = (date: string) => date < todayDate;
-    const isTimeBeforeNow = (time: string) => time < currentTime;
-
-    // Validations
-    switch (id) {
-      case "startDate":
-        if (isDateBeforeToday(value)) {
-          onErrorMessage("Start Date must be greater than or equal to today's date.");
-          return;
-        }
-        if (reservation.endDate && reservation.endDate < value) {
-          onErrorMessage("End Date must be greater than Start Date.");
-          return;
-        }
-        // Automatically set endDate to the next day
-        const nextDay = DateTime.fromISO(value).plus({ days: 1 }).toISODate();
-        setReservation((prevReservation: any) => ({
-          ...prevReservation,
-          startDate: value,
-          endDate: nextDay,
-        }));
-        return;
-
-      case "endDate":
-        if (isDateBeforeToday(value)) {
-          onErrorMessage("End Date must be greater than or equal to today's date.");
-          return;
-        }
-        if (value < reservation.startDate) {
-          onErrorMessage("End Date must be greater than Start Date.");
-          return;
-        }
-        break;
-
-      case "startTime":
-        if (reservation.startDate === todayDate && isTimeBeforeNow(value)) {
-          onErrorMessage("Start Time must be greater than or equal to current time.");
-          return;
-        }
-        if (
-          reservation.endDate === reservation.startDate &&
-          reservation.endTime &&
-          value > reservation.endTime
-        ) {
-          onErrorMessage("Start Time must be less than End Time.");
-          return;
-        }
-        setReservation((prevReservation: any) => ({
-          ...prevReservation,
-          startTime: value,
-          endTime: value,
-        }));
-        return;
-
-      case "endTime":
-        if (reservation.startDate === todayDate && isTimeBeforeNow(value)) {
-          onErrorMessage("End Time must be greater than or equal to current time.");
-          return;
-        }
-        if (reservation.endDate === todayDate && isTimeBeforeNow(value)) {
-          onErrorMessage("End Time must be greater than or equal to current time.");
-          return;
-        }
-        if (
-          reservation.endDate === reservation.startDate &&
-          value < reservation.startTime
-        ) {
-          onErrorMessage("End Time must be greater than Start Time.");
-          return;
-        }
-        setReservation((prevReservation: any) => ({
-          ...prevReservation,
-          endTime: value,
-          startTime: value,
-        }));
-        return;
-
-      default:
-        break;
-    }
-
     // Update reservation state for other fields
     setReservation((prevReservation: any) => ({
       ...prevReservation,
       [id]: value,
     }));
   };
-
-  
 
   // useEffect to fetch clients and vehicles
   useEffect(() => {
@@ -267,7 +179,6 @@ export default function ReservationForm({
           deletedAt: "",
           total: parseFloat(reservation.totalPrice),
           paymentMethod: "Cash on delivery",
-          paymentStatus: "Paid",
         },
         {
           headers: {
@@ -290,6 +201,7 @@ export default function ReservationForm({
         startDate: response.data.reservation.startDate,
         endDate: response.data.reservation.endDate,
         totalPrice: parseFloat(reservation.totalPrice),
+        is_paid: true,
       });
 
       // Generate and download the PDF invoice
@@ -490,6 +402,58 @@ export default function ReservationForm({
     reservation.endTime,
   ]);
 
+  const handleChangeForDate = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, value } = e.target;
+    setReservation((prev) => {
+      const newData = { ...prev, [id]: value };
+
+      // Synchronize times
+      if (id === "startTime" || id === "endTime") {
+        newData.startTime = value;
+        newData.endTime = value;
+      }
+
+      // Automatically set end date to the next day if start date is changed
+      if (id === "startDate") {
+        const startDate = DateTime.fromISO(value);
+        const nextDay = startDate.plus({ days: 1 }).toISODate();
+        newData.endDate = nextDay || "";
+      }
+
+      // Ensure arrival date is not before departure date
+      if (id === "startDate" && newData.endDate < value) {
+        newData.endDate = value;
+      }
+
+      // Validate startDate and endDate
+      const today = DateTime.now().startOf("day");
+      const startDate = DateTime.fromISO(newData.startDate);
+      const endDate = DateTime.fromISO(newData.endDate);
+
+      if (startDate < today || endDate < today) {
+        onErrorMessage(
+          "Start Date and End Date must be greater than or equal to today's date."
+        );
+        return prev; // Return previous state if validation fails
+      }
+
+      return newData;
+    });
+  };
+
+  useEffect(() => {
+    if (reservation.startDate && reservation.endDate) {
+      if (new Date(reservation.endDate) <= new Date(reservation.startDate)) {
+        const nextDay = new Date(reservation.startDate);
+        nextDay.setDate(nextDay.getDate() + 1);
+        setReservation((prev) => ({
+          ...prev,
+          endDate: nextDay.toISOString().split("T")[0],
+        }));
+      }
+    }
+  }, [reservation.startDate, reservation.endDate]);
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <Card className="w-full max-w-lg bg-slate-900 text-slate-100 border border-slate-800">
@@ -550,7 +514,7 @@ export default function ReservationForm({
                   type="date"
                   required
                   value={reservation.startDate}
-                  onChange={handleChange}
+                  onChange={handleChangeForDate}
                   className="w-1/2 px-3 py-1 bg-slate-800 border border-slate-700 rounded-md text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                 />
                 <input
@@ -558,7 +522,7 @@ export default function ReservationForm({
                   type="time"
                   required
                   value={reservation.startTime}
-                  onChange={handleChange}
+                  onChange={handleChangeForDate}
                   className="w-1/2 px-3 py-1 bg-slate-800 border border-slate-700 rounded-md text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                 />
               </div>
@@ -576,7 +540,8 @@ export default function ReservationForm({
                   type="date"
                   required
                   value={reservation.endDate}
-                  onChange={handleChange}
+                  min={reservation.startDate}
+                  onChange={handleChangeForDate}
                   className="w-1/2 px-3 py-1 bg-slate-800 border border-slate-700 rounded-md text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                 />
                 <input
@@ -584,7 +549,7 @@ export default function ReservationForm({
                   type="time"
                   required
                   value={reservation.endTime}
-                  onChange={handleChange}
+                  onChange={handleChangeForDate}
                   className="w-1/2 px-3 py-1 bg-slate-800 border border-slate-700 rounded-md text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                 />
               </div>
@@ -615,22 +580,22 @@ export default function ReservationForm({
                 }}
               />
               {filteredVehicles && filteredVehicles.length > 0 && (
-              <datalist id="vehicles">
-                {filteredVehicles.map((vehicle) => (
-                  <option
-                    key={vehicle.licensePlate}
-                    value={vehicle.licensePlate}
-                  >
-                    {vehicle.licensePlate +
-                      "/" +
-                      vehicle.brand +
-                      "-" +
-                      vehicle.model +
-                      "-" +
-                      vehicle.year}
-                  </option>
-                ))}
-              </datalist>
+                <datalist id="vehicles">
+                  {filteredVehicles.map((vehicle) => (
+                    <option
+                      key={vehicle.licensePlate}
+                      value={vehicle.licensePlate}
+                    >
+                      {vehicle.licensePlate +
+                        "/" +
+                        vehicle.brand +
+                        "-" +
+                        vehicle.model +
+                        "-" +
+                        vehicle.year}
+                    </option>
+                  ))}
+                </datalist>
               )}
             </div>
             <div className="space-y-2">

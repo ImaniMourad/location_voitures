@@ -25,12 +25,6 @@ public class Invoice {
     @Size(max = 50)
     private String paymentMethod;
 
-    @Size(max = 20)
-    private String paymentStatus;
-
-    @Column(columnDefinition = "TIMESTAMP(6) without time zone")
-    private LocalDateTime paymentDate;
-
     @OneToOne
     private Reservation reservation;
 }
