@@ -70,7 +70,6 @@ export default function ReservationDetails({
           >
             <X size={20} className="text-gray-500" />
           </button>
-
           <div className="space-y-4">
             {/* Dates */}
             <div className="flex items-start gap-2 bg-blue-50/50 dark:bg-blue-950/50 p-3 rounded-lg">

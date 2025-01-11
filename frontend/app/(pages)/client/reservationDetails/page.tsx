@@ -1,20 +1,20 @@
-'use client';
-
 import { useEffect, useState, useRef } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Calendar, User, Car, CreditCard, X } from 'lucide-react';
 import { useTheme } from '@/context/context';
 import Spinner from '@/components/ui/spinner';
+import PayPalButton from '@/app/componentsPayPal/PayPalButton';
 
 interface ReservationData {
   startDate: string;
   endDate: string;
   clientCIN: string; 
-  clientName: string ;
-  vehicleId: string; 
-  vehicleBrand: string; 
-  vehicleModel: string ;
+  clientName: string;
+  vehicleId: string;
+  vehicleBrand: string;
+  vehicleModel: string;
   totalPrice: number;
+  paidAt : string | null;
 }
 
 export default function ReservationDetails({ 
@@ -28,6 +28,7 @@ export default function ReservationDetails({
   const [data, setData] = useState<ReservationData | null>(null);
   const [loading, setLoading] = useState(true);
   const cardRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -50,10 +51,12 @@ export default function ReservationDetails({
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (cardRef.current && !cardRef.current.contains(event.target as Node)) {
+      // Only handle clicks on the container background, not the card or its contents
+      if (containerRef.current === event.target) {
         handleCancel();
       }
     };
+    
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [handleCancel]);
@@ -61,7 +64,7 @@ export default function ReservationDetails({
   if (loading) return <div className="flex justify-center"><Spinner /></div>;
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+    <div ref={containerRef} className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
       <Card ref={cardRef} className={`w-full max-w-md ${isDarkMode ? 'bg-gray-900' : 'bg-white'}`}>
         <CardContent className="p-4 relative">
           <button
@@ -70,7 +73,6 @@ export default function ReservationDetails({
           >
             <X size={20} className="text-gray-500" />
           </button>
-
           <div className="space-y-4">
             {/* Dates */}
             <div className="flex items-start gap-2 bg-blue-50/50 dark:bg-blue-950/50 p-3 rounded-lg">
@@ -132,6 +134,11 @@ export default function ReservationDetails({
               <span className="font-bold text-lg">{data?.totalPrice} MAD</span>
             </div>
           </div>
+          {data?.paidAt === "null" && (
+          <div className="mt-4 cursor-pointer">
+            <PayPalButton idReservation={reservationId} price={data?.totalPrice || 0} />
+          </div>
+          )}
         </CardContent>
       </Card>
     </div>

@@ -10,6 +10,7 @@ import { Separator } from "@/components/ui/separator";
 import { Button } from '@/components/ui/button';
 import { useTheme } from '@/context/context';
 import Spinner from '@/components/ui/spinner';
+import { emitReservationUpdate } from '../event';
 
 interface VehicleData {
     licensePlate: string;
@@ -108,6 +109,8 @@ export default function VehicleDetailsCard({ licensePlate }: VehicleDetailsCardP
             })
             .then((response) => {
                 setReservationSuccess(true);
+                // Emit the event after successful reservation
+                emitReservationUpdate();
             })
             .catch((error) => {
                 console.error('Error making reservation:', error);
@@ -119,7 +122,7 @@ export default function VehicleDetailsCard({ licensePlate }: VehicleDetailsCardP
             className={`w-full max-w-md shadow-2xl border ${
             isDarkMode ? 'bg-gray-900' : 'bg-white'
             }`}
-            onMouseEnter={() => setExpanded(true)}
+            onClick={() => setExpanded(true)}
             onMouseLeave={() => setExpanded(false)}
         >
             <CardContent className="p-0">
