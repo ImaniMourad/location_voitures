@@ -275,6 +275,16 @@ public class ReservationServiceImpl implements ReservationService {
         // Save invoice
         invoiceRepository.save(invoice);
     }
+
+    @Override
+    public void cancelReservation(Long idreservation) {
+        Reservation reservation = reservationRepository.findById(idreservation).orElse(null);
+        if (reservation == null) {
+            throw new IllegalArgumentException("Reservation with id " + idreservation + " not found.");
+        }
+        reservation.setDeletedAt(LocalDateTime.now());
+        reservationRepository.save(reservation);
+    }
 }
 
 
