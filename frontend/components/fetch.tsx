@@ -1,8 +1,10 @@
 "use client";
-import { useState, useEffect } from "react";
 
+import { useState, useEffect } from "react";
+import { useRouter } from 'next/navigation';
 
 export default function ReservationForm() {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     departureDate: "",
     departureTime: "",
@@ -54,8 +56,8 @@ export default function ReservationForm() {
     const formattedDeparture = departureDatetime.toISOString().split(".")[0];
     const formattedArrival = arrivalDatetime.toISOString().split(".")[0];
 
-    
-    window.location.href = `http://localhost:3000/client/vehicles?startDate=${encodeURIComponent(formattedDeparture)}&endDate=${encodeURIComponent(formattedArrival)}`;
+    // Use router.push for client-side navigation
+    router.push(`/client/vehicles?startDate=${encodeURIComponent(formattedDeparture)}&endDate=${encodeURIComponent(formattedArrival)}`);
 
     console.log({
       departureDateTime: formattedDeparture,
