@@ -67,6 +67,7 @@ export default function Page() {
                         Authorization: `Bearer ${token}`,
                     },
                 });
+                console.log("Vehicles de test:", response.data);
                 const vehiclesData = response.data.map((vehicle: any) => ({
                     ...vehicle,
                     id: vehicle.liscencePlate,
