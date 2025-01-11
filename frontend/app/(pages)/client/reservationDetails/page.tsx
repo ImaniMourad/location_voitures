@@ -4,6 +4,7 @@ import { Calendar, User, Car, CreditCard, X } from 'lucide-react';
 import { useTheme } from '@/context/context';
 import Spinner from '@/components/ui/spinner';
 import PayPalButton from '@/app/componentsPayPal/PayPalButton';
+import axios from 'axios';
 
 interface ReservationData {
   startDate: string;
@@ -61,18 +62,29 @@ export default function ReservationDetails({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [handleCancel]);
 
+  const handleCancelReservation = async () => {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+    const token = localStorage.getItem('jwtToken');
+    if (!token) return;
+    axios
+      .put(`${apiUrl}/reservation/${reservationId}/cancel`, null, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      .then(() => {
+        handleCancel();
+      })
+      .catch((error: any) => {
+        console.error('Error canceling reservation:', error);
+      });
+  }
+
+
   if (loading) return <div className="flex justify-center"><Spinner /></div>;
 
   return (
     <div ref={containerRef} className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
       <Card ref={cardRef} className={`w-full max-w-md ${isDarkMode ? 'bg-gray-900' : 'bg-white'}`}>
         <CardContent className="p-4 relative">
-          <button
-            onClick={handleCancel}
-            className="absolute right-4 top-4 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full p-1"
-          >
-            <X size={20} className="text-gray-500" />
-          </button>
           <div className="space-y-4">
             {/* Dates */}
             <div className="flex items-start gap-2 bg-blue-50/50 dark:bg-blue-950/50 p-3 rounded-lg">
@@ -135,9 +147,19 @@ export default function ReservationDetails({
             </div>
           </div>
           {data?.paidAt === "null" && (
-          <div className="mt-4 cursor-pointer">
-            <PayPalButton idReservation={reservationId} price={data?.totalPrice || 0} />
-          </div>
+            <div className="flex flex-row space-x-4 mt-4">
+              <div className="mt-4 cursor-pointer">
+                <PayPalButton idReservation={reservationId} price={data?.totalPrice || 0} />
+              </div>
+              <div className="mt-4 cursor-pointer">
+                <button
+                  onClick={handleCancelReservation}
+                  className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 cursor-pointer"
+                >
+                  Cancel Reservation
+                </button>
+              </div>
+            </div>
           )}
         </CardContent>
       </Card>

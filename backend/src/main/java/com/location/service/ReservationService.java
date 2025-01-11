@@ -26,4 +26,6 @@ public interface ReservationService {
     void cancelReservationForOthers(Long idreservation);
 
     void confirmReservation(Long idreservation);
+
+    void cancelReservation(Long idreservation);
 }
