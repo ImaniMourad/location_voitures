@@ -128,4 +128,14 @@ public class ReservationController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
+
+    @GetMapping("/client/reservation/{licensePlate}/{cin}")
+    public ResponseEntity<?> isClientReservingVehicle(@PathVariable String licensePlate, @PathVariable String cin) {
+        try {
+            Map<String, Object> reservation = reservationService.isClientReservingVehicle(cin, licensePlate);
+            return ResponseEntity.ok(reservation);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
 }

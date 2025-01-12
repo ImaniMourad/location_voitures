@@ -28,4 +28,6 @@ public interface ReservationService {
     void confirmReservation(Long idreservation);
 
     void cancelReservation(Long idreservation);
+
+    Map<String, Object> isClientReservingVehicle(String cin, String licensePlate);
 }

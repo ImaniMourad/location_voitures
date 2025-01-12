@@ -282,8 +282,21 @@ public class ReservationServiceImpl implements ReservationService {
         if (reservation == null) {
             throw new IllegalArgumentException("Reservation with id " + idreservation + " not found.");
         }
-        reservation.setDeletedAt(LocalDateTime.now());
-        reservationRepository.save(reservation);
+        reservationRepository.delete(reservation);
+    }
+
+    @Override
+    public Map<String, Object> isClientReservingVehicle(String cin, String licensePlate) {
+        Reservation reservation = reservationRepository.getReservationByClientAndVehicle(cin, licensePlate);
+        Map<String, Object> response = new HashMap<>();
+        if (reservation != null && reservation.getDeletedAt() == null && reservation.getStartDate().isAfter(LocalDateTime.now())) {
+            response.put("isReserving", true);
+        } else {
+            response.put("isReserving", false);
+        }
+        response.put("id", reservation != null ? reservation.getId() : null);
+
+        return response;
     }
 }
 
