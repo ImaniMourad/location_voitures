@@ -65,7 +65,7 @@ public class PayPalController {
     public ResponseEntity<?> createPayment(@PathVariable Long idreservation , @PathVariable Double price) {
         try {
             Payment payment = payPalService.createPayment(
-                    price,
+                    price/10,
                     "USD",
                     "paypal",
                     "sale",

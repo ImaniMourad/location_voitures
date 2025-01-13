@@ -50,7 +50,7 @@ interface ListProps {
   handleClickedRow: (id: any) => void;
 }
 
-const ITEMS_PER_PAGE = 8;
+const ITEMS_PER_PAGE = 6;
 
 export default function List({
   name,

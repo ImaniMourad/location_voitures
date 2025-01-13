@@ -15,7 +15,6 @@ import {
 } from "./dropdown-menu";
 import { useState } from "react";
 import { Button } from "./button";
-import { ShoppingCart } from "@/components/shopping-cart";
 
 export default function Header() {
   const { isDarkMode, setIsDarkMode } = useTheme();
@@ -43,31 +42,6 @@ export default function Header() {
 
           {/* Navigation */}
           <ul className="flex flex-1 items-center justify-end gap-4">
-            {/* Dark Mode Switch */}
-            <li className="flex items-center gap-2">
-              <Switch
-                id="dark-mode"
-                checked={isDarkMode}
-                onCheckedChange={setIsDarkMode}
-                className={`${
-                  isDarkMode
-                    ? "bg-indigo-600"
-                    : "bg-gray-300 border border-gray-500"
-                }`}
-              />
-              <Label
-                htmlFor="dark-mode"
-                className={`${
-                  isDarkMode ? "text-indigo-300" : "text-yellow-400"
-                }`}
-              >
-                {isDarkMode ? (
-                  <MoonIcon className="h-5 w-5" />
-                ) : (
-                  <SunIcon className="h-5 w-5" />
-                )}
-              </Label>
-            </li>
               <li>
                 <Link
                   href="/signin"

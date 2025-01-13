@@ -2,15 +2,13 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import Card from "../../../../components/cards/card";
 import axios from "axios";
 import VehicleDetailsCard from "@/components/cards/cardVehicle";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
 import { Card as UICard, CardContent } from "@/components/ui/card";
 import * as Slider from '@radix-ui/react-slider';
-import { RESERVATION_UPDATED_EVENT } from "@/components/event";
+import PageIllustration from "@/components/page-illustration";
 
 
 
@@ -90,11 +88,6 @@ export default function Page() {
     useEffect(() => {
         fetchVehicles(); // Initial fetch
 
-        // window.addEventListener(RESERVATION_UPDATED_EVENT, fetchVehicles);
-        
-        // return () => {
-        //     window.removeEventListener(RESERVATION_UPDATED_EVENT, fetchVehicles);
-        // };
     }, [fetchVehicles]);
 
     useEffect(() => {
@@ -124,15 +117,9 @@ export default function Page() {
 
     return (
         <section className="pt-10">
+            <PageIllustration />
             <div className="mx-auto max-w-6xl px-4 sm:px-6">
                 <div className="pb-12 md:pb-20">
-                    <div className="mx-auto max-w-3xl pb-12 text-center md:pb-10">
-                        <h2 className="text-3xl font-semibold mb-4">Available Vehicles</h2>
-                        <p className="text-lg text-indigo-200/65">
-                            Explore our wide range of vehicles available for rent. Choose the perfect car for your journey.
-                        </p>
-                    </div>
-
                     <UICard className="mb-8 bg-gray-900/50 backdrop-blur-sm border-gray-800">
                         <CardContent className="p-4">
                             <div className="flex items-center gap-4 flex-wrap md:flex-nowrap">
@@ -175,7 +162,7 @@ export default function Page() {
                                         </Slider.Root>
                                     </div>
                                     <span className="text-sm text-gray-400 whitespace-nowrap min-w-[100px]">
-                                        ${priceRange[0]} - ${priceRange[1]}
+                                        {priceRange[0]} - {priceRange[1]} MAD
                                     </span>
                                 </div>
                             </div>

@@ -86,7 +86,7 @@ export default function CustomerProfile({ cin, handleCancel }: CustomerProfilePr
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
       <Card 
         ref={cardRef} 
-        className={`w-full max-w-md shadow-2xl ${
+        className={`border-blue-600 w-full max-w-md shadow-2xl ${
           isDarkMode ? 'bg-gray-900' : 'bg-white'
         }`}
       >
