@@ -1,6 +1,7 @@
 "use client";
 import { useRouter } from 'next/navigation';
 import { createPayment } from '../api/PayPal/createPayment';
+import { Button } from '@/components/ui/button';
 
 
 interface PayPalButtonProps {
@@ -30,12 +31,12 @@ const PayPalButton = ({ idReservation, price }: PayPalButtonProps) => {
   };
 
   return (
-    <button
+    <Button
       onClick={handlePayment}
-      className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 cursor-pointer"
+      className="w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md"
     >
       Pay with PayPal
-    </button>
+    </Button>
   );
 };
 

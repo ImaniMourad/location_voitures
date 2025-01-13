@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Card from "../../../../components/cards/card";
 import axios from "axios";
@@ -10,6 +10,9 @@ import { Button } from "@/components/ui/button";
 import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
 import { Card as UICard, CardContent } from "@/components/ui/card";
 import * as Slider from '@radix-ui/react-slider';
+import { RESERVATION_UPDATED_EVENT } from "@/components/event";
+
+
 
 export default function Page() {
     interface LocationState {
@@ -49,42 +52,50 @@ export default function Page() {
         setQueryParams({ startDate, endDate });
     }, []);
 
-    useEffect(() => {
-        const fetchVehicles = async () => {
-            if (!queryParams.startDate || !queryParams.endDate) return;
+    const fetchVehicles = useCallback(async () => {
+        if (!queryParams.startDate || !queryParams.endDate) return;
 
-            try {
-                const token = localStorage.getItem("jwtToken");
-                if (!token) {
-                    return;
-                }
-                const response = await axios.get(`${apiUrl}/vehicles/available`, {
-                    params: {
-                      startDate: queryParams.startDate,
-                      endDate: queryParams.endDate,
-                    },
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-                console.log("Vehicles de test:", response.data);
-                const vehiclesData = response.data.map((vehicle: any) => ({
-                    ...vehicle,
-                    id: vehicle.liscencePlate,
-                }));
-                setVehicles(vehiclesData);
-                
-                // Set initial max price based on the highest vehicle price
-                const highestPrice = Math.max(...vehiclesData.map((v: any) => v.price));
-                setMaxPrice(highestPrice);
-                setPriceRange([0, highestPrice]);
-            } catch (error) {
-                console.error("Error fetching vehicles:", error);
+        try {
+            const token = localStorage.getItem("jwtToken");
+            if (!token) {
+                console.error("No token found");
+                return;
             }
-        };
+            const response = await axios.get(`${apiUrl}/vehicles/available`, {
+                params: {
+                    startDate: queryParams.startDate,
+                    endDate: queryParams.endDate,
+                },
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            console.log("Vehicles fetched:", response.data);
+            const vehiclesData = response.data.map((vehicle: { licensePlate: any; }) => ({
+                ...vehicle,
+                id: vehicle.licensePlate,
+            }));
+            setVehicles(vehiclesData);
+            setFilteredVehicles(vehiclesData);
 
-        fetchVehicles();
-    }, [queryParams]);
+            // Set initial max price based on the highest vehicle price
+            const highestPrice = Math.max(...vehiclesData.map((v: { price: any; }) => v.price));
+            setMaxPrice(highestPrice);
+            setPriceRange([0, highestPrice]);
+        } catch (error) {
+            console.error("Error fetching vehicles:", error);
+        }
+    }, [queryParams, apiUrl, setVehicles, setMaxPrice, setPriceRange]);
+
+    useEffect(() => {
+        fetchVehicles(); // Initial fetch
+
+        // window.addEventListener(RESERVATION_UPDATED_EVENT, fetchVehicles);
+        
+        // return () => {
+        //     window.removeEventListener(RESERVATION_UPDATED_EVENT, fetchVehicles);
+        // };
+    }, [fetchVehicles]);
 
     useEffect(() => {
         const searchTerms = searchQuery

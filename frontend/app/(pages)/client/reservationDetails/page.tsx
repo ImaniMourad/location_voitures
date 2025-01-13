@@ -5,6 +5,8 @@ import { useTheme } from '@/context/context';
 import Spinner from '@/components/ui/spinner';
 import PayPalButton from '@/app/componentsPayPal/PayPalButton';
 import axios from 'axios';
+import { emitReservationUpdate } from "@/components/event";
+
 
 interface ReservationData {
   startDate: string;
@@ -72,6 +74,8 @@ export default function ReservationDetails({
       })
       .then(() => {
         handleCancel();
+        emitReservationUpdate();
+        
       })
       .catch((error: any) => {
         console.error('Error canceling reservation:', error);

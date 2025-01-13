@@ -196,11 +196,11 @@ public class ReservationServiceImpl implements ReservationService {
         // Save reservation
         reservation = reservationRepository.save(reservation);
 
+
         // Prepare response
         Map<String, Object> response = new HashMap<>();
-
-
         response.put("reservation", reservation);
+
 
         // Log and return
         logger.info("Reservation created with client info: {}", response);

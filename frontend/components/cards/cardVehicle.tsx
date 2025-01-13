@@ -10,7 +10,7 @@ import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/context/context";
 import Spinner from "@/components/ui/spinner";
-import { emitReservationUpdate } from "../event";
+import { emitReservationUpdate, RESERVATION_UPDATED_EVENT } from "@/components/event";
 import PayPalButton from "@/app/componentsPayPal/PayPalButton";
 import { jwtDecode } from "jwt-decode";
 
@@ -88,6 +88,9 @@ export default function VehicleDetailsCard({
           if (isPaid) {
             setReservationSuccess(true);
           }
+          else {
+            setReservationSuccess(false);
+          }
         } catch (error) {
           console.error("Error fetching vehicle data:", error);
           setLoading(false);
@@ -96,6 +99,12 @@ export default function VehicleDetailsCard({
     };
 
     fetchVehicle();
+
+    window.addEventListener(RESERVATION_UPDATED_EVENT, fetchVehicle);
+        
+      return () => {
+          window.removeEventListener(RESERVATION_UPDATED_EVENT, fetchVehicle);
+      };
   }, [licensePlate]);
 
   const isPayedReservation = async (licensePlate: string, cin: string) => {
@@ -169,6 +178,7 @@ export default function VehicleDetailsCard({
       )
       .then((response) => {
         setReservationSuccess(false);
+        emitReservationUpdate();
       })
       .catch((error) => {
         console.error("Error canceling reservation:", error);
@@ -202,6 +212,8 @@ export default function VehicleDetailsCard({
       )
       .then((response) => {
         setReservationSuccess(true);
+        setReservationId(response.data.reservation.id);
+        console.log("Reservation data:", response.data.reservation.id);
         // Emit the event after successful reservation
         emitReservationUpdate();
       })
@@ -296,25 +308,26 @@ export default function VehicleDetailsCard({
             </div>
           )}
           {reservationSuccess ? (
-            <div className="flex flex-row space-x-4 mt-4">
-              <div className="mt-4 cursor-pointer">
-                  {reservationId !== null && totalPrice !== null && (
-                    <PayPalButton idReservation={reservationId} price={totalPrice} />
-                  )}
-              </div>
-              <div className="mt-4 cursor-pointer">
-                <button
-                  onClick={() => reservationId !== null && handleCancelReservation(reservationId)}
-                  className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 cursor-pointer"
-                >
-                  Cancel
-                </button>
-              </div>
+            <div className="flex gap-4">
+              <Button
+                onClick={() =>
+                  reservationId !== null &&
+                  handleCancelReservation(reservationId)
+                }
+                className="w-full bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"
+              >
+                Cancel
+              </Button>
+              {reservationId !== null && totalPrice !== null && (
+                <PayPalButton
+                  idReservation={reservationId}
+                  price={totalPrice}
+                />
+              )}
             </div>
           ) : (
             <Button
-              className={`w-full text-sm bg-blue-500 hover:bg-blue-600
-              `}
+              className="w-full text-sm bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md"
               onClick={() => handleOnClickReserve(vehicleData.licensePlate)}
               disabled={reservationSuccess}
             >
