@@ -1,68 +1,80 @@
-'use client';
+"use client"
 
-import { useEffect, useState, useRef } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Calendar, User, Car, CreditCard, X } from 'lucide-react';
-import { useTheme } from '@/context/context';
-import Spinner from '@/components/ui/spinner';
+import { useEffect, useState, useRef } from "react"
+import { Card, CardContent } from "@/components/ui/card"
+import { Calendar, User, Car, CreditCard, X } from "lucide-react"
+import { useTheme } from "@/context/context"
+import Spinner from "@/components/ui/spinner"
 
 interface ReservationData {
-  startDate: string;
-  endDate: string;
-  clientCIN: string; 
-  clientName: string ;
-  vehicleId: string; 
-  vehicleBrand: string; 
-  vehicleModel: string ;
-  totalPrice: number;
+  startDate: string
+  endDate: string
+  clientCIN: string
+  clientName: string
+  vehicleId: string
+  vehicleBrand: string
+  vehicleModel: string
+  totalPrice: number
 }
 
-export default function ReservationDetails({ 
-  reservationId, 
-  handleCancel 
-}: { 
-  reservationId: number; 
-  handleCancel: () => void;
-}) {
-  const { isDarkMode } = useTheme();
-  const [data, setData] = useState<ReservationData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const cardRef = useRef<HTMLDivElement>(null);
+interface PageProps {
+  params: {
+    id: string
+  }
+}
+
+// Changed to a proper Next.js page component that receives params
+export default function ReservationDetailsPage({ params }: PageProps) {
+  const { isDarkMode } = useTheme()
+  const [data, setData] = useState<ReservationData | null>(null)
+  const [loading, setLoading] = useState(true)
+  const cardRef = useRef<HTMLDivElement>(null)
+  const [isOpen, setIsOpen] = useState(true)
+
+  const handleCancel = () => {
+    setIsOpen(false)
+  }
 
   useEffect(() => {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL
     const fetchReservation = async () => {
       try {
-        const token = localStorage.getItem('jwtToken');
-        if (!token) return;
-        const response = await fetch(`${apiUrl}/reservation/${reservationId}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        const reservation = await response.json();
-        setData(reservation);
+        const token = localStorage.getItem("jwtToken")
+        if (!token) return
+        const response = await fetch(`${apiUrl}/reservation/${params.id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        const reservation = await response.json()
+        setData(reservation)
       } catch (error) {
-        console.error(error);
+        console.error(error)
       }
-    };
-    fetchReservation();
-    setLoading(false);
-  }, []);
+    }
+    fetchReservation()
+    setLoading(false)
+  }, [params.id])
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (cardRef.current && !cardRef.current.contains(event.target as Node)) {
-        handleCancel();
+        handleCancel()
       }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [handleCancel]);
+    }
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [handleCancel]) // Added handleCancel to dependencies
 
-  if (loading) return <div className="flex justify-center"><Spinner /></div>;
+  if (!isOpen) return null
+  if (loading)
+    return (
+      <div className="flex justify-center">
+        <Spinner />
+      </div>
+    )
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <Card ref={cardRef} className={`w-full max-w-md ${isDarkMode ? 'bg-gray-900' : 'bg-white'}`}>
+      <Card ref={cardRef} className={`w-full max-w-md ${isDarkMode ? "bg-gray-900" : "bg-white"}`}>
         <CardContent className="p-4 relative">
           <button
             onClick={handleCancel}
@@ -134,5 +146,6 @@ export default function ReservationDetails({
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }
+
